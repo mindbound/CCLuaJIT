@@ -1,0 +1,4 @@
+[submodule "luajit"]
+	path = vendor/luajit
+	url = https://github.com/mindbound/LuaJIT.git
+	branch = cclj/v2.1
