@@ -279,7 +279,7 @@ You can skip C fundamentals. What is new to you is JNI, Java 9–21, the modern 
 
 **Code to start from:**
 - `scaffold-multiloader`;
-- `luajit-patches/build-patched-luajit.sh` and `verify-patch-stack.sh`;
+- `luajit-patches/build-patched-luajit.sh` and `verify-patch-stack.sh` (since M0: `natives/luajit-patches/` and `natives/tests/run-harnesses.sh`);
 - `lua/cclj_prebios.lua`;
 - `harnesses/runtime/allocwrap.c` (memory cap);
 - `pause-prototype/cclj_co.c` (coroutine wrapper, interrupt hook);
@@ -394,7 +394,7 @@ The answers recorded on 2026-11-07 are marked **[answered]**. Items still open s
   - `pin-backports.md`, `pin-head-gate.md`: the evaluation of the two LuaJIT-base options (decision 5).
   - `version-survey.md`: how CC programs detect `_VERSION`, `_HOST` and LuaJIT (decision 6).
 - `artifacts/luajit-patches/`:
-  - patches 01–08, README, `build-patched-luajit.sh`, and `verify-patch-stack.sh` (builds and runs every harness);
+  - patches 01–08, README, `build-patched-luajit.sh`, and `verify-patch-stack.sh` (builds and runs every harness). This is the evaluation record; since M0 the canonical copy is `natives/luajit-patches/`, and `natives/tests/` holds the harnesses CI runs;
   - `BACKPORTS.md` and `backports/`: the `cclj/v2.1` base, 17 upstream fixes as `git am` patches; `backports-full/` adds the 9 deferred performance commits;
   - `tools/`: `syntax_probe.lua`, `fixcheck.lua`, the Linux sanity script, the outcome normaliser;
   - `results/`: verification logs per base;

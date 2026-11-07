@@ -1,5 +1,7 @@
 # CCLuaJIT LuaJIT patch stack
 
+> **Superseded for building (M0, 2026-11-07).** The canonical patches and build script are in [`natives/luajit-patches/`](../../../../natives/luajit-patches/), and the harnesses CI runs are in [`natives/tests/`](../../../../natives/tests/). This directory is the evaluation record. Do not build from here inside a git work tree: this copy of `build-patched-luajit.sh` then silently skips patches 01, 07 and 08 and still exits 0 (details in `natives/luajit-patches/README.md`).
+
 These patches go on top of LuaJIT v2.1. The recommended base is `cclj/v2.1`, which is upstream `14d8a7a2` plus 17 upstream fixes; see "Base revision" below and `BACKPORTS.md`. On 2026-11-07 the full stack 01–08 was tested with `verify-patch-stack.sh` on `19878ec0`, `3c4f9fe2`, `14d8a7a2` and `cclj/v2.1`. On every base the patches applied together, built, and passed every harness.
 
 | # | Patch | Gate (build flag) | What it does | Origin |
