@@ -1,0 +1,4 @@
+# Local Claude Code workspace (scratch files, session data). Ignore its
+# contents rather than the directory, so a shared file can be re-included
+# later with a "!/.claude/<file>" line if one is ever needed.
+/.claude/*
