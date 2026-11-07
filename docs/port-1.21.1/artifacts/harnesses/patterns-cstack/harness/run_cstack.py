@@ -5,11 +5,13 @@ import subprocess, sys, os
 
 exe = os.path.abspath(sys.argv[1])
 extra = sys.argv[2:]
-cases = subprocess.run([exe, "list"], capture_output=True, text=True).stdout.split()
+# stdout/stderr/universal_newlines instead of capture_output/text: AlmaLinux 8 (the glibc 2.28 floor) ships Python 3.6.
+PIPES = dict(stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
+cases = subprocess.run([exe, "list"], **PIPES).stdout.split()
 summary = []
 for c in cases:
     try:
-        p = subprocess.run([exe, c] + extra, capture_output=True, text=True, timeout=120)
+        p = subprocess.run([exe, c] + extra, timeout=120, **PIPES)
         out, rc = p.stdout, p.returncode & 0xFFFFFFFF
     except subprocess.TimeoutExpired as e:
         out, rc = (e.stdout or b"").decode() if isinstance(e.stdout, bytes) else (e.stdout or ""), "TIMEOUT"

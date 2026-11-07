@@ -1,3 +1,12 @@
+// SPDX-FileCopyrightText: 2019 The CC: Tweaked Developers
+// SPDX-FileCopyrightText: 2026 Arets Paeglis
+//
+// SPDX-License-Identifier: MPL-2.0
+//
+// FakeModem, FakePeripheralHub and the startup line are copied from CC:T's
+// projects/core/src/test/java/dan200/computercraft/core/ComputerTestDelegate.java (MPL-2.0), so this file is MPL-2.0
+// rather than MIT.
+
 import dan200.computercraft.api.filesystem.Mount;
 import dan200.computercraft.api.filesystem.WritableMount;
 import dan200.computercraft.api.lua.ILuaAPI;

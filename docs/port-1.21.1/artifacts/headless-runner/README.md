@@ -5,7 +5,7 @@ Plain Java programs that boot a **real** CC:Tweaked 1.21.1-1.121.0 computer with
 | File | What it does |
 |---|---|
 | `src/HeadlessRunner.java` | Boots one computer, runs a `startup.lua`, types input, prints the terminal. Lua can call `headless.log(s)`, `headless.exit(code)` and `headless.mainAdd(a, b)`. `mainAdd` is a `mainThread = true` method, so it goes through the same `MethodResult` / `issueMainThreadTask` / `"task_complete"` path as turtle and peripheral calls. |
-| `src/CctSuiteRunner.java` | Runs CC:T's own Lua test suite (`mcfly.lua` + `spec/`) and prints one line per test. It is a JUnit-free, independently written equivalent of CC:T's `ComputerTestDelegate`: same `cct_test` protocol and fake peripherals, but no code copied (checked). |
+| `src/CctSuiteRunner.java` | Runs CC:T's own Lua test suite (`mcfly.lua` + `spec/`) and prints one line per test. It is a JUnit-free equivalent of CC:T's `ComputerTestDelegate`, using the same `cct_test` protocol. Its fake peripherals and startup line are copied from that MPL-2.0 file, so this file carries an MPL-2.0 header (an earlier version of this README wrongly said nothing was copied). |
 | `src/FairnessProbe.java` | Measures time-slicing. Computer A burns 3 s of CPU without yielding (the class Javadoc says 4 s; the code runs 3 s), while computer B measures how late its 50 ms timers fire. `--nopause` wraps the machine so it never returns `PAUSE`, which is how a LuaJIT machine without the pause protocol behaves. |
 | `lua/smoke.lua` | Smoke test used with `HeadlessRunner --startup`. |
 | `results/` | Reference results under Cobalt (2026-11-07), see below. `cp.txt` is the classpath that was used. |
