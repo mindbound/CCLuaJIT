@@ -198,8 +198,8 @@ public final class CctSuiteRunner {
             c.tick();
             mainThread.tick();
             if (c.isOn()) wasOn = true; else if (wasOn) break;
-            // A machine that fails at boot never turns on: give up after 2 s instead of waiting for the timeout.
-            if (!wasOn && System.nanoTime() - t0 > 2_000_000_000L) break;
+            // A machine that fails at boot never turns on: give up after the boot timeout, not the suite timeout.
+            if (!wasOn && System.nanoTime() - t0 > HeadlessRunner.BOOT_TIMEOUT_S * 1_000_000_000L) break;
             Thread.sleep(50);
         }
         report.flush();
@@ -230,7 +230,8 @@ public final class CctSuiteRunner {
         for (var n : stale) System.out.println("  STALE ENTRY (listed, but did not fail): " + n);
         if (finished.get() && run != names.size()) System.out.println("  only " + run + " of " + names.size() + " registered tests reported");
         if (!finished.get()) {
-            System.out.println("  suite did not finish: " + (!wasOn ? "the computer never turned on (machine failed at boot?)"
+            System.out.println("  suite did not finish: " + (!wasOn ? "the computer did not turn on within " + HeadlessRunner.BOOT_TIMEOUT_S
+                    + " s (machine failed at boot? -PbootTimeout raises the limit)"
                 : c.isOn() ? "timed out after " + timeoutS + " s" : "the computer turned off before the suite finished"));
         }
         if (finished.get() && names.isEmpty()) System.out.println("  the suite registered no tests");

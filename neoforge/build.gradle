@@ -28,12 +28,29 @@ dependencies {
 }
 
 // Compile the common sources and resources straight into this jar (MultiLoader-Template style) instead of
-// jar-in-jar.
+// jar-in-jar. common's resources include the native libraries (natives/<platform>/<lib>, see common/build.gradle).
 tasks.named('compileJava', JavaCompile) { source(project(':common').sourceSets.main.java) }
-tasks.named('sourcesJar', Jar) { from(project(':common').sourceSets.main.allSource) }
+tasks.named('sourcesJar', Jar) { from(project(':common').sourceSets.main.allSource) { exclude('natives/**') } }
 def props = [mod_version: project.version]
 tasks.named('processResources', ProcessResources) {
     from(project(':common').sourceSets.main.resources)
     inputs.properties(props)
     filesMatching('META-INF/neoforge.mods.toml') { expand(props) }
+}
+// Say which native libraries the mod jar carries (each comes with its licence notices, *.txt). None is a valid
+// build: computers then run on Cobalt.
+tasks.named('jar', Jar) {
+    def nativesDir = rootProject.file('natives/build/out/natives')
+    doLast {
+        def libs = nativesDir.isDirectory()
+            ? nativesDir.listFiles().findAll { it.isDirectory() }
+                .collectMany { dir ->
+                    dir.listFiles().findAll { it.isFile() && !it.name.endsWith('.txt') }.collect { "${dir.name}/${it.name}" }
+                }
+                .sort()
+            : []
+        logger.lifecycle("${archiveFileName.get()}: " + (libs
+            ? "natives ${libs.join(', ')}"
+            : 'no natives (natives/build/out is empty); computers will run on Cobalt'))
+    }
 }

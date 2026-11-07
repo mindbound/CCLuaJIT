@@ -1,0 +1,12 @@
+--- a/src/lj_err.c	2026-11-07 14:06:10.586713800 +0200
++++ b/src/lj_err.c	2026-11-07 14:22:18.348797700 +0200
+@@ -879,6 +879,9 @@
+ LJ_NOINLINE void LJ_FASTCALL lj_err_run(lua_State *L)
+ {
+   ptrdiff_t ef = (LJ_HASJIT && tvref(G(L)->jit_base)) ? 0 : finderrfunc(L);
++#ifdef LUAJIT_ENABLE_INTERRUPT
++  if (hook_active(G(L))) ef = 0;  /* Error raised inside a hook: don't run xpcall handlers with hooks disabled. */
++#endif
+   if (ef) {
+     TValue *errfunc, *top;
+     lj_state_checkstack(L, LUA_MINSTACK * 2);  /* Might raise new error. */

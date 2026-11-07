@@ -1,0 +1,396 @@
+CCLuaJIT patch 07: interruptible C pattern matching (and table.sort, plain find)
+Gate: -DLUAJIT_ENABLE_INTERRUPT (needs patch 01). Applies on top of 01-06.
+
+- lib_string.c: match() (every backtracking step), the max_expand and
+  matchbalance scan loops poll G(L)->intr (the flag set by luaJIT_interrupt()).
+  lib_table.c: table.sort's partition loops poll it too (adversarial inputs
+  make the quicksort O(n^2) without any Lua code running).
+- lj_dispatch.c: lj_dispatch_intrpoll() runs the installed count hook from
+  inside the C function, in a protected C frame (lj_vm_cpcall): the hook can
+  raise an error (re-thrown in the C function, like "pattern too complex";
+  xpcall handlers are skipped as for other hook errors, patch 02), cannot
+  yield (lua_isyieldable() == 0, lua_yield() raises an error), may call
+  lua_sethook/luaJIT_interrupt, run the GC and grow the Lua stack.
+  A hook that defers a request re-arms it with luaJIT_interrupt(); the next
+  LJ_INTR_CSKIP (4096) polls from C are then skipped. Never runs on a trace.
+- lj_str.c: lj_str_find() (plain find; also called from JIT-compiled code and
+  the recorder, where polling is impossible) switches from memchr/memcmp to
+  the Two-Way algorithm after a work budget: worst case O(n+m) instead of
+  O(n*m); typical searches are unchanged.
+
+diff --git a/src/lib_string.c b/src/lib_string.c
+index 78ebacd..866b4fb 100644
+--- a/src/lib_string.c
++++ b/src/lib_string.c
+@@ -26,6 +26,7 @@
+ #include "lj_char.h"
+ #include "lj_strfmt.h"
+ #include "lj_lib.h"
++#include "lj_dispatch.h"
+ 
+ /* ------------------------------------------------------------------------ */
+ 
+@@ -160,6 +161,9 @@ typedef struct MatchState {
+   const char *src_end;  /* end (`\0') of source string */
+   const char *p_end;  /* CC: end of pattern (patterns may contain '\0', as in Lua 5.2+) */
+   lua_State *L;
++#ifdef LUAJIT_ENABLE_INTERRUPT
++  global_State *g;  /* CC: for interrupt polling. */
++#endif
+   int level;  /* total number of captures (finished or unfinished) */
+   int depth;
+   struct {
+@@ -170,6 +174,33 @@ typedef struct MatchState {
+ 
+ #define L_ESC		'%'
+ 
++/* CC: poll for interrupt requests (luaJIT_interrupt()) while matching.
++** Pathological patterns backtrack exponentially. Without polling, a single
++** string.find() could not be interrupted for hours. match() polls at every
++** step (it reads a byte that stays in the cache), the linear scans of
++** max_expand() and matchbalance() whenever they cross an MS_SCANCHUNK
++** address boundary. See lj_dispatch_intrpoll() for the rules.
++*/
++#ifdef LUAJIT_ENABLE_INTERRUPT
++#define MS_SCANCHUNK		4096
++#define ms_init_intr(ms, L)	((ms)->g = G(L))
++#define ms_poll(ms)	{ if (LJ_UNLIKELY((ms)->g->intr)) ms_intr(ms); }
++#define ms_poll_scan(ms, q) \
++  { if (LJ_UNLIKELY(((uintptr_t)(q) & (MS_SCANCHUNK-1)) == 0)) ms_poll(ms); }
++#else
++#define ms_init_intr(ms, L)	((void)0)
++#define ms_poll(ms)		((void)0)
++#define ms_poll_scan(ms, q)	((void)0)
++#endif
++
++#ifdef LUAJIT_ENABLE_INTERRUPT
++/* Slow path of ms_poll(), out of line to keep the matcher's code compact. */
++static LJ_NOINLINE void ms_intr(MatchState *ms)
++{
++  lj_intr_pollg(ms->L, ms->g);
++}
++#endif
++
+ static int check_capture(MatchState *ms, int l)
+ {
+   l -= '1';
+@@ -274,6 +305,7 @@ static const char *matchbalance(MatchState *ms, const char *s, const char *p)
+     int e = *(p+1);
+     int cont = 1;
+     while (++s < ms->src_end) {
++      ms_poll_scan(ms, s);
+       if (*s == e) {
+ 	if (--cont == 0) return s+1;
+       } else if (*s == b) {
+@@ -288,8 +320,10 @@ static const char *max_expand(MatchState *ms, const char *s,
+ 			      const char *p, const char *ep)
+ {
+   ptrdiff_t i = 0;  /* counts maximum expand for item */
+-  while ((s+i)<ms->src_end && singlematch(uchar(*(s+i)), p, ep))
++  while ((s+i)<ms->src_end && singlematch(uchar(*(s+i)), p, ep)) {
+     i++;
++    ms_poll_scan(ms, s+i);
++  }
+   /* keeps trying to match with the maximum repetitions */
+   while (i>=0) {
+     const char *res = match(ms, (s+i), ep+1);
+@@ -354,6 +388,7 @@ static const char *match(MatchState *ms, const char *s, const char *p)
+ {
+   if (++ms->depth > LJ_MAX_XLEVEL)
+     lj_err_caller(ms->L, LJ_ERR_STRPATX);
++  ms_poll(ms);  /* Every backtracking step passes here. */
+   init: /* using goto's to optimize tail recursion */
+   if (p == ms->p_end) {  /* end of pattern: match succeeded */
+     ms->depth--;
+@@ -496,6 +531,7 @@ static int str_find_aux(lua_State *L, int find)
+     int anchor = 0;
+     if (*pstr == '^') { pstr++; anchor = 1; }
+     ms.L = L;
++    ms_init_intr(&ms, L);
+     ms.src_init = strdata(s);
+     ms.src_end = strdata(s) + s->len;
+     ms.p_end = strdata(p) + p->len;
+@@ -538,6 +574,7 @@ LJLIB_NOREG LJLIB_CF(string_gmatch_aux)
+   const char *src = s + tvpos->u32.lo;
+   MatchState ms;
+   ms.L = L;
++  ms_init_intr(&ms, L);
+   ms.src_init = s;
+   ms.src_end = s + str->len;
+   ms.p_end = p + pat->len;
+@@ -635,6 +672,7 @@ LJLIB_CF(string_gsub)
+     lj_err_arg(L, 3, LJ_ERR_NOSFT);
+   luaL_buffinit(L, &b);
+   ms.L = L;
++  ms_init_intr(&ms, L);
+   ms.src_init = src;
+   ms.src_end = src+srcl;
+   ms.p_end = pe;
+diff --git a/src/lib_table.c b/src/lib_table.c
+index 97ba284..bdc8c75 100644
+--- a/src/lib_table.c
++++ b/src/lib_table.c
+@@ -20,6 +20,7 @@
+ #include "lj_tab.h"
+ #include "lj_ff.h"
+ #include "lj_lib.h"
++#include "lj_dispatch.h"
+ 
+ /* ------------------------------------------------------------------------ */
+ 
+@@ -230,12 +231,15 @@ static void auxsort(lua_State *L, int l, int u)
+       while (lua_rawgeti(L, 1, ++i), sort_comp(L, -1, -2)) {
+ 	if (i>=u) lj_err_caller(L, LJ_ERR_TABSORT);
+ 	lua_pop(L, 1);  /* remove a[i] */
++	lj_intr_poll(L);  /* CC: adversarial inputs make quicksort O(n^2). */
+       }
+       /* repeat --j until a[j] <= P */
+       while (lua_rawgeti(L, 1, --j), sort_comp(L, -3, -1)) {
+ 	if (j<=l) lj_err_caller(L, LJ_ERR_TABSORT);
+ 	lua_pop(L, 1);  /* remove a[j] */
++	lj_intr_poll(L);
+       }
++      lj_intr_poll(L);
+       if (j<i) {
+ 	lua_pop(L, 3);  /* pop pivot, a[i], a[j] */
+ 	break;
+diff --git a/src/lj_dispatch.c b/src/lj_dispatch.c
+index ccc8caf..8f55557 100644
+--- a/src/lj_dispatch.c
++++ b/src/lj_dispatch.c
+@@ -385,8 +385,10 @@ static void callhook(lua_State *L, int event, BCLine line)
+     lua_Debug ar;
+     lj_trace_abort(g);  /* Abort recording on any hook call. */
+ #ifdef LUAJIT_ENABLE_INTERRUPT
+-    if (event == LUA_HOOKCOUNT)
++    if (event == LUA_HOOKCOUNT) {
+       g->intr = 0;  /* The count hook services any pending interrupt. */
++      g->intrskip = 0;
++    }
+ #endif
+     ar.event = event;
+     ar.currentline = line;
+@@ -409,6 +411,77 @@ static void callhook(lua_State *L, int event, BCLine line)
+   }
+ }
+ 
++#ifdef LUAJIT_ENABLE_INTERRUPT
++/* Polls from C to skip after a hook call that returned normally. */
++#ifndef LJ_INTR_CSKIP
++#define LJ_INTR_CSKIP		4096
++#endif
++
++/* Protected part of lj_dispatch_intrpoll(). */
++static TValue *intrpoll_cp(lua_State *L, lua_CFunction dummy, void *ud)
++{
++  UNUSED(dummy); UNUSED(ud);
++  callhook(L, LUA_HOOKCOUNT, -1);
++  return NULL;
++}
++
++/* Service a pending interrupt request (luaJIT_interrupt()) from inside a
++** long-running C library function, e.g. pattern matching or table.sort.
++** Called via lj_intr_poll()/lj_intr_pollg() when G(L)->intr is set and
++** g->intrskip is zero.
++**
++** The installed count hook is called exactly as at a bytecode boundary
++** (event LUA_HOOKCOUNT, currentline -1, top frame = the C function), with
++** two differences:
++** - It runs inside a protected C frame (lj_vm_cpcall), so the C function
++**   below cannot be resumed after a yield: lua_isyieldable() returns 0 and
++**   lua_yield() raises "attempt to yield across C-call boundary".
++** - An error raised by the hook is re-thrown with lj_err_throw() in the
++**   context of the C function. Like any other error raised by a library
++**   function (e.g. "pattern too complex"), it unwinds the C function's
++**   frames and is caught by the nearest pcall/xpcall/lua_pcall/resume.
++**   Like errors from ordinary hooks (see lj_err_run()), it does not run
++**   xpcall message handlers.
++** A hook that cannot service a request here (e.g. a pause, which needs a
++** yield) should re-arm it with luaJIT_interrupt(L) before returning. It is
++** then presented again at the next bytecode boundary, where the count hook
++** runs because luaJIT_interrupt() sets hookcount to 1. To keep a deferred
++** request from calling the hook at every single poll, the next
++** LJ_INTR_CSKIP polls from C after a normal return of the hook are skipped
++** (a few microseconds of matching; the count hook at the next bytecode
++** boundary resets the counter). A new request from another thread is
++** therefore seen after at most LJ_INTR_CSKIP further polls.
++**
++** Safety: the caller must be C code running on behalf of the interpreter
++** (a lua_CFunction or a fast function fallback), not a C helper called by a
++** JIT-compiled trace. The hook may reallocate the Lua stack and run the GC,
++** so the caller must not hold pointers into the Lua stack across the call.
++** L->top is preserved.
++*/
++void LJ_FASTCALL lj_dispatch_intrpoll(lua_State *L)
++{
++  global_State *g = G(L);
++  if (g->intr && g->hookf && (g->hookmask & LUA_MASKCOUNT) &&
++      !hook_active(g)
++#if LJ_HASJIT
++      && !tvref(g->jit_base)  /* Never on trace. */
++#endif
++      ) {
++    ptrdiff_t top = savestack(L, L->top);
++    uint8_t oldh = hook_save(g);
++    int status;
++    g->hookcount = g->hookcstart;
++    status = lj_vm_cpcall(L, NULL, NULL, intrpoll_cp);
++    if (LJ_UNLIKELY(status)) {
++      hook_restore(g, oldh);
++      lj_err_throw(L, status);  /* Error object is at L->top-1. */
++    }
++    L->top = restorestack(L, top);
++    g->intrskip = LJ_INTR_CSKIP;
++  }
++}
++#endif
++
+ /* -- Dispatch callbacks -------------------------------------------------- */
+ 
+ /* Calculate number of used stack slots in the current frame. */
+diff --git a/src/lj_dispatch.h b/src/lj_dispatch.h
+index 774bc4d..baf590c 100644
+--- a/src/lj_dispatch.h
++++ b/src/lj_dispatch.h
+@@ -144,6 +144,17 @@ LJ_FUNCA void LJ_FASTCALL lj_dispatch_stitch(jit_State *J, const BCIns *pc);
+ LJ_FUNCA void LJ_FASTCALL lj_dispatch_profile(lua_State *L, const BCIns *pc);
+ #endif
+ 
++/* Interrupt polling for long-running C library functions. */
++#ifdef LUAJIT_ENABLE_INTERRUPT
++LJ_FUNC void LJ_FASTCALL lj_dispatch_intrpoll(lua_State *L);
++#define lj_intr_pollg(L, g) \
++  { if (LJ_UNLIKELY((g)->intr)) { \
++      if ((g)->intrskip) (g)->intrskip--; else lj_dispatch_intrpoll(L); } }
++#define lj_intr_poll(L)		lj_intr_pollg((L), G(L))
++#else
++#define lj_intr_poll(L)		((void)0)
++#endif
++
+ #if LJ_HASFFI && !defined(_BUILDVM_H)
+ /* Save/restore errno and GetLastError() around hooks, exits and recording. */
+ #include <errno.h>
+diff --git a/src/lj_obj.h b/src/lj_obj.h
+index 3285cee..aaee8d7 100644
+--- a/src/lj_obj.h
++++ b/src/lj_obj.h
+@@ -651,6 +651,7 @@ typedef struct global_State {
+   GCupval uvhead;	/* Head of double-linked list of all open upvalues. */
+   int32_t hookcount;	/* Instruction hook countdown. */
+   int32_t hookcstart;	/* Start count for instruction hook counter. */
++  uint32_t intrskip;	/* Polls to skip in C, see lj_dispatch_intrpoll(). */
+   lua_Hook hookf;	/* Hook function. */
+   lua_CFunction wrapf;	/* Wrapper for C function calls. */
+   lua_CFunction panic;	/* Called as a last resort for errors. */
+diff --git a/src/lj_str.c b/src/lj_str.c
+index cfdaec6..2a84d85 100644
+--- a/src/lj_str.c
++++ b/src/lj_str.c
+@@ -38,7 +38,86 @@ int32_t LJ_FASTCALL lj_str_cmp(GCstr *a, GCstr *b)
+   return (int32_t)(a->len - b->len);
+ }
+ 
+-/* Find fixed string p inside string s. */
++/* CC: Two-Way string matching (Crochemore & Perrin, 1991). Worst case
++** O(slen+plen) time and O(1) space. Used by lj_str_find() as a fallback.
++*/
++
++/* Critical factorization: returns the start of the right half of p and
++** stores the period of the right half.
++*/
++static MSize str_tw_factor(const uint8_t *p, MSize plen, MSize *period)
++{
++  MSize ms, msr, j, k, per, perr;
++  ms = (MSize)-1; j = 0; k = per = 1;  /* Maximal suffix for '<'. */
++  while (j + k < plen) {
++    uint8_t a = p[j + k], b = p[ms + k];
++    if (a < b) { j += k; k = 1; per = j - ms; }
++    else if (a == b) { if (k != per) k++; else { j += per; k = 1; } }
++    else { ms = j++; k = per = 1; }
++  }
++  msr = (MSize)-1; j = 0; k = perr = 1;  /* Maximal suffix for '>'. */
++  while (j + k < plen) {
++    uint8_t a = p[j + k], b = p[msr + k];
++    if (a > b) { j += k; k = 1; perr = j - msr; }
++    else if (a == b) { if (k != perr) k++; else { j += perr; k = 1; } }
++    else { msr = j++; k = perr = 1; }
++  }
++  if (msr + 1 < ms + 1) { *period = per; return ms + 1; }
++  *period = perr; return msr + 1;
++}
++
++/* Find p (plen >= 1) in s. */
++static const char *str_find_twoway(const uint8_t *s, MSize slen,
++				   const uint8_t *p, MSize plen)
++{
++  MSize period, suffix, i, j = 0;
++  if (plen > slen) return NULL;
++  suffix = str_tw_factor(p, plen, &period);
++  if (memcmp(p, p + period, suffix) == 0) {
++    /* Periodic needle: remember how much of the right half matched. */
++    MSize memory = 0;
++    while (j <= slen - plen) {
++      i = suffix > memory ? suffix : memory;
++      while (i < plen && p[i] == s[i + j]) i++;
++      if (i >= plen) {
++	i = suffix - 1;
++	while (memory < i + 1 && p[i] == s[i + j]) i--;
++	if (i + 1 < memory + 1) return (const char *)(s + j);
++	j += period;
++	memory = plen - period;
++      } else {
++	j += i - suffix + 1;
++	memory = 0;
++      }
++    }
++  } else {
++    /* Non-periodic needle: a mismatch in the left half shifts maximally. */
++    period = (suffix > plen - suffix ? suffix : plen - suffix) + 1;
++    while (j <= slen - plen) {
++      i = suffix;
++      while (i < plen && p[i] == s[i + j]) i++;
++      if (i >= plen) {
++	i = suffix - 1;
++	while (i != (MSize)-1 && p[i] == s[i + j]) i--;
++	if (i == (MSize)-1) return (const char *)(s + j);
++	j += period;
++      } else {
++	j += i - suffix + 1;
++      }
++    }
++  }
++  return NULL;
++}
++
++/* Find fixed string p inside string s.
++** CC: the memchr/memcmp loop needs O(slen*plen) time in the worst case,
++** e.g. string.find(('a'):rep(4e6), ('a'):rep(2e6)..'b', 1, true) runs for
++** minutes. This function is also called from JIT-compiled code and from the
++** recorder, where interrupt polling is impossible. So after a budget of
++** candidate positions that bounds the work of the fast loop to
++** O(slen + plen), it switches to the Two-Way algorithm. Typical searches
++** never exhaust the budget and run exactly as before.
++*/
+ const char *lj_str_find(const char *s, const char *p, MSize slen, MSize plen)
+ {
+   if (plen <= slen) {
+@@ -46,12 +125,19 @@ const char *lj_str_find(const char *s, const char *p, MSize slen, MSize plen)
+       return s;
+     } else {
+       int c = *(const uint8_t *)p++;
++      uint64_t b;
++      MSize budget;
+       plen--; slen -= plen;
++      b = 64 + ((uint64_t)slen * 8) / ((uint64_t)plen + 1);
++      budget = b > LJ_MAX_STR ? LJ_MAX_STR : (MSize)b;
+       while (slen) {
+ 	const char *q = (const char *)memchr(s, c, slen);
+ 	if (!q) break;
+ 	if (memcmp(q+1, p, plen) == 0) return q;
+ 	q++; slen -= (MSize)(q-s); s = q;
++	if (LJ_UNLIKELY(--budget == 0))
++	  return str_find_twoway((const uint8_t *)s, slen + plen,
++				 (const uint8_t *)p - 1, plen + 1);
+       }
+     }
+   }

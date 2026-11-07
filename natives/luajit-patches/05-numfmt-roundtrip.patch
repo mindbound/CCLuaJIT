@@ -1,0 +1,65 @@
+--- a/src/lj_strfmt.h	2026-11-07 13:33:29.428688800 +0200
++++ b/src/lj_strfmt.h	2026-11-07 13:33:29.448804300 +0200
+@@ -40,6 +40,7 @@
+ #define STRFMT_F_SPACE	0x0800
+ #define STRFMT_F_ALT	0x1000
+ #define STRFMT_F_UPPER	0x2000
++#define STRFMT_F_RT	0x8000	/* CC: tostring() round-trip mode (internal only). */
+ 
+ /* Format indicator fields. */
+ #define STRFMT_SH_WIDTH	16
+@@ -64,7 +65,7 @@
+ #define STRFMT_S	(STRFMT_STR)
+ #define STRFMT_U	(STRFMT_UINT)
+ #define STRFMT_X	(STRFMT_UINT|STRFMT_T_HEX)
+-#define STRFMT_G14	(STRFMT_G | ((14+1) << STRFMT_SH_PREC))
++#define STRFMT_G14	(STRFMT_G | ((14+1) << STRFMT_SH_PREC) | STRFMT_F_RT)
+ 
+ /* Maximum buffer sizes for conversions. */
+ #define STRFMT_MAXBUF_XINT	(1+22)  /* '0' prefix + uint64_t in octal. */
+--- a/src/lj_strfmt_num.c	2026-11-07 13:33:29.468639500 +0200
++++ b/src/lj_strfmt_num.c	2026-11-07 13:33:29.487764400 +0200
+@@ -13,6 +13,7 @@
+ #include "lj_buf.h"
+ #include "lj_str.h"
+ #include "lj_strfmt.h"
++#include "lj_strscan.h"
+ 
+ /* -- Precomputed tables -------------------------------------------------- */
+ 
+@@ -268,8 +269,34 @@
+ /* Write formatted floating-point number to either sb or p. */
+ static char *lj_strfmt_wfnum(SBuf *sb, SFormat sf, lua_Number n, char *p)
+ {
+-  MSize width = STRFMT_WIDTH(sf), prec = STRFMT_PREC(sf), len;
++  MSize width, prec, len;
+   TValue t;
++  if (LJ_UNLIKELY(sf & STRFMT_F_RT)) {
++    /* CC: number->string conversion compatible with Cobalt (CC: Tweaked):
++    ** use "%.15g" if it round-trips, else "%.17g". -0 is printed as "0".
++    ** Only internal tostring()/concat conversions carry STRFMT_F_RT, so
++    ** string.format("%.14g") is unaffected.
++    */
++    char tmp[STRFMT_MAXBUF_NUM];
++    char *e;
++    TValue back;
++    MSize l;
++    t.n = n;
++    if ((t.u32.hi << 1) < 0xffe00000) {  /* Finite. */
++      if (n == 0) n = 0.0;  /* Drop the sign of -0. */
++      e = lj_strfmt_wfnum(NULL, STRFMT_G | ((15+1) << STRFMT_SH_PREC), n, tmp);
++      *e = '\0';  /* lj_strscan_scan() needs a NUL-terminated string. */
++      if (!(lj_strscan_scan((const uint8_t *)tmp, (MSize)(e - tmp), &back,
++			    STRSCAN_OPT_TONUM) == STRSCAN_NUM && back.n == n))
++	e = lj_strfmt_wfnum(NULL, STRFMT_G | ((17+1) << STRFMT_SH_PREC), n, tmp);
++      l = (MSize)(e - tmp);
++      if (!p) p = lj_buf_more(sb, l);
++      memcpy(p, tmp, l);
++      return p + l;
++    }
++    sf &= ~(SFormat)STRFMT_F_RT;
++  }
++  width = STRFMT_WIDTH(sf); prec = STRFMT_PREC(sf);
+   t.n = n;
+   if (LJ_UNLIKELY((t.u32.hi << 1) >= 0xffe00000)) {
+     /* Handle non-finite values uniformly for %a, %e, %f, %g. */

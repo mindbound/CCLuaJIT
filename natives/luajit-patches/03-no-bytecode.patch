@@ -1,0 +1,15 @@
+--- a/src/lj_load.c	2026-11-07 13:46:52.473331000 +0200
++++ b/src/lj_load.c	2026-11-07 13:46:52.492669900 +0200
+@@ -34,6 +34,12 @@
+   UNUSED(dummy);
+   cframe_errfunc(L->cframe) = -1;  /* Inherit error function. */
+   bc = lj_lex_setup(L, ls);
++#ifdef LUAJIT_DISABLE_BCLOAD
++  if (bc) {  /* CC: never accept precompiled bytecode (no verifier in LuaJIT). */
++    lua_pushliteral(L, "attempt to load a binary chunk");
++    lj_err_throw(L, LUA_ERRSYNTAX);
++  }
++#endif
+   if (ls->mode) {
+     int xmode = 1;
+     const char *mode = ls->mode;

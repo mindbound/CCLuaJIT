@@ -50,6 +50,12 @@ import java.util.zip.ZipFile;
 public final class HeadlessRunner {
     /** CC:T version for the host strings; the Gradle tasks pass -Dcct.version from gradle.properties. */
     static final String CCT_VERSION = System.getProperty("cct.version", "unknown");
+    /**
+     * How long a computer may take to turn on before the runners give up on it (a machine that fails at boot never
+     * turns on). Seconds, from -Dheadless.bootTimeout (Gradle: -PbootTimeout). The first boot in a fresh JVM loads
+     * a few thousand classes, which takes several seconds on a slow file system or a busy CI runner.
+     */
+    static final long BOOT_TIMEOUT_S = Long.getLong("headless.bootTimeout", 15);
     static final AtomicInteger exitCode = new AtomicInteger(-1);
 
     /** Test API exposed to Lua as the global `headless`. */
@@ -165,7 +171,10 @@ public final class HeadlessRunner {
             if (exitCode.get() >= 0) { result = exitCode.get(); break; }
             if (wasOn && !computer.isOn()) { result = 125; break; }
             // Computer.tick() only starts the executor; a machine that fails at once may never be seen "on".
-            if (!wasOn && !computer.isOn() && System.nanoTime() - t0 > 2_000_000_000L) { result = 126; break; }
+            if (!wasOn && !computer.isOn() && System.nanoTime() - t0 > TimeUnit.SECONDS.toNanos(BOOT_TIMEOUT_S)) {
+                result = 126;
+                break;
+            }
             if (System.nanoTime() > deadline) { result = 124; break; }
             Thread.sleep(50);
         }

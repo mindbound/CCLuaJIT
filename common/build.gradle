@@ -1,5 +1,20 @@
 // Loader-independent code. CCLuaJIT only talks to CC:T core (no Minecraft classes), so this is a plain Java
 // library: no MDG, no Minecraft jar, no mappings.
+
+// ---- Native library (libcclj) -----------------------------------------------------------------------------------
+// natives/build-natives.sh <platform-id> writes natives/build/out/natives/<platform-id>/<lib>. That directory is a
+// resource root of this module, so whatever has been built becomes the resource natives/<platform-id>/<lib>, which
+// NativeLoader (in this module) reads. It is here and not in :neoforge because:
+//   - :neoforge (and a later :fabric) copies this module's resources into the mod jar, so the natives need no
+//     per-loader setup;
+//   - the test runtime classpath of this module (nativeProbe, and later headlessSuite -Pfactory=luajit) gets them
+//     from the same place.
+// A missing or empty directory is not an error: the jar then has no natives, and every computer runs on Cobalt.
+def nativesOut = rootProject.file('natives/build/out')
+sourceSets.main.resources.srcDir(nativesOut)
+// Binaries do not belong in the sources jar (:neoforge's sourcesJar excludes them too).
+tasks.named('sourcesJar', Jar) { exclude('natives/**') }
+
 dependencies {
     compileOnly "cc.tweaked:cc-tweaked-${minecraft_version}-core-api:${cct_version}"
     compileOnly "cc.tweaked:cc-tweaked-${minecraft_version}-core:${cct_version}"
@@ -36,8 +51,9 @@ dependencies {
 //                                     src/test/resources/headless/expected-failures-<factory>[-http].txt if it
 //                                     exists (<factory> = the -Pfactory value, or a class's simple name), and
 //                                     expects no failures if it does not.
-//   -PsuiteTimeout=<seconds>          headlessSuite: overall timeout (default 300). A machine that fails at boot
-//                                     is detected after about 2 s regardless.
+//   -PsuiteTimeout=<seconds>          headlessSuite: overall timeout (default 300).
+//   -PbootTimeout=<seconds>           headlessSmoke and headlessSuite: give up when the computer has not turned on
+//                                     after this long (default 15), i.e. the machine failed at boot.
 //   -Pnopause, -Pthreads=N            fairnessProbe: never return PAUSE; number of computer worker threads.
 //
 // headlessSuite passes when the suite finishes, every fail/error is listed in the expected-failures file, and every
@@ -71,6 +87,7 @@ def configureHeadless = { JavaExec task ->
     def tmp = headlessDir.get().dir("tmp/${task.name}").asFile
     task.systemProperty('java.io.tmpdir', tmp.absolutePath)
     task.systemProperty('cct.version', cct_version)
+    task.systemProperty('headless.bootTimeout', providers.gradleProperty('bootTimeout').getOrElse('15'))
     // Run in build/headless/work/<task>, so a JVM crash log (hs_err_pid*.log, replay_pid*.log) lands under build/.
     def work = headlessDir.get().dir("work/${task.name}").asFile
     task.workingDir = work
@@ -121,6 +138,33 @@ tasks.register('headlessSuite', JavaExec) {
             (httpEnabled ? ['--http'] : []) +
             (expected != null ? ['--expected-failures', expected.absolutePath] : [])
     } as CommandLineArgumentProvider)
+}
+
+// ---- Native library self-test (M0 gate G0) ----------------------------------------------------------------------
+//   ./gradlew :common:nativeProbe    loads natives/<platform-id>/<lib> from the classpath through NativeLoader
+//                                    (extracting it to build/nativeProbe/cache, emptied first) and runs the
+//                                    self-test in natives/src/cclj.c. Fails unless the report says ok=true, and
+//                                    when no library has been built for this platform.
+// Build the library first: bash natives/build-natives.sh <platform-id>. Not part of `check`: a build without
+// natives is valid (Cobalt fallback).
+tasks.register('nativeProbe', JavaExec) {
+    group = 'verification'
+    description = 'Loads the native library through NativeLoader and runs its self-test (needs ' +
+        'natives/build-natives.sh first).'
+    classpath = sourceSets.test.runtimeClasspath
+    mainClass = 'io.github.mindbound.cclj.natives.NativeProbe'
+    jvmArgs('-Xcheck:jni')
+    def probeDir = layout.buildDirectory.dir('nativeProbe').get()
+    def cache = probeDir.dir('cache').asFile
+    // A JVM crash log (hs_err_pid*.log) lands under build/ too.
+    workingDir = probeDir.dir('work').asFile
+    args(cache.absolutePath)
+    doFirst {
+        cache.deleteDir()
+        workingDir.mkdirs()
+        def meta = it.javaLauncher.get().metadata
+        it.logger.lifecycle("${it.name}: Java ${meta.javaRuntimeVersion} at ${meta.installationPath}")
+    }
 }
 
 tasks.register('fairnessProbe', JavaExec) {

@@ -1,0 +1,11 @@
+local function show(k, ok, v) print(string.format("%-34s %s", k, ok and tostring(v) or ("ERR: "..tostring(v)))) end
+show("NUL in bracket class", pcall(function() return ("a\0b"):match("[%z\0]") ~= nil end))
+show("match('ab\0cd','b\0c') len", pcall(function() return #(("ab\0cd"):match("b\0c")) end))
+show("tostring(0.1+0.2)", true, tostring(0.1+0.2))
+show("tostring(2^53-1)", true, tostring(2^53-1))
+show("load(string.dump(f))", pcall(function() return load(string.dump(function() return 1 end)) end))
+show("goto as field/function name", pcall(function() return load("local t={} function t.goto(x) return x end return t.goto(5)")() end))
+show("real goto statement", pcall(function() return load("local i=0 ::a:: i=i+1 if i<3 then goto a end return i")() end))
+show("table.pack/unpack (52COMPAT)", pcall(function() return table.pack(1,2,3).n + select('#', table.unpack({1,2})) end))
+show("ffi disabled", pcall(require, "ffi"))
+show("jit on", true, jit and jit.status())
