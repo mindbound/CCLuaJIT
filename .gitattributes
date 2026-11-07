@@ -1,0 +1,14 @@
+# Store text files with LF line endings in the repository.
+* text=auto
+
+# Shell scripts and the Gradle wrapper also run under WSL/Linux, where a CRLF
+# checkout breaks them ($'\r': command not found).
+*.sh     text eol=lf
+gradlew  text eol=lf
+*.bat    text eol=crlf
+
+# Patches are applied to LF sources (LuaJIT) and must stay byte-exact.
+*.patch  -text
+
+*.jar    binary
+*.png    binary
