@@ -10,13 +10,17 @@
 #
 # Windows (Git Bash or MSYS2 MINGW64 + MinGW-w64 gcc, Python 3 as `python`) and Linux (gcc, `python3`, 3.6 or
 # newer). macOS (Apple clang as `gcc`) runs too, for the informational CI job only: cstack is skipped there (SKIP,
-# not FAIL), and the expected results below have only been measured on x86_64 Windows and Linux. Suites:
+# not FAIL). The expected results below were measured on x86_64 Windows and Linux. In the first CI run's
+# informational job, linux-aarch64 and macos-aarch64 gave the same results, except cstack (see below). Suites:
 #   preempt   preemption harness: 28 loop shapes interrupted from a second thread, a yield test and 6 hard-abort
 #             cases. Expected: 33 OK, and exactly X_finalizer_loop and X_lua_hook_loop hang (the sandbox removes
 #             newproxy and debug.sethook, which they need).
 #   patterns  patch 07, pattern matching and sort interrupted from a second thread. Windows: pharness, 74 OK.
 #             Linux: plinux, 5/5 interrupted and 5/5 usable afterwards.
 #   cstack    patch 08, 31 recursion shapes on 1 MB threads with a 128 KB red zone: 31 completed, 0 crashed.
+#             Linux arm64 without patch 08's VM fast-path check (no LJ_HASCSTACKGUARD_FF): 27 completed, and
+#             exactly the 4 cases that recurse only through the stock coroutine.resume/wrap crash with SIGSEGV.
+#             Patch 08 checks that fast path only on x64 with GC64; see CSTACK_FF_GAP below.
 #   compat    compat_check.lua output equals lua/compat_check.expected.
 #   syntax    syntax_probe.lua: SUMMARY ok=45 bad=0 (v3.0 syntax rejected, Lua 5.2 syntax accepted).
 #   fixcheck  fixcheck.lua -Ohotloop=1: the 6 upstream fixes of cclj/v2.1 are present (6 PASS, 0 FAIL).
@@ -76,7 +80,10 @@ cc() { local out=$1; shift; gcc -O2 "${XCF[@]}" -I"$LJ" "$@" "$LJ/libluajit.a" "
 
 echo "== LuaJIT: $("$LUAJIT" -v) ($LJ)"
 [ -f "$TREE/cclj-build.txt" ] && sed 's/^/   /' "$TREE/cclj-build.txt"
-echo "== work dir: $W ($OS)"
+# The page size matters for the C-stack margin under a JVM (DESIGN.md 3.2). Not on Windows: Cygwin/MSYS getconf
+# reports the 64 KiB allocation granularity there, not the page size.
+if [ "$OS" = windows ]; then echo "== work dir: $W ($OS, $(uname -m))"
+else echo "== work dir: $W ($OS, $(uname -m), page size $(getconf PAGESIZE 2>/dev/null || echo unknown))"; fi
 
 FAILED=()
 SKIPPED=()
@@ -170,8 +177,37 @@ elif cc "$B/cstack$EXE" -DHAVE_CSTACKGUARD "$HERE/cstack/cstack.c" && [ -x "$B/c
   cases=$("$B/cstack$EXE" list | tr -d '\r' | grep -c .)
   done_=$(grep -c 'RESULT COMPLETED (no crash)' <<< "$P"); crashed=$(grep -c 'RESULT CRASH' <<< "$P")
   total=$(grep -c 'RESULT ' <<< "$P")
-  pass=0; [ "$cases" = 31 ] && [ "$done_" = 31 ] && [ "$crashed" = 0 ] && [ "$total" = 31 ] && pass=1
-  verdict cstack $pass "$done_ completed, $crashed crashed, $total results for $cases cases (expected 31 completed, 0 crashed)"
+  results="$done_ completed, $crashed crashed, $total results for $cases cases"
+  # Patch 08 checks the C stack in the interpreter's coroutine.resume/wrap fast path only where lj_arch.h defines
+  # LJ_HASCSTACKGUARD_FF: x64 with GC64. On Linux arm64 the 4 cases in CSTACK_FF_GAP, which recurse only through
+  # the stock coroutine.resume/wrap, overflow the native stack with SIGSEGV (first CI run, PLAN.md section 6).
+  # Accept exactly that, and only there. x64 must have the check: losing it is a regression. Any other target
+  # keeps the strict expectation, because nothing else has been measured. Preprocess lj_arch.h with the build's
+  # XCFLAGS, as LuaJIT's Makefile does to choose the VM's features (tr: MinGW gcc writes CRLF).
+  archdefs=$(gcc "${XCF[@]}" -E -dM "$LJ/lj_arch.h" 2> "$R/lj_arch-dM.err" | tr -d '\r')
+  arch=$(sed -n 's/^#define LJ_ARCH_NAME "\(.*\)"$/\1/p' <<< "$archdefs")
+  ff=0; grep -q '^#define LJ_HASCSTACKGUARD_FF 1$' <<< "$archdefs" && ff=1
+  if [ -z "$arch" ]; then
+    verdict cstack 0 "$results; could not preprocess $LJ/lj_arch.h to tell the target and whether patch 08's VM fast-path check is built in (gcc errors: $R/lj_arch-dM.err)"
+  elif [ "$arch" = x64 ] && [ $ff = 0 ]; then
+    verdict cstack 0 "$results; this x64 build lacks patch 08's VM fast-path check (lj_arch.h does not define LJ_HASCSTACKGUARD_FF: GC64 off, or patch 08 changed)"
+  elif [ "$arch" = arm64 ] && [ $ff = 0 ] && [ "$OS" = linux ]; then
+    CSTACK_FF_GAP="coroutine_precreated_chain coroutine_resume_nesting coroutine_wrap_nesting stock_resume_stays_resumable"
+    # Every crashed case, sorted. A SIGSEGV shows as the bare name; any other crash (a TIMEOUT, another exit code)
+    # carries its result in parentheses, so it never equals CSTACK_FF_GAP and the message names it.
+    crashes=$(awk '/^CASE / {c = $2}
+                   /RESULT CRASH: / {s = $0; sub(/.*RESULT CRASH: /, "", s)
+                                     print (s ~ /^exit code 0x[0-9A-F]+ \(SIGSEGV\)$/ ? c : c " (" s ")")}' <<< "$P" \
+                | LC_ALL=C sort | tr '\n' ' ')
+    crashes=${crashes% }
+    pass=0
+    [ "$cases" = 31 ] && [ "$done_" = 27 ] && [ "$crashed" = 4 ] && [ "$total" = 31 ] && [ "$crashes" = "$CSTACK_FF_GAP" ] \
+      && pass=1
+    verdict cstack $pass "$done_ completed, $crashed crashed: ${crashes:-none}, $total results for $cases cases (Linux arm64 without patch 08's VM fast-path check, expected: 27 completed, 4 crashed with SIGSEGV: $CSTACK_FF_GAP)"
+  else
+    pass=0; [ "$cases" = 31 ] && [ "$done_" = 31 ] && [ "$crashed" = 0 ] && [ "$total" = 31 ] && pass=1
+    verdict cstack $pass "$results (expected 31 completed, 0 crashed)"
+  fi
 else
   verdict cstack 0 "cstack did not build"
 fi

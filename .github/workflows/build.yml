@@ -191,8 +191,8 @@ jobs:
 
   # INFORMATIONAL ONLY: this job never fails the workflow (continue-on-error), and the mod job does not wait for it.
   # PLAN.md decision 4 limits the supported platforms to Windows x64 and Linux x64 until M4, and G0 lists these
-  # runs as "optional, informational only": patch 01 has never run on arm64, and the C-stack margin on 16 KiB and
-  # 64 KiB pages has not been measured. A red leg here is information for M4, not a broken build. It builds the
+  # runs as "optional, informational only": arm64 is only partly tested (PLAN.md section 6), and these jobs run no
+  # JVM. A red leg here is information for M4, not a broken build. It builds the
   # patched LuaJIT and runs the harnesses; no libcclj, no JNI.
   harness-informational:
     name: harness-informational (${{ matrix.platform }}, not required)
