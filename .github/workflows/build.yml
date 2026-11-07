@@ -1,0 +1,353 @@
+# CI for the 1.21.1 port: PLAN.md WP G (week-1 CI) and the M0 gate G0, DESIGN.md section 2 ("CI").
+# Docs: docs/port-1.21.1/PLAN.md, docs/port-1.21.1/DESIGN.md, natives/README.md, natives/tests/README.md.
+#
+#   natives-linux-x86_64    required   libcclj.so built in manylinux_2_28 (glibc 2.28 floor), harnesses, JVM self-test
+#   natives-windows-x86_64  required   cclj.dll built with MSYS2 MinGW64, harnesses, JVM self-test
+#   harness-informational   NOT required (continue-on-error): patched LuaJIT and harnesses only (no JNI) on arm64
+#                           Linux and macOS arm64. PLAN.md decision 4: these platforms come later (M4)
+#   mod                     required   mod jar with both natives, :common:nativeProbe, headless CC:T smoke and suite
+#
+# Every job calls the repository's own scripts and Gradle tasks, so a CI failure reproduces locally with the same
+# command: natives/build-natives.sh, natives/tests/run-harnesses.sh, natives/luajit-patches/build-patched-luajit.sh.
+#
+# Actions are pinned to major tags. Later (WP G, before any public build): pin each one to a full commit SHA, with
+# the tag in a trailing comment, and let Dependabot propose the bumps.
+name: build
+
+on:
+  push:
+    branches: [ "1.21.1_CCT" ]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# A newer push to the same branch, or to the same pull request, cancels the run it supersedes.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  natives-linux-x86_64:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    # manylinux_2_28 is AlmaLinux 8 with glibc 2.28, so the library loads on every distro with glibc >= 2.28.
+    # Built on ubuntu-24.04 directly it would need GLIBC_2.38 and fail on Debian 12, Ubuntu 22.04 and RHEL 8/9
+    # (docs/port-1.21.1/reports/port-mechanics.md, section D). The image tag floats (it moves to new gcc-toolset
+    # releases); pin a dated tag or a digest when the actions get pinned to SHAs.
+    container: quay.io/pypa/manylinux_2_28_x86_64
+    defaults:
+      run:
+        shell: bash
+    env:
+      JAVA_HOME: /usr/lib/jvm/java-21-openjdk
+      GLIBC_MAX: "2.28"   # build-natives.sh fails if any GLIBC_ symbol version of libcclj.so is newer
+    steps:
+      # Before checkout: actions/checkout makes a real git clone (and fetches submodules) only if git 2.18 or newer
+      # is on PATH. Otherwise it falls back to a REST download, which cannot fetch vendor/luajit and has no .git for
+      # build-patched-luajit.sh's `git archive`. AlmaLinux 8.10 ships git 2.43.
+      - name: Install git, JDK 21 (for jni.h and the self-test) and Python 3
+        run: |
+          dnf install -y --setopt=install_weak_deps=False git-core java-21-openjdk-devel python3 diffutils
+          echo "git: $(command -v git), $(git --version)"
+          git --version | awk '{ split($3, v, "."); exit !(v[1] > 2 || (v[1] == 2 && v[2] >= 18)) }' \
+            || { echo "::error::actions/checkout needs git >= 2.18 on PATH"; exit 1; }
+          "$JAVA_HOME/bin/javac" -version
+          python3 --version
+          gcc --version | sed -n 1p   # sed, not head: an early-closing pipe can fail the step under pipefail
+          ldd --version | sed -n 1p
+
+      - uses: actions/checkout@v7
+        with:
+          submodules: true
+
+      # The container runs as root, but the runner created the workspace directory as its own user. actions/checkout
+      # trusts that directory only inside a temporary git config, so later git commands on the repository would stop
+      # with "detected dubious ownership". The scripts run git only in vendor/luajit (which the checkout created as
+      # root) and in natives/build, but trust both explicitly so that does not depend on who created what.
+      - name: Trust the checkout for git
+        run: |
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
+          git config --global --add safe.directory "$GITHUB_WORKSPACE/vendor/luajit"
+          git -C vendor/luajit log -1 --format='vendor/luajit: %H %s'
+
+      - name: Build libcclj (checks GLIBC_ max <= 2.28, NEEDED and exports)
+        run: bash natives/build-natives.sh linux-x86_64
+
+      - name: Run the harnesses (preempt, patterns, cstack, compat, syntax, fixcheck)
+        run: bash natives/tests/run-harnesses.sh natives/build/linux-x86_64/luajit/src
+
+      # The mod job runs ./gradlew :common:nativeProbe on ubuntu-24.04 (glibc 2.39). This runs the same probe at the
+      # glibc 2.28 floor, without Gradle: NativeLoader extracts the library from natives/build/out on the classpath.
+      - name: JVM self-test at glibc 2.28 (NativeProbe, -Xcheck:jni)
+        run: |
+          out=natives/build/probe
+          rm -rf "$out"
+          "$JAVA_HOME/bin/javac" -d "$out/classes" \
+            common/src/main/java/io/github/mindbound/cclj/natives/NativeLoader.java \
+            common/src/test/java/io/github/mindbound/cclj/natives/NativeProbe.java
+          "$JAVA_HOME/bin/java" -Xcheck:jni -cp "$out/classes:natives/build/out" \
+            io.github.mindbound.cclj.natives.NativeProbe "$out/cache"
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: natives-linux-x86_64
+          path: natives/build/out/   # natives/linux-x86_64/: libcclj.so and LuaJIT-COPYRIGHT.txt
+          if-no-files-found: error
+
+      - name: Upload logs
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: logs-natives-linux-x86_64
+          path: |
+            natives/build/linux-x86_64/luajit-build.log
+            natives/build/linux-x86_64/luajit/cclj-build.txt
+            natives/build/linux-x86_64/harnesses/results/
+          if-no-files-found: ignore
+          retention-days: 14
+
+  natives-windows-x86_64:
+    runs-on: windows-2025
+    timeout-minutes: 45
+    defaults:
+      run:
+        shell: msys2 {0}
+    steps:
+      # The runner's git has core.autocrlf=true, as a default Git for Windows install does. .gitattributes keeps *.sh
+      # LF and *.patch byte-exact; the other text files arrive CRLF, which gcc, LuaJIT, Python and run-harnesses.sh
+      # accept. build-patched-luajit.sh exports vendor/luajit with `git archive` and forced LF, so the LuaJIT sources
+      # are LF either way.
+      - uses: actions/checkout@v7
+        with:
+          submodules: true
+
+      - uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      - uses: msys2/setup-msys2@v2
+        with:
+          # MinGW-w64 gcc on the msvcrt C runtime, like the local toolchain: the DLL then imports only KERNEL32.dll
+          # and msvcrt.dll (DESIGN.md section 2). UCRT64 would import the api-ms-win-crt-* DLLs instead;
+          # build-natives.sh allows that too, but it is not the configuration that was verified.
+          msystem: MINGW64
+          # Append the Windows PATH after MSYS2's own directories: git (Git for Windows) comes from there. Our own
+          # scripts read JAVA_HOME, which setup-java sets.
+          path-type: inherit
+          install: >-
+            mingw-w64-x86_64-gcc
+            mingw-w64-x86_64-binutils
+            mingw-w64-x86_64-make
+            mingw-w64-x86_64-python
+            diffutils
+
+      - name: Show the toolchain
+        run: |
+          uname -s
+          gcc --version | sed -n 1p
+          mingw32-make --version | sed -n 1p
+          python --version
+          echo "git: $(command -v git), $(git --version)"
+          echo "JAVA_HOME=$JAVA_HOME"
+
+      - name: Build libcclj (checks imports and exports)
+        run: bash natives/build-natives.sh windows-x86_64
+
+      - name: Run the harnesses (preempt, patterns, cstack, compat, syntax, fixcheck)
+        run: bash natives/tests/run-harnesses.sh natives/build/windows-x86_64/luajit/src
+
+      # G0 requires the JVM load on Windows x64 too; the mod job only covers Linux. Same probe as in the Linux job.
+      - name: JVM self-test (NativeProbe, -Xcheck:jni)
+        run: |
+          jdk=$(cygpath -u "$JAVA_HOME")/bin
+          out=natives/build/probe
+          rm -rf "$out"
+          "$jdk/javac" -d "$out/classes" \
+            common/src/main/java/io/github/mindbound/cclj/natives/NativeLoader.java \
+            common/src/test/java/io/github/mindbound/cclj/natives/NativeProbe.java
+          "$jdk/java" -Xcheck:jni -cp "$out/classes;natives/build/out" \
+            io.github.mindbound.cclj.natives.NativeProbe "$out/cache"
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: natives-windows-x86_64
+          path: natives/build/out/   # natives/windows-x86_64/: cclj.dll, LuaJIT-COPYRIGHT.txt, MinGW-w64-runtime.txt
+          if-no-files-found: error
+
+      - name: Upload logs
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: logs-natives-windows-x86_64
+          path: |
+            natives/build/windows-x86_64/luajit-build.log
+            natives/build/windows-x86_64/luajit/cclj-build.txt
+            natives/build/windows-x86_64/harnesses/results/
+          if-no-files-found: ignore
+          retention-days: 14
+
+  # INFORMATIONAL ONLY: this job never fails the workflow (continue-on-error), and the mod job does not wait for it.
+  # PLAN.md decision 4 limits the supported platforms to Windows x64 and Linux x64 until M4, and G0 lists these
+  # runs as "optional, informational only": patch 01 has never run on arm64, and the C-stack margin on 16 KiB and
+  # 64 KiB pages has not been measured. A red leg here is information for M4, not a broken build. It builds the
+  # patched LuaJIT and runs the harnesses; no libcclj, no JNI.
+  harness-informational:
+    name: harness-informational (${{ matrix.platform }}, not required)
+    continue-on-error: true
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # The bare runner, not the manylinux_2_28_aarch64 container: nothing is shipped from this job, so the
+          # glibc floor does not matter yet.
+          - platform: linux-aarch64
+            runner: ubuntu-24.04-arm
+          # Apple Silicon. run-harnesses.sh skips the C-stack harness here and logs why: cstack.c needs
+          # pthread_getattr_np, which macOS does not have.
+          - platform: macos-aarch64
+            runner: macos-15
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 30
+    defaults:
+      run:
+        shell: bash
+    env:
+      # LuaJIT's Makefile refuses to build for macOS without it. Linux ignores it.
+      MACOSX_DEPLOYMENT_TARGET: "11.0"
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          submodules: true
+
+      - name: Show the toolchain
+        run: |
+          uname -a
+          gcc --version | sed -n 1,2p
+          make --version | sed -n 1p
+          python3 --version
+          echo "page size: $(getconf PAGESIZE)"
+
+      - name: Build the patched LuaJIT (static library and luajit executable)
+        run: bash natives/luajit-patches/build-patched-luajit.sh vendor/luajit natives/build/${{ matrix.platform }}/luajit
+
+      - name: Run the harnesses
+        run: bash natives/tests/run-harnesses.sh natives/build/${{ matrix.platform }}/luajit/src
+
+      - name: Upload logs
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: logs-harness-${{ matrix.platform }}
+          path: |
+            natives/build/${{ matrix.platform }}/luajit/cclj-build.txt
+            natives/build/${{ matrix.platform }}/harnesses/results/
+          if-no-files-found: ignore
+          retention-days: 14
+
+  mod:
+    needs: [ natives-linux-x86_64, natives-windows-x86_64 ]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    defaults:
+      run:
+        shell: bash
+    steps:
+      # No submodules: Gradle never reads vendor/luajit. gradlew is committed with mode 100755, so ./gradlew runs
+      # without a chmod step (if it ever loses the bit: git update-index --chmod=+x gradlew).
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      # cache-provider basic: the MIT-licensed cache (actions/cache). The default, "enhanced", loads Gradle's
+      # proprietary gradle-actions-caching component, whose use means accepting Gradle's Terms of Use; that is the
+      # repository owner's decision. The action writes caches only on the default branch by default, which is
+      # main here, so let pushes to 1.21.1_CCT write them too; pull requests only read.
+      - uses: gradle/actions/setup-gradle@v6
+        with:
+          cache-provider: basic
+          cache-read-only: ${{ github.ref != 'refs/heads/1.21.1_CCT' }}
+
+      # Into natives/build/out, the resource directory of :common, as if build-natives.sh had run here.
+      - name: Download natives-linux-x86_64
+        uses: actions/download-artifact@v8
+        with:
+          name: natives-linux-x86_64
+          path: natives/build/out
+      - name: Download natives-windows-x86_64
+        uses: actions/download-artifact@v8
+        with:
+          name: natives-windows-x86_64
+          path: natives/build/out
+
+      - name: List the natives
+        run: |
+          find natives/build/out -type f -exec sha256sum {} + | sort -k2
+          for f in linux-x86_64/libcclj.so linux-x86_64/LuaJIT-COPYRIGHT.txt windows-x86_64/cclj.dll \
+                   windows-x86_64/LuaJIT-COPYRIGHT.txt windows-x86_64/MinGW-w64-runtime.txt; do
+            test -s "natives/build/out/natives/$f" || { echo "::error::natives/$f is missing from the artifacts"; exit 1; }
+          done
+
+      - name: Build (./gradlew build)
+        id: build
+        run: ./gradlew build
+
+      # Every file of the natives artifacts (the libraries and their licence notices) must be in the jar unchanged.
+      - name: Check that the mod jar carries both natives and their licence notices
+        run: |
+          mod=; for j in neoforge/build/libs/ccluajit-neoforge-*.jar; do
+            case "$j" in *-sources.jar) ;; *) [ -f "$j" ] && mod=$j ;; esac
+          done
+          [ -n "$mod" ] || { echo "::error::no mod jar in neoforge/build/libs"; ls -la neoforge/build/libs; exit 1; }
+          echo "mod jar: $mod"
+          unzip -l "$mod" | grep ' natives/' || true
+          fail=0
+          for f in $(cd natives/build/out && find natives -type f | sort); do
+            want=$(sha256sum < "natives/build/out/$f" | cut -d' ' -f1)
+            got=$( { unzip -p "$mod" "$f" 2>/dev/null || true; } | sha256sum | cut -d' ' -f1)
+            if [ "$got" = "$want" ]; then
+              echo "$f: sha256 $want, identical to the downloaded artifact"
+            else
+              echo "::error::$f in $mod: missing or different (sha256 $got, expected $want)"; fail=1
+            fi
+          done
+          for s in neoforge/build/libs/*-sources.jar; do
+            if [ -f "$s" ] && unzip -l "$s" | grep -q ' natives/'; then echo "::error::$s contains natives"; fail=1; fi
+          done
+          exit $fail
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: ccluajit-neoforge
+          path: |
+            neoforge/build/libs/ccluajit-neoforge-*.jar
+            !neoforge/build/libs/*-sources.jar
+          if-no-files-found: error
+
+      # The two test steps run whenever the build succeeded, so one push reports both results.
+      - name: Native self-test, linux-x86_64 (./gradlew :common:nativeProbe)
+        if: ${{ !cancelled() && steps.build.outcome == 'success' }}
+        run: ./gradlew :common:nativeProbe
+
+      # Cobalt baseline (G0): 1407 tests, 1390 pass, 12 pending, and the 5 HTTP tests listed in
+      # common/src/test/resources/headless/expected-failures-cobalt.txt error because HTTP is off.
+      - name: Headless CC:T smoke test and suite on Cobalt
+        if: ${{ !cancelled() && steps.build.outcome == 'success' }}
+        run: ./gradlew --continue :common:headlessSmoke :common:headlessSuite
+
+      - name: Upload test reports
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: reports-mod
+          path: |
+            common/build/headless/suite.tsv
+            common/build/**/hs_err_pid*.log
+            common/build/**/replay_pid*.log
+          if-no-files-found: ignore
+          retention-days: 14
