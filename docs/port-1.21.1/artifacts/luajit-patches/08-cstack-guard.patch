@@ -1,0 +1,454 @@
+CCLuaJIT patch 08: C stack guard
+Gate: -DLUAJIT_ENABLE_CSTACKGUARD. Applies on top of 01-06 (with or without 07).
+
+- New API: luaJIT_setcstacklimit(L, lo, hi) sets the red zone [lo, hi) of the
+  C stack of the thread that runs L (lo = lowest address of the thread's stack,
+  hi = lo + margin). Call it from the thread that is about to run the state.
+- Every place where C code re-enters the VM checks the C stack pointer and
+  raises a catchable "C stack overflow" error inside the zone: lua_call,
+  lua_pcall/lua_cpcall (returned as an error status), lua_resume (LUA_ERRRUN,
+  message on the coroutine, coroutine stays resumable), metamethod calls from
+  lua_gettable/getfield/settable/setfield/equal/lessthan/concat and
+  luaL_callmeta, parser nesting, and the coroutine.resume/wrap fast path of the
+  x64 (GC64) VM (C fallback: resume returns false, msg; wrap raises).
+- The guard is a range check, so a zone that belongs to another thread is
+  inactive rather than wrong. Common-case cost: one compare per re-entry.
+- Not guard points: the xpcall message handler call and __gc finalizer calls
+  (single, bounded re-entries); lua_pcall in the zone does not call its
+  message handler. global_State grows by 64 bytes (2 fields + padding: a
+  16-byte shift measurably slowed coroutine switches through alignment).
+- Tested: Windows x64 (native threads and JDK 21 Java threads with 1 MB
+  stacks), Linux x64. The VM fast-path check exists only for x64 GC64.
+
+diff --git a/src/Makefile b/src/Makefile
+index 8b59b1a..789a629 100644
+--- a/src/Makefile
++++ b/src/Makefile
+@@ -104,6 +104,10 @@ XCFLAGS=
+ # Adds a check of a global flag at every trace entry and loop iteration.
+ #XCFLAGS+= -DLUAJIT_ENABLE_INTERRUPT
+ #
++# Raise a catchable "C stack overflow" error instead of overflowing the
++# native stack in deep recursion through C. See luaJIT_setcstacklimit().
++#XCFLAGS+= -DLUAJIT_ENABLE_CSTACKGUARD
++#
+ # Disable the JIT compiler, i.e. turn LuaJIT into a pure interpreter.
+ #XCFLAGS+= -DLUAJIT_DISABLE_JIT
+ #
+@@ -436,6 +440,9 @@ ifeq (,$(findstring LJ_ABI_SOFTFP 1,$(TARGET_TESTARCH)))
+ else
+   TARGET_ARCH+= -DLJ_ABI_SOFTFP=1
+ endif
++ifneq (,$(findstring LJ_HASCSTACKGUARD_FF 1,$(TARGET_TESTARCH)))
++  DASM_AFLAGS+= -D CSTACKGUARD
++endif
+ ifneq (,$(findstring LJ_NO_UNWIND 1,$(TARGET_TESTARCH)))
+   DASM_AFLAGS+= -D NO_UNWIND
+   TARGET_ARCH+= -DLUAJIT_NO_UNWIND
+diff --git a/src/lib_base.c b/src/lib_base.c
+index d644b4f..e1db022 100644
+--- a/src/lib_base.c
++++ b/src/lib_base.c
+@@ -620,6 +620,17 @@ static int ffh_resume(lua_State *L, lua_State *co, int wrap)
+     setstrV(L, L->base-LJ_FR2, lj_err_str(L, em));
+     return FFH_RES(2);
+   }
++#ifdef LUAJIT_ENABLE_CSTACKGUARD
++  /* The VM's fast path bails out to here in the C stack red zone. The slack
++  ** covers the C frames between its check and this one.
++  */
++  if (LJ_UNLIKELY(lj_cstack_inzone(G(L), lj_cstack_sp(), 4096))) {
++    if (wrap) lj_err_caller(L, LJ_ERR_CSTKOV);
++    setboolV(L->base-1-LJ_FR2, 0);
++    setstrV(L, L->base-LJ_FR2, lj_err_str(L, LJ_ERR_CSTKOV));
++    return FFH_RES(2);
++  }
++#endif
+   if (lj_state_cpgrowstack(co, (MSize)(L->top - L->base)) != LUA_OK) {
+     cTValue *msg = --co->top;
+     lj_err_callermsg(L, strVdata(msg));
+diff --git a/src/lj_api.c b/src/lj_api.c
+index 1ad7167..031351e 100644
+--- a/src/lj_api.c
++++ b/src/lj_api.c
+@@ -317,6 +317,7 @@ LUA_API int lua_equal(lua_State *L, int idx1, int idx2)
+     if ((uintptr_t)base <= 1) {
+       return (int)(uintptr_t)base;
+     } else {
++      lj_cstack_check(L);
+       L->top = base+2;
+       lj_vm_call(L, base, 1+1);
+       L->top -= 2+LJ_FR2;
+@@ -340,6 +341,7 @@ LUA_API int lua_lessthan(lua_State *L, int idx1, int idx2)
+     if ((uintptr_t)base <= 1) {
+       return (int)(uintptr_t)base;
+     } else {
++      lj_cstack_check(L);
+       L->top = base+2;
+       lj_vm_call(L, base, 1+1);
+       L->top -= 2+LJ_FR2;
+@@ -785,6 +787,7 @@ LUA_API void lua_concat(lua_State *L, int n)
+ 	break;
+       }
+       n -= (int)(L->top - (top - 2*LJ_FR2));
++      lj_cstack_check(L);
+       L->top = top+2;
+       lj_vm_call(L, top, 1+1);
+       L->top -= 1+LJ_FR2;
+@@ -804,6 +807,7 @@ LUA_API void lua_gettable(lua_State *L, int idx)
+   cTValue *t = index2adr_check(L, idx);
+   cTValue *v = lj_meta_tget(L, t, L->top-1);
+   if (v == NULL) {
++    lj_cstack_check(L);
+     L->top += 2;
+     lj_vm_call(L, L->top-2, 1+1);
+     L->top -= 2+LJ_FR2;
+@@ -819,6 +823,7 @@ LUA_API void lua_getfield(lua_State *L, int idx, const char *k)
+   setstrV(L, &key, lj_str_newz(L, k));
+   v = lj_meta_tget(L, t, &key);
+   if (v == NULL) {
++    lj_cstack_check(L);
+     L->top += 2;
+     lj_vm_call(L, L->top-2, 1+1);
+     L->top -= 2+LJ_FR2;
+@@ -976,6 +981,7 @@ LUA_API void lua_settable(lua_State *L, int idx)
+     copyTV(L, o, L->top+1);
+   } else {
+     TValue *base = L->top;
++    lj_cstack_check(L);
+     copyTV(L, base+2, base-3-2*LJ_FR2);
+     L->top = base+3;
+     lj_vm_call(L, base, 0+1);
+@@ -996,6 +1002,7 @@ LUA_API void lua_setfield(lua_State *L, int idx, const char *k)
+     copyTV(L, o, --L->top);
+   } else {
+     TValue *base = L->top;
++    lj_cstack_check(L);
+     copyTV(L, base+2, base-3-2*LJ_FR2);
+     L->top = base+3;
+     lj_vm_call(L, base, 0+1);
+@@ -1130,9 +1137,27 @@ LUA_API void lua_call(lua_State *L, int nargs, int nresults)
+   lj_checkapi(L->status == LUA_OK || L->status == LUA_ERRERR,
+ 	      "thread called in wrong state %d", L->status);
+   lj_checkapi_slot(nargs+1);
++  lj_cstack_check(L);
+   lj_vm_call(L, api_call_base(L, nargs), nresults+1);
+ }
+ 
++#ifdef LUAJIT_ENABLE_CSTACKGUARD
++/* Raises the C stack overflow error inside lua_cpcall(). */
++static int api_cstkov(lua_State *L)
++{
++  lj_err_cstkov(L);
++  return 0;  /* unreachable */
++}
++
++/* Raises the C stack overflow error inside lua_pcall(). */
++static TValue *api_cstkov_cp(lua_State *L, lua_CFunction dummy, void *ud)
++{
++  UNUSED(dummy); UNUSED(ud);
++  lj_err_cstkov(L);
++  return NULL;  /* unreachable */
++}
++#endif
++
+ LUA_API int lua_pcall(lua_State *L, int nargs, int nresults, int errfunc)
+ {
+   global_State *g = G(L);
+@@ -1148,6 +1173,19 @@ LUA_API int lua_pcall(lua_State *L, int nargs, int nresults, int errfunc)
+     cTValue *o = index2adr_stack(L, errfunc);
+     ef = savestack(L, o);
+   }
++#ifdef LUAJIT_ENABLE_CSTACKGUARD
++  if (LJ_UNLIKELY(lj_cstack_low(L))) {
++    /* Raise the error in a protected C frame (no allocation outside of
++    ** it), then replace the function and its arguments with the error
++    ** object, as for an error in the callee. The message handler is not
++    ** called for this error.
++    */
++    TValue *fo = L->top - nargs - 1;
++    status = lj_vm_cpcall(L, NULL, NULL, api_cstkov_cp);
++    copyTV(L, fo, L->top-1);
++    L->top = fo+1;
++  } else
++#endif
+   status = lj_vm_pcall(L, api_call_base(L, nargs), nresults+1, ef);
+   if (status) hook_restore(g, oldh);
+   return status;
+@@ -1176,6 +1214,9 @@ LUA_API int lua_cpcall(lua_State *L, lua_CFunction func, void *ud)
+   int status;
+   lj_checkapi(L->status == LUA_OK || L->status == LUA_ERRERR,
+ 	      "thread called in wrong state %d", L->status);
++#ifdef LUAJIT_ENABLE_CSTACKGUARD
++  if (LJ_UNLIKELY(lj_cstack_low(L))) func = api_cstkov;
++#endif
+   status = lj_vm_cpcall(L, func, ud, cpcall);
+   if (status) hook_restore(g, oldh);
+   return status;
+@@ -1188,6 +1229,7 @@ LUALIB_API int luaL_callmeta(lua_State *L, int idx, const char *field)
+     if (LJ_FR2) setnilV(top++);
+     copyTV(L, top++, index2adr(L, idx));
+     L->top = top;
++    lj_cstack_check(L);
+     lj_vm_call(L, top-1, 1+1);
+     return 1;
+   }
+@@ -1244,6 +1286,21 @@ LUA_API int lua_yield(lua_State *L, int nresults)
+ 
+ LUA_API int lua_resume(lua_State *L, int nargs)
+ {
++#ifdef LUAJIT_ENABLE_CSTACKGUARD
++  if (L->cframe == NULL && L->status <= LUA_YIELD &&
++      LJ_UNLIKELY(lj_cstack_low(L))) {
++    /* Drop the arguments and return an error. The coroutine is unchanged
++    ** and can be resumed again later (from a shallower C stack).
++    */
++    L->top -= nargs;
++    /* Neither can allocate: the string is fixed at state creation and the
++    ** stack always has spare slots above maxstack for error messages.
++    */
++    setstrV(L, L->top, lj_err_str(L, LJ_ERR_CSTKOV));
++    L->top++;
++    return LUA_ERRRUN;
++  }
++#endif
+   if (L->cframe == NULL && L->status <= LUA_YIELD)
+     return lj_vm_resume(L,
+       L->status == LUA_OK ? api_call_base(L, nargs) : L->top - nargs,
+@@ -1254,6 +1311,26 @@ LUA_API int lua_resume(lua_State *L, int nargs)
+   return LUA_ERRRUN;
+ }
+ 
++#ifdef LUAJIT_ENABLE_CSTACKGUARD
++/* Set the C stack red zone [lo, hi) of the thread that runs L from now on.
++** Re-entries from C into the VM raise "C stack overflow" while the C stack
++** pointer is inside the zone. Usually lo = lowest address of the thread's
++** stack reservation (plus what the OS/JVM reserve there) and hi = lo +
++** safety margin. The margin must cover the C stack used between two guard
++** points plus error handling (>= 64 KB recommended, more under a JVM).
++** If the state migrates to another thread, call this again from that thread
++** before running Lua code; a stale zone of another thread is harmless (the
++** guard is simply inactive). lo == hi disables the guard.
++*/
++LUA_API void luaJIT_setcstacklimit(lua_State *L, const void *lo, const void *hi)
++{
++  global_State *g = G(L);
++  uintptr_t l = (uintptr_t)lo, h = (uintptr_t)hi;
++  g->cstack_lo = h > l ? l : 0;
++  g->cstack_hi = h > l ? h : 0;
++}
++#endif
++
+ /* -- GC and memory management -------------------------------------------- */
+ 
+ LUA_API int lua_gc(lua_State *L, int what, int data)
+diff --git a/src/lj_arch.h b/src/lj_arch.h
+index e626439..e7460ec 100644
+--- a/src/lj_arch.h
++++ b/src/lj_arch.h
+@@ -697,6 +697,14 @@ extern void *LJ_WIN_LOADLIBA(const char *path);
+ #define LJ_52			0
+ #endif
+ 
++/* C stack guard (see luaJIT_setcstacklimit). The interpreter's fast path of
++** coroutine.resume/wrap checks it only on x64 (GC64); on other targets the
++** host should wrap coroutine.resume/wrap with lua_resume(), which checks it.
++*/
++#if defined(LUAJIT_ENABLE_CSTACKGUARD) && LJ_TARGET_X64 && LJ_GC64
++#define LJ_HASCSTACKGUARD_FF	1
++#endif
++
+ /* -- VM security --------------------------------------------------------- */
+ 
+ /* Don't make any changes here. Instead build with:
+diff --git a/src/lj_err.c b/src/lj_err.c
+index 9f8b7c5..400b65d 100644
+--- a/src/lj_err.c
++++ b/src/lj_err.c
+@@ -909,6 +909,14 @@ void LJ_FASTCALL lj_err_stkov(lua_State *L)
+   lj_err_run(L);
+ }
+ 
++#ifdef LUAJIT_ENABLE_CSTACKGUARD
++/* C stack overflow error, see lj_cstack_check(). */
++LJ_NOINLINE void LJ_FASTCALL lj_err_cstkov(lua_State *L)
++{
++  lj_err_msg(L, LJ_ERR_CSTKOV);
++}
++#endif
++
+ #if LJ_HASJIT
+ /* Rethrow error after doing a trace exit. */
+ LJ_NOINLINE void LJ_FASTCALL lj_err_trace(lua_State *L, int errcode)
+diff --git a/src/lj_err.h b/src/lj_err.h
+index 67686cb..f4f12a4 100644
+--- a/src/lj_err.h
++++ b/src/lj_err.h
+@@ -24,6 +24,9 @@ LJ_FUNC GCstr *lj_err_str(lua_State *L, ErrMsg em);
+ LJ_FUNCA_NORET void LJ_FASTCALL lj_err_throw(lua_State *L, int errcode);
+ LJ_FUNC_NORET void lj_err_mem(lua_State *L);
+ LJ_FUNC_NORET void LJ_FASTCALL lj_err_stkov(lua_State *L);
++#ifdef LUAJIT_ENABLE_CSTACKGUARD
++LJ_FUNC_NORET void LJ_FASTCALL lj_err_cstkov(lua_State *L);
++#endif
+ LJ_FUNC_NORET void LJ_FASTCALL lj_err_run(lua_State *L);
+ #if LJ_HASJIT
+ LJ_FUNCA_NORET void LJ_FASTCALL lj_err_trace(lua_State *L, int errcode);
+diff --git a/src/lj_errmsg.h b/src/lj_errmsg.h
+index 109e909..0521481 100644
+--- a/src/lj_errmsg.h
++++ b/src/lj_errmsg.h
+@@ -15,6 +15,7 @@ ERRDEF(STROV,	"string length overflow")
+ ERRDEF(UDATAOV,	"userdata length overflow")
+ ERRDEF(STKOV,	"stack overflow")
+ ERRDEF(STKOVM,	"stack overflow (%s)")
++ERRDEF(CSTKOV,	"C stack overflow")
+ ERRDEF(TABOV,	"table overflow")
+ 
+ /* Table indexing. */
+diff --git a/src/lj_obj.h b/src/lj_obj.h
+index aaee8d7..e88306c 100644
+--- a/src/lj_obj.h
++++ b/src/lj_obj.h
+@@ -660,6 +660,9 @@ typedef struct global_State {
+   GCRef cur_L;		/* Currently executing lua_State. */
+   MRef jit_base;	/* Current JIT code L->base or NULL. */
+   MRef ctype_state;	/* Pointer to C type state. */
++  uintptr_t cstack_lo;	/* C stack red zone [cstack_lo, cstack_hi), */
++  uintptr_t cstack_hi;	/* see luaJIT_setcstacklimit(). 0, 0 = off. */
++  uintptr_t cstack_pad[6];  /* Keep the size change a multiple of 64 bytes. */
+   PRNGState prng;	/* Global PRNG state. */
+   GCRef gcroot[GCROOT_MAX];  /* GC roots. */
+ } global_State;
+diff --git a/src/lj_parse.c b/src/lj_parse.c
+index f5a1a8f..c612116 100644
+--- a/src/lj_parse.c
++++ b/src/lj_parse.c
+@@ -2048,6 +2048,10 @@ static void synlevel_begin(LexState *ls)
+ {
+   if (++ls->level >= LJ_MAX_XLEVEL)
+     lj_lex_error(ls, 0, LJ_ERR_XLEVELS);
++#ifdef LUAJIT_ENABLE_CSTACKGUARD
++  if (LJ_UNLIKELY(lj_cstack_low(ls->L)))
++    lj_lex_error(ls, 0, LJ_ERR_CSTKOV);
++#endif
+ }
+ 
+ #define synlevel_end(ls)	((ls)->level--)
+diff --git a/src/lj_state.c b/src/lj_state.c
+index 6fd7d9c..42ccb67 100644
+--- a/src/lj_state.c
++++ b/src/lj_state.c
+@@ -192,6 +192,9 @@ static TValue *cpluaopen(lua_State *L, lua_CFunction dummy, void *ud)
+   setgcref(L->env, obj2gco(lj_tab_new(L, 0, LJ_MIN_GLOBAL)));
+   settabV(L, registry(L), lj_tab_new(L, 0, LJ_MIN_REGISTRY));
+   lj_str_init(L);
++#ifdef LUAJIT_ENABLE_CSTACKGUARD
++  fixstring(lj_err_str(L, LJ_ERR_CSTKOV));  /* Preallocate, see lua_resume(). */
++#endif
+   lj_meta_init(L);
+   lj_lex_init(L);
+   fixstring(lj_err_str(L, LJ_ERR_ERRMEM));  /* Preallocate memory error msg. */
+diff --git a/src/lj_state.h b/src/lj_state.h
+index 3850e5a..371aa0b 100644
+--- a/src/lj_state.h
++++ b/src/lj_state.h
+@@ -27,6 +27,37 @@ static LJ_AINLINE void lj_state_checkstack(lua_State *L, MSize need)
+     lj_state_growstack(L, need);
+ }
+ 
++/* C stack guard (LUAJIT_ENABLE_CSTACKGUARD), see luaJIT_setcstacklimit().
++** Every point where C code re-enters the VM (lua_call, lua_pcall, lua_cpcall,
++** lua_resume, metamethod calls from the C API, coroutine.resume/wrap, parser
++** nesting) checks that the C stack pointer is not inside the red zone of the
++** current thread's stack. Recursion through C therefore ends with a
++** catchable "C stack overflow" error instead of a native stack overflow.
++*/
++#ifdef LUAJIT_ENABLE_CSTACKGUARD
++#if defined(__GNUC__) || defined(__clang__)
++#define lj_cstack_sp()		((uintptr_t)__builtin_frame_address(0))
++#elif defined(_MSC_VER)
++#include <intrin.h>
++#define lj_cstack_sp()		((uintptr_t)_AddressOfReturnAddress())
++#else
++#error "LUAJIT_ENABLE_CSTACKGUARD: no way to get the C stack pointer"
++#endif
++/* Stack pointer sp inside [lo-slack, hi)? The common case (sp >= hi) costs
++** one compare. The stack pointer of another thread is never inside, so the
++** guard is inactive (not wrong) if the state runs on another thread.
++*/
++#define lj_cstack_inzone(g, sp, slack) \
++  (LJ_UNLIKELY((uintptr_t)(sp) < (g)->cstack_hi) && \
++   (uintptr_t)(sp) + (slack) >= (g)->cstack_lo)
++#define lj_cstack_low(L)	lj_cstack_inzone(G(L), lj_cstack_sp(), 0)
++#define lj_cstack_check(L) \
++  { if (LJ_UNLIKELY(lj_cstack_low(L))) lj_err_cstkov(L); }
++#else
++#define lj_cstack_low(L)	0
++#define lj_cstack_check(L)	((void)0)
++#endif
++
+ LJ_FUNC lua_State *lj_state_new(lua_State *L);
+ LJ_FUNC void LJ_FASTCALL lj_state_free(global_State *g, lua_State *L);
+ #if LJ_64 && !LJ_GC64 && !(defined(LUAJIT_USE_VALGRIND) && defined(LUAJIT_USE_SYSMALLOC))
+diff --git a/src/luajit_rolling.h b/src/luajit_rolling.h
+index e4662eb..4ddf0b9 100644
+--- a/src/luajit_rolling.h
++++ b/src/luajit_rolling.h
+@@ -83,6 +83,20 @@ LUA_API const char *luaJIT_profile_dumpstack(lua_State *L, const char *fmt,
+ */
+ LUA_API void luaJIT_interrupt(lua_State *L);
+ 
++/* C stack guard. Only available with -DLUAJIT_ENABLE_CSTACKGUARD builds.
++** Sets the red zone [lo, hi) of the C stack of the calling thread: while the
++** C stack pointer is inside it, C code that re-enters the VM (lua_call,
++** lua_pcall, lua_cpcall, lua_resume, metamethods called via the C API,
++** coroutine.resume/wrap, gsub/sort callbacks, __tostring, the parser) gets a
++** catchable "C stack overflow" error instead of overflowing the native stack.
++** lua_pcall/lua_cpcall return it as an error status, lua_resume returns
++** LUA_ERRRUN with the message on the coroutine's stack and leaves the
++** coroutine resumable. Call it from the thread that is about to run the
++** state, e.g. before every lua_resume if the host uses a thread pool.
++*/
++LUA_API void luaJIT_setcstacklimit(lua_State *L, const void *lo,
++				   const void *hi);
++
+ /* Enforce (dynamic) linker error for version mismatches. Call from main. */
+ LUA_API void LUAJIT_VERSION_SYM(void);
+ 
+diff --git a/src/vm_x64.dasc b/src/vm_x64.dasc
+index b8ecb86..b6742a9 100644
+--- a/src/vm_x64.dasc
++++ b/src/vm_x64.dasc
+@@ -1499,13 +1499,31 @@ static void build_subroutines(BuildCtx *ctx)
+   |
+   |//-- Coroutine library --------------------------------------------------
+   |
++  |.if CSTACKGUARD
++  |// C stack red zone? Let the C fallback (ffh_resume) raise the error.
++  |// Every resume nests a C frame of the VM (vm_resume) on the C stack.
++  |.macro cstackguard
++  |  cmp rsp, [DISPATCH+DISPATCH_GL(cstack_hi)]
++  |  jae >1
++  |  cmp rsp, [DISPATCH+DISPATCH_GL(cstack_lo)]
++  |  jae ->fff_fallback
++  |1:
++  |.endmacro
++  |.endif
++  |
+   |.macro coroutine_resume_wrap, resume
+   |.if resume
+   |.ffunc_1 coroutine_resume
++  |.if CSTACKGUARD
++  |  cstackguard
++  |.endif
+   |  mov L:RB, [BASE]
+   |  cleartp L:RB
+   |.else
+   |.ffunc coroutine_wrap_aux
++  |.if CSTACKGUARD
++  |  cstackguard
++  |.endif
+   |  mov CFUNC:RB, [BASE-16]
+   |  cleartp CFUNC:RB
+   |  mov L:RB, CFUNC:RB->upvalue[0].gcr

@@ -1,0 +1,2 @@
+max string.byte results:	8000	max unpack results:	7999
+string.char(unpack) 7680:	true	7680

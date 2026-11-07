@@ -1,0 +1,26 @@
+From 39ea88a2ba8be7ec4ed2f6437066bd822f5aba40 Mon Sep 17 00:00:00 2001
+From: Mike Pall <mike>
+Date: Thu, 29 Oct 2026 12:45:28 +0100
+Subject: [PATCH 15/17] x86/x64: Don't sink IR_CONV num.int with -O-dce.
+
+Reported by aleksisch. Thanks to Sergey Kaplun. #1537
+
+(cherry picked from commit 592f9e3f549c7f176a9a7a0d70189559305f2eda)
+---
+ src/lj_asm.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/src/lj_asm.c b/src/lj_asm.c
+index 4818c68d..5fc94f30 100644
+--- a/src/lj_asm.c
++++ b/src/lj_asm.c
+@@ -983,7 +983,8 @@ static void asm_snap_alloc1(ASMState *as, IRRef ref)
+       }
+     } else {
+       RegSet allow;
+-      if (ir->o == IR_CONV && ir->op2 == IRCONV_NUM_INT) {
++      if (ir->o == IR_CONV && ir->op2 == IRCONV_NUM_INT &&
++	  (as->flags & JIT_F_OPT_DCE)) {
+ 	IRIns *irc;
+ 	for (irc = IR(as->curins); irc > ir; irc--)
+ 	  if ((irc->op1 == ref || irc->op2 == ref) &&

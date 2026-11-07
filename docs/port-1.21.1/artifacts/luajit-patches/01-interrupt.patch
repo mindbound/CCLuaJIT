@@ -1,0 +1,153 @@
+diff --git a/src/Makefile b/src/Makefile
+index 99642be..8b59b1a 100644
+--- a/src/Makefile
++++ b/src/Makefile
+@@ -100,6 +100,10 @@ XCFLAGS=
+ # Note: this does not provide full compatibility with Lua 5.2 at this time.
+ #XCFLAGS+= -DLUAJIT_ENABLE_LUA52COMPAT
+ #
++# Allow interrupting JIT-compiled code asynchronously via luaJIT_interrupt().
++# Adds a check of a global flag at every trace entry and loop iteration.
++#XCFLAGS+= -DLUAJIT_ENABLE_INTERRUPT
++#
+ # Disable the JIT compiler, i.e. turn LuaJIT into a pure interpreter.
+ #XCFLAGS+= -DLUAJIT_DISABLE_JIT
+ #
+diff --git a/src/lj_dispatch.c b/src/lj_dispatch.c
+index b9748bb..ccc8caf 100644
+--- a/src/lj_dispatch.c
++++ b/src/lj_dispatch.c
+@@ -339,6 +339,28 @@ LUA_API int lua_sethook(lua_State *L, lua_Hook func, int mask, int count)
+   return 1;
+ }
+ 
++#ifdef LUAJIT_ENABLE_INTERRUPT
++/* Request an interrupt. Async-safe: may be called from any thread or from a
++** signal handler. It only performs two plain stores and never touches the
++** dispatch table, the trace recorder state or the hook mask (unlike
++** lua_sethook(), which is unsafe to call from another thread).
++**
++** Compiled code polls G(L)->intr at every trace entry, i.e. at every loop
++** iteration and at every trace link, and exits to the interpreter, where
++** lj_trace_exit() makes the count hook due. The next count hook invocation
++** clears the request. The host must keep a count hook installed (set from
++** the VM thread). Setting hookcount here is only a hint: the interpreter's
++** non-atomic decrement may overwrite it, so in pure interpreter loops the
++** hook runs once the regular count runs out.
++*/
++LUA_API void luaJIT_interrupt(lua_State *L)
++{
++  global_State *g = G(L);
++  g->hookcount = 1;  /* Best effort, races with the interpreter are benign. */
++  g->intr = 1;
++}
++#endif
++
+ LUA_API lua_Hook lua_gethook(lua_State *L)
+ {
+   return G(L)->hookf;
+@@ -362,6 +384,10 @@ static void callhook(lua_State *L, int event, BCLine line)
+   if (hookf && !hook_active(g)) {
+     lua_Debug ar;
+     lj_trace_abort(g);  /* Abort recording on any hook call. */
++#ifdef LUAJIT_ENABLE_INTERRUPT
++    if (event == LUA_HOOKCOUNT)
++      g->intr = 0;  /* The count hook services any pending interrupt. */
++#endif
+     ar.event = event;
+     ar.currentline = line;
+     /* Top frame, nextframe = NULL. */
+diff --git a/src/lj_obj.h b/src/lj_obj.h
+index d8b6964..3285cee 100644
+--- a/src/lj_obj.h
++++ b/src/lj_obj.h
+@@ -640,6 +640,7 @@ typedef struct global_State {
+   uint8_t hookmask;	/* Hook mask. */
+   uint8_t dispatchmode;	/* Dispatch mode. */
+   uint8_t vmevmask;	/* VM event mask. */
++  volatile uint8_t intr;	/* Interrupt request, see luaJIT_interrupt(). */
+   StrInternState str;	/* String interning. */
+   volatile int32_t vmstate;  /* VM state or current JIT code trace number. */
+   GCRef mainthref;	/* Link to main thread. */
+diff --git a/src/lj_record.c b/src/lj_record.c
+index 3f25000..7a9c2de 100644
+--- a/src/lj_record.c
++++ b/src/lj_record.c
+@@ -669,6 +669,9 @@ static LoopEvent rec_itern(jit_State *J, BCReg ra, BCReg rb)
+     IRRef ref = REF_FIRST + LJ_HASPROFILE;
+ #ifdef LUAJIT_ENABLE_CHECKHOOK
+     ref += 3;
++#endif
++#ifdef LUAJIT_ENABLE_INTERRUPT
++    ref += 3;
+ #endif
+     if (J->cur.nins > ref ||
+        (LJ_HASPROFILE && J->cur.nins == ref && J->cur.ir[ref-1].o != IR_PROF)) {
+@@ -2898,6 +2901,24 @@ void lj_record_setup(jit_State *J)
+     emitir(IRTGI(IR_EQ), tr, lj_ir_kint(J, 0));
+   }
+ #endif
++#ifdef LUAJIT_ENABLE_INTERRUPT
++  /* Poll for asynchronous interrupt requests (luaJIT_interrupt()) at the
++  ** start of every trace. Every cycle through compiled code passes a trace
++  ** start: a loop iteration (the load is volatile, so the loop optimization
++  ** copies the check into the loop body) or a link to the start of a trace
++  ** (root, loop, tail-, up- and down-recursion links). Side traces get the
++  ** check, too, and it's executed before any side effect of the trace.
++  ** On x64 this compiles to 'test byte [DISPATCH+ofs], 0xff; jnz ->exit'.
++  ** The exit resumes the interpreter at a bytecode boundary (snapshot #0 or
++  ** the loop snapshot), where the count hook runs.
++  */
++  if (J->state != LJ_TRACE_END) {  /* Not for side traces that bail out. */
++    TRef tr = emitir(IRT(IR_XLOAD, IRT_U8),
++		     lj_ir_kptr(J, (void *)&J2G(J)->intr), IRXLOAD_VOLATILE);
++    tr = emitir(IRTI(IR_BAND), tr, lj_ir_kint(J, 0xff));
++    emitir(IRTGI(IR_EQ), tr, lj_ir_kint(J, 0));
++  }
++#endif
+ }
+ 
+ #undef IR
+diff --git a/src/lj_trace.c b/src/lj_trace.c
+index a5e316e..076a67e 100644
+--- a/src/lj_trace.c
++++ b/src/lj_trace.c
+@@ -928,9 +928,17 @@ int LJ_FASTCALL lj_trace_exit(jit_State *J, void *exptr)
+   } else if (G(L)->gc.state == GCSatomic || G(L)->gc.state == GCSfinalize) {
+     if (!(G(L)->hookmask & HOOK_GC))
+       lj_gc_step(L);  /* Exited because of GC: drive GC forward. */
++#ifdef LUAJIT_ENABLE_INTERRUPT
++  } else if (G(L)->intr) {
++    /* Interrupt pending: just exit to interpreter, no hot side exit. */
++#endif
+   } else if ((J->flags & JIT_F_ON)) {
+     trace_hotside(J, pc);
+   }
++#ifdef LUAJIT_ENABLE_INTERRUPT
++  if (G(L)->intr && (G(L)->hookmask & LUA_MASKCOUNT))
++    G(L)->hookcount = 1;  /* Run the count hook at the next instruction. */
++#endif
+   /* Return MULTRES or 0 or -17. */
+   ERRNO_RESTORE
+   switch (bc_op(*pc)) {
+diff --git a/src/luajit_rolling.h b/src/luajit_rolling.h
+index 2d04402..e4662eb 100644
+--- a/src/luajit_rolling.h
++++ b/src/luajit_rolling.h
+@@ -73,6 +73,16 @@ LUA_API void luaJIT_profile_stop(lua_State *L);
+ LUA_API const char *luaJIT_profile_dumpstack(lua_State *L, const char *fmt,
+ 					     int depth, size_t *len);
+ 
++/* Asynchronous interrupt request. Can be called from any thread or from a
++** signal handler. Only available with -DLUAJIT_ENABLE_INTERRUPT builds.
++** JIT-compiled code exits to the interpreter at its next loop iteration or
++** trace link and the count hook runs at the next interpreted instruction.
++** Requires a count hook (lua_sethook with LUA_MASKCOUNT) installed from the
++** VM thread. In pure interpreter loops the request may only be seen once the
++** hook count runs out, so pick the count accordingly (e.g. 1000-100000).
++*/
++LUA_API void luaJIT_interrupt(lua_State *L);
++
+ /* Enforce (dynamic) linker error for version mismatches. Call from main. */
+ LUA_API void LUAJIT_VERSION_SYM(void);
+ 

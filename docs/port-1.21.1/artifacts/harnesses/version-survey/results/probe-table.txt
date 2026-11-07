@@ -1,0 +1,180 @@
+## sha2: is_LuaJIT   [pure_lua_SHA sha2.lua:120]
+   STOCK(cobalt)  false
+   a              true   <-- differs from stock
+   b1             true   <-- differs from stock
+   b2             true   <-- differs from stock
+   b3             true   <-- differs from stock
+   c              true   <-- differs from stock
+   cL             true   <-- differs from stock
+   d              true   <-- differs from stock
+   a+bitL         true   <-- differs from stock
+   cL+bitL        true   <-- differs from stock
+   accel          true   <-- differs from stock
+## sha2: bit library   [sha2.lua:120-146]
+   STOCK(cobalt)  vanilla branch; _G.bit32
+   a              LuaJIT branch; require'bit' errors -> sha2 fails to load   <-- differs from stock
+   b1             LuaJIT branch; require'bit' errors -> sha2 fails to load   <-- differs from stock
+   b2             LuaJIT branch; require'bit' errors -> sha2 fails to load   <-- differs from stock
+   b3             LuaJIT branch; require'bit' errors -> sha2 fails to load   <-- differs from stock
+   c              LuaJIT branch; require'bit' errors -> sha2 fails to load   <-- differs from stock
+   cL             LuaJIT branch; require'bit' errors -> sha2 fails to load   <-- differs from stock
+   d              LuaJIT branch; require'bit' errors -> sha2 fails to load   <-- differs from stock
+   a+bitL         LuaJIT branch; require'bit' ok (ror=function)   <-- differs from stock
+   cL+bitL        LuaJIT branch; require'bit' ok (ror=function)   <-- differs from stock
+   accel          LuaJIT branch; require'bit' errors -> sha2 fails to load   <-- differs from stock
+## MessagePack: header probe   [lua-MessagePack src/MessagePack.lua:5-17]
+   STOCK(cobalt)  string.dump path (CC: errors)
+   a              string.dump path (CC: errors)
+   b1             string.dump path (CC: errors)
+   b2             string.dump path (CC: errors)
+   b3             skips string.dump   <-- differs from stock
+   c              string.dump path (CC: errors)
+   cL             skips string.dump   <-- differs from stock
+   d              string.dump path (CC: errors)
+   a+bitL         string.dump path (CC: errors)
+   cL+bitL        skips string.dump   <-- differs from stock
+   accel          skips string.dump   <-- differs from stock
+## Teal/inspect: version num   [inspect.lua:1 (Teal _tl_compat)]
+   STOCK(cobalt)  5.2 (<5.3: try compat53)
+   a              5.2 (<5.3: try compat53)
+   b1             0 (<5.3: try compat53)   <-- differs from stock
+   b2             2.1 (<5.3: try compat53)   <-- differs from stock
+   b3             0 (<5.3: try compat53)   <-- differs from stock
+   c              5.2 (<5.3: try compat53)
+   cL             5.2 (<5.3: try compat53)
+   d              5.2 (<5.3: try compat53)
+   a+bitL         5.2 (<5.3: try compat53)
+   cL+bitL        5.2 (<5.3: try compat53)
+   accel          5.1 (<5.3: try compat53)   <-- differs from stock
+## compat53: lua_version   [compat53/module.lua:2,7,420]
+   STOCK(cobalt)  "5.2" <5.3=true ==5.1=false
+   a              "5.2" <5.3=true ==5.1=false
+   b1             "IT)" <5.3=false ==5.1=false   <-- differs from stock
+   b2             "2.1" <5.3=true ==5.1=false   <-- differs from stock
+   b3             ".2)" <5.3=true ==5.1=false   <-- differs from stock
+   c              "5.2" <5.3=true ==5.1=false
+   cL             "5.2" <5.3=true ==5.1=false
+   d              "5.2" <5.3=true ==5.1=false
+   a+bitL         "5.2" <5.3=true ==5.1=false
+   cL+bitL        "5.2" <5.3=true ==5.1=false
+   accel          "5.1" <5.3=true ==5.1=true   <-- differs from stock
+## Penlight: lua51 / jit   [pl/compat.lua:14,18]
+   STOCK(cobalt)  lua51=false jit=false
+   a              lua51=false jit=true   <-- differs from stock
+   b1             lua51=false jit=true   <-- differs from stock
+   b2             lua51=false jit=true   <-- differs from stock
+   b3             lua51=false jit=true   <-- differs from stock
+   c              lua51=false jit=true   <-- differs from stock
+   cL             lua51=false jit=true   <-- differs from stock
+   d              lua51=false jit=true   <-- differs from stock
+   a+bitL         lua51=false jit=true   <-- differs from stock
+   cL+bitL        lua51=false jit=true   <-- differs from stock
+   accel          lua51=true jit=true   <-- differs from stock
+## lbase64: extract impl   [lbase64 base64.lua:28-34]
+   STOCK(cobalt)  bit32.extract
+   a              bit32.extract
+   b1             bit32.extract
+   b2             bit32.extract
+   b3             bit32.extract
+   c              bit32.extract
+   cL             bit32.extract
+   d              bit32.extract
+   a+bitL         bit32.extract
+   cL+bitL        bit32.extract
+   accel          bit32.extract
+## AUKit: sinc window/chunk   [aukit.lua:131,1011]
+   STOCK(cobalt)  10 / 32768
+   a              10 / 32768
+   b1             10 / 32768
+   b2             10 / 32768
+   b3             10 / 32768
+   c              30 / 7680   <-- differs from stock
+   cL             30 / 7680   <-- differs from stock
+   d              10 / 32768
+   a+bitL         10 / 32768
+   cL+bitL        30 / 7680   <-- differs from stock
+   accel          30 / 7680   <-- differs from stock
+## CraftOS-PC bios: 5.1 layer   [craftos2-rom bios.lua:14,37]
+   STOCK(cobalt)  5.2 path
+   a              5.2 path
+   b1             5.2 path
+   b2             5.2 path
+   b3             5.2 path
+   c              5.2 path
+   cL             5.2 path
+   d              5.2 path
+   a+bitL         5.2 path
+   cL+bitL        5.2 path
+   accel          loadstring + 5.1 compat layer   <-- differs from stock
+## CraftOS-PC bios: jit.off   [craftos2-rom bios.lua:23]
+   STOCK(cobalt)  no call
+   a              no call
+   b1             no call
+   b2             no call
+   b3             no call
+   c              no call
+   cL             no call
+   d              no call
+   a+bitL         no call
+   cL+bitL        no call
+   accel          no call
+## CraftOS-PC motd: version   [craftos2-rom motd.lua:13]
+   STOCK(cobalt)  nil
+   a              nil
+   b1             nil
+   b2             nil
+   b3             nil
+   c              nil
+   cL             nil
+   d              nil
+   a+bitL         nil
+   cL+bitL        nil
+   accel          v2.8.3   <-- differs from stock
+## Basalt: CraftOS-PC check   [Basalt/main.lua:458]
+   STOCK(cobalt)  false
+   a              false
+   b1             false
+   b2             false
+   b3             false
+   c              false
+   cL             false
+   d              false
+   a+bitL         false
+   cL+bitL        false
+   accel          true   <-- differs from stock
+## AUKit: CCPC 2.6.4 check   [aukit.lua:2000]
+   STOCK(cobalt)  false
+   a              false
+   b1             false
+   b2             false
+   b3             false
+   c              false
+   cL             false
+   d              false
+   a+bitL         false
+   cL+bitL        false
+   accel          false
+## rxi json bench: VM name   [json.lua bench/util/bench.lua:43]
+   STOCK(cobalt)  Lua 5.2
+   a              Lua 5.2
+   b1             Lua 5.2 (LuaJIT)   <-- differs from stock
+   b2             Lua 5.2 LuaJIT 2.1   <-- differs from stock
+   b3             LuaJIT 2.1 (Lua 5.2)   <-- differs from stock
+   c              LuaJIT 2.1.1783773675   <-- differs from stock
+   cL             LuaJIT 2.1.1783773675   <-- differs from stock
+   d              Lua 5.2
+   a+bitL         Lua 5.2
+   cL+bitL        LuaJIT 2.1.1783773675   <-- differs from stock
+   accel          LuaJIT 2.1.1783773675   <-- differs from stock
+## VM: tostring(assert)   [(VM)]
+   STOCK(cobalt)  function: <hex>
+   a              function: builtin#2   <-- differs from stock
+   b1             function: builtin#2   <-- differs from stock
+   b2             function: builtin#2   <-- differs from stock
+   b3             function: builtin#2   <-- differs from stock
+   c              function: builtin#2   <-- differs from stock
+   cL             function: builtin#2   <-- differs from stock
+   d              function: builtin#2   <-- differs from stock
+   a+bitL         function: builtin#2   <-- differs from stock
+   cL+bitL        function: builtin#2   <-- differs from stock
+   accel          function: builtin#2   <-- differs from stock

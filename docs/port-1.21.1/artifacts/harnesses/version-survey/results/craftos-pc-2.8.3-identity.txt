@@ -1,0 +1,5 @@
+HOST=[ComputerCraft                                HOST=[ComputerCraft                                HOST=[ComputerCraft 1.112.0                        HOST=[ComputerCraft 1.112.0                        HOST=[ComputerCraft 1.112.0 (CraftOS-PC            HOST=[ComputerCraft 1.112.0 (CraftOS-PC            HOST=[ComputerCraft 1.112.0 (CraftOS-PC v2.8.3)]
+VERSION=[Lua                                       VERSION=[Lua                                       VERSION=[Lua 5.2]
+jit=nil bit=table bit32=table ffi=nil utf8=table
+osversion=CraftOS 
+osversion=CraftOS 1.9

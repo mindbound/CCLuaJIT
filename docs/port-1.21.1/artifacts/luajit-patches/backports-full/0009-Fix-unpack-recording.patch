@@ -1,0 +1,25 @@
+From 568994b5776026463327f3bb37d9e627e16102f8 Mon Sep 17 00:00:00 2001
+From: Mike Pall <mike>
+Date: Wed, 19 Aug 2026 20:56:02 +0200
+Subject: [PATCH 09/26] Fix unpack() recording.
+
+Thanks to Christian Clason and Justin M. Keyes. #1513
+
+(cherry picked from commit 8c23d6aad7f39d58c4ca949426a3f18e900a9485)
+---
+ src/lj_ffrecord.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/lj_ffrecord.c b/src/lj_ffrecord.c
+index 6c62e54c..6c74f40f 100644
+--- a/src/lj_ffrecord.c
++++ b/src/lj_ffrecord.c
+@@ -336,7 +336,7 @@ static void LJ_FASTCALL recff_unpack(jit_State *J, RecordFFData *rd)
+   }
+   /* Ending index. */
+   trend = J->base[2];
+-  if (tref_isnil(trend)) {  /* Default end = #t. */
++  if (J->maxslot < 3 || tref_isnil(trend)) {  /* Default end = #t. */
+     end = (int32_t)lj_tab_len(t);
+     trend = emitir(IRTI(IR_ALEN), trtab, TREF_NIL);
+   } else {

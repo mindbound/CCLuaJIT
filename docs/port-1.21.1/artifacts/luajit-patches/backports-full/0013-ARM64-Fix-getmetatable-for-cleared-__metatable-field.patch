@@ -1,0 +1,26 @@
+From ef8b129c92b8e029f838266afb832f7c8aec9aa0 Mon Sep 17 00:00:00 2001
+From: Mike Pall <mike>
+Date: Tue, 13 Oct 2026 12:07:10 +0200
+Subject: [PATCH 13/26] ARM64: Fix getmetatable() for cleared __metatable
+ field.
+
+Thanks to denesik. #1531
+
+(cherry picked from commit ce8ec8dc23e39a89fa74fc378201e97d15cb7926)
+---
+ src/vm_arm64.dasc | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/vm_arm64.dasc b/src/vm_arm64.dasc
+index e2c1011f..74365211 100644
+--- a/src/vm_arm64.dasc
++++ b/src/vm_arm64.dasc
+@@ -1084,7 +1084,7 @@ static void build_subroutines(BuildCtx *ctx)
+   |  movk CARG1, #(LJ_TTAB>>1)&0xffff, lsl #48
+   |  b ->fff_restv
+   |5:
+-  |  cmp_nil TMP0
++  |  cmp_nil CARG1
+   |  bne ->fff_restv
+   |  b <4
+   |

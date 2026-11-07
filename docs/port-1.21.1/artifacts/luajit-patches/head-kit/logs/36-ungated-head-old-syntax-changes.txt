@@ -1,0 +1,26 @@
+l52.* (old-syntax) cases where UNGATED ea9eb7ed+01-08 differs from 3c4f9fe2+01-08 (OK lines: dump length + FNV of string.dump(f,'d')).
+Gated ea9eb7ed+01-09 equals 3c4f9fe2+01-08 on every one of them.
+l52.goto_goto                ref: ERR	l52.goto_goto:1: '=' expected near 'goto'                          | ungated: OK	48	d1185b5b                                                         | gated==ref: True
+l52.continue_end             ref: ERR	l52.continue_end:1: '=' expected near 'end'                        | ungated: OK	84	00117c39                                                         | gated==ref: True
+l52.continue_semicolon       ref: ERR	l52.continue_semicolon:1: '=' expected near ';'                    | ungated: ERR	l52.continue_semicolon:1: no loop to continue                      | gated==ref: True
+l52.const_name_stmt          ref: ERR	l52.const_name_stmt:1: '=' expected near 'x'                       | ungated: OK	53	e4511c21                                                         | gated==ref: True
+l52.const_function_stmt      ref: ERR	l52.const_function_stmt:1: '=' expected near 'function'            | ungated: OK	75	b0867bef                                                         | gated==ref: True
+l52.hash_comment_first       ref: OK	59	21dd9bd4                                                         | ungated: ERR	l52.hash_comment_first:1: unexpected symbol near '#'               | gated==ref: True
+l52.hash_alone_first         ref: OK	57	ba0fffe4                                                         | ungated: ERR	l52.hash_alone_first:1: unexpected symbol near '#'                 | gated==ref: True
+l52.hash_digit_first         ref: OK	57	a9bacb86                                                         | ungated: OK	57	35496d8e                                                         | gated==ref: True
+l52.hash_len_number_line     ref: OK	63	e6f02709                                                         | ungated: ERR	l52.hash_len_number_line:5: unexpected symbol near '<eof>'         | gated==ref: True
+l52.bom_hash                 ref: OK	49	d4c84dc2                                                         | ungated: ERR	l52.bom_hash:1: unexpected symbol near '#'                         | gated==ref: True
+l52.err_arrow_expr           ref: ERR	l52.err_arrow_expr:1: unexpected symbol near '>'                   | ungated: OK	84	73e723f0                                                         | gated==ref: True
+l52.err_question_end         ref: ERR	l52.err_question_end:1: unexpected symbol near '?'                 | ungated: ERR	l52.err_question_end:1: unexpected symbol near '<eof>'             | gated==ref: True
+l52.err_ne_stmt              ref: ERR	l52.err_ne_stmt:1: '=' expected near '~='                          | ungated: OK	62	b812ad8d                                                         | gated==ref: True
+l52.err_lt_lt_stmt           ref: ERR	l52.err_lt_lt_stmt:1: '=' expected near '<'                        | ungated: ERR	l52.err_lt_lt_stmt:1: '=' expected near '<<'                       | gated==ref: True
+l52.chain_dot_newline        ref: OK	71	2d4d9f74                                                         | ungated: OK	71	a392b539                                                         | gated==ref: True
+l52.chain_dot_newline_global ref: OK	91	5319e233                                                         | ungated: OK	91	9020d670                                                         | gated==ref: True
+l52.chain_dot_newline_3      ref: OK	83	c9ecd9ce                                                         | ungated: OK	83	5c81f9d9                                                         | gated==ref: True
+l52.chain_mixed_newline      ref: OK	120	835021c9                                                        | ungated: OK	120	0ed15eac                                                        | gated==ref: True
+l52.fname_dot_newline        ref: OK	90	e8f9b48a                                                         | ungated: OK	90	484f9592                                                         | gated==ref: True
+l52.fname_colon_newline      ref: OK	99	2b76d067                                                         | ungated: OK	99	8ec85a4c                                                         | gated==ref: True
+l52.assign_chain_newline     ref: OK	75	79d97317                                                         | ungated: OK	75	492e1e23                                                         | gated==ref: True
+l52.local_chain_newline      ref: OK	75	d6dd4963                                                         | ungated: OK	75	6b43dbf6                                                         | gated==ref: True
+l52.limit_params_201         ref: ERR	l52.limit_params_201:1: function at line 1 has more than 200 local | ungated: ERR	l52.limit_params_201:1: main function has more than 200 local vari | gated==ref: True
+l52.limit_params_201_stmt    ref: ERR	l52.limit_params_201_stmt:3: function at line 3 has more than 200  | ungated: ERR	l52.limit_params_201_stmt:3: function at line 12714177 has more th | gated==ref: True

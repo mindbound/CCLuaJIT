@@ -1,0 +1,236 @@
+# 2026-11-07: run_tests.sh quick, pausehost built against LuaJIT 3c4f9fe2 + patches 01-08 with the final flags
+# (-DLUAJIT_ENABLE_INTERRUPT -DLUAJIT_ENABLE_LUA52COMPAT -DLUAJIT_DISABLE_FFI -DLUAJIT_DISABLE_BCLOAD -DLUAJIT_ENABLE_CSTACKGUARD -DLUAJIT_DISABLE_PROFILE -DLUAJIT_DISABLE_VMEVENT)
+exit=0
+=== logs/t1_parallel.log:  ./pausehost.exe tests/t1_parallel.lua
+    RESULT parallel PASS 
+=== logs/t2_nesting.log:  ./pausehost.exe tests/t2_nesting.lua
+    RESULT alternating PASS 
+    RESULT all_resume PASS 
+    RESULT all_wrap PASS 
+=== logs/t3_semantics.log:  ./pausehost.exe tests/t3_semantics.lua
+    RESULT yield_values PASS 
+    RESULT status_running PASS 
+    RESULT errors PASS 
+    RESULT toplevel_yields PASS 
+    RESULT pcall_yield PASS 
+    RESULT pingpong_under_pauses PASS 
+=== logs/t4_cboundary.log:  ./pausehost.exe tests/t4_cboundary.lua
+    RESULT sort_comparator PASS 
+    RESULT gsub_callback PASS 
+    RESULT pcall_body PASS 
+    RESULT xpcall_body PASS 
+    RESULT xpcall_handler PASS 
+    RESULT index_metamethod PASS 
+    RESULT lt_metamethod PASS 
+    RESULT arith_concat_eq_call_len PASS 
+    RESULT tostring_metamethod PASS 
+    RESULT format_tostring PASS 
+    RESULT sort_lt_metamethod PASS 
+    RESULT wrap_inside_gsub PASS 
+    RESULT load_reader PASS 
+    RESULT gsub_sort_nested PASS 
+    RESULT table_foreach PASS 
+    RESULT pairs_metamethod PASS 
+    RESULT gmatch_loop PASS 
+=== logs/t5_abort.log:  ./pausehost.exe tests/t5_abort.lua
+    RESULT hard_pcall_loops PASS 
+    RESULT hard_xpcall_sort_loop PASS 
+    RESULT hard_gsub_loop PASS 
+    RESULT hard_in_manager PASS 
+    RESULT hard_while_paused PASS 
+    RESULT hard_while_deferring PASS 
+    RESULT soft_caught PASS 
+    RESULT soft_uncaught PASS 
+    RESULT soft_then_hard PASS 
+=== logs/t6_depth.log:  ./pausehost.exe tests/t6_depth.lua
+    RESULT wrap_recursion PASS 
+    RESULT resume_recursion PASS 
+    RESULT gsub_mixed_recursion PASS 
+    RESULT gsub_mixed_floor_only PASS 
+    RESULT wrap_floor_only PASS 
+    RESULT pause_at_depth PASS 
+    RESULT error_at_depth PASS 
+=== logs/t7_bench.log:  ./pausehost.exe tests/t7_bench.lua
+    RESULT micro PASS 
+    RESULT pause_cost PASS 
+    RESULT pause_cost_interp PASS 
+
+[exited with code 0]
+
+## t1_parallel detail
+pausehost: tests/t1_parallel.lua jit=on naive=0 hookn=10000 maxdepth=200 pause=300..1500 us poke=250 us defer_hookn=0 rearm=0 checkpoint=0 floor=256 KB
+VM thread stack reservation: 1024 KB
+CASE tests/t1_parallel.lua:parallel
+    [ref   ] FINISHED 2382 ms: okyields=4501 events=4501 dropped=0 pauses=0 hookpauses=0 prop=0 failprop=0 defer=0 soft=0 resumes=63383 depth_hw=3 deptherr=0 floorerr=0 pauselat(avg/max)=0.0/0.0 us maxdefer=0.0 us ckpt=0 stack_hw=13089 reqs=0
+    [ref   ] check: ok pauses=0 defers=0 failprop=0
+    [paused] FINISHED 2361 ms: okyields=4501 events=4501 dropped=0 pauses=2548 hookpauses=2548 prop=5318 failprop=0 defer=276 soft=0 resumes=68701 depth_hw=3 deptherr=0 floorerr=0 pauselat(avg/max)=9.3/250.1 us maxdefer=250.0 us ckpt=0 stack_hw=13089 reqs=2638
+    [paused] check: ok pauses=2548 defers=276 failprop=0
+    result: {A=2122897347,B=563940238,C=1677677534,modem=375:391545674,resumes=13883,waiter=4501:119513833.5,waiter_names={char=375,done=1,key=375,modem_message=375,mouse_click=1500,tick=1500,timer=375,},winner=1
+RESULT parallel PASS 
+
+## t5_abort detail
+pausehost: tests/t5_abort.lua jit=on naive=0 hookn=10000 maxdepth=200 pause=300..1500 us poke=250 us defer_hookn=0 rearm=0 checkpoint=0 floor=256 KB
+VM thread stack reservation: 1024 KB
+CASE tests/t5_abort.lua:hard_pcall_loops
+    [paused] TIMEOUT 150 ms: okyields=0 events=0 dropped=0 pauses=177 hookpauses=177 prop=879 failprop=0 defer=2 soft=0 resumes=884 depth_hw=5 deptherr=0 floorerr=0 pauselat(avg/max)=1.1/90.7 us maxdefer=90.4 us ckpt=0 stack_hw=14929 reqs=177
+    abort latency 1.6 us
+RESULT hard_pcall_loops PASS 
+CASE tests/t5_abort.lua:hard_xpcall_sort_loop
+    [paused] TIMEOUT 170 ms: okyields=0 events=0 dropped=0 pauses=2 hookpauses=2 prop=3 failprop=0 defer=870 soft=0 resumes=8 depth_hw=5 deptherr=0 floorerr=0 pauselat(avg/max)=0.4/0.4 us maxdefer=0.0 us ckpt=0 stack_hw=14929 reqs=196
+    abort latency 27.2 us
+RESULT hard_xpcall_sort_loop PASS 
+CASE tests/t5_abort.lua:hard_gsub_loop
+    [paused] TIMEOUT 190 ms: okyields=0 events=0 dropped=0 pauses=1 hookpauses=1 prop=0 failprop=0 defer=960 soft=0 resumes=5 depth_hw=5 deptherr=0 floorerr=0 pauselat(avg/max)=0.3/0.3 us maxdefer=0.0 us ckpt=0 stack_hw=14929 reqs=204
+    abort latency 18.0 us
+RESULT hard_gsub_loop PASS 
+CASE tests/t5_abort.lua:hard_in_manager
+    [paused] TIMEOUT 230 ms: okyields=363 events=0 dropped=0 pauses=265 hookpauses=265 prop=532 failprop=0 defer=5 soft=0 resumes=2348 depth_hw=5 deptherr=0 floorerr=0 pauselat(avg/max)=2.0/237.1 us maxdefer=236.8 us ckpt=0 stack_hw=14929 reqs=267
+    abort latency 1.5 us
+RESULT hard_in_manager PASS 
+CASE tests/t5_abort.lua:hard_while_paused
+    [paused] TIMEOUT 180 ms: okyields=0 events=0 dropped=0 pauses=200 hookpauses=200 prop=995 failprop=0 defer=2 soft=0 resumes=995 depth_hw=5 deptherr=0 floorerr=0 pauselat(avg/max)=2.4/194.3 us maxdefer=193.7 us ckpt=0 stack_hw=14929 reqs=200
+    abort latency 0.1 us
+RESULT hard_while_paused PASS 
+CASE tests/t5_abort.lua:hard_while_deferring
+    [paused] TIMEOUT 210 ms: okyields=0 events=0 dropped=0 pauses=1 hookpauses=1 prop=2 failprop=0 defer=1067 soft=0 resumes=7 depth_hw=5 deptherr=0 floorerr=0 pauselat(avg/max)=0.6/0.6 us maxdefer=0.0 us ckpt=0 stack_hw=14929 reqs=234
+    abort latency 16.8 us
+RESULT hard_while_deferring PASS 
+CASE tests/t5_abort.lua:soft_caught
+    [ref   ] FINISHED 138 ms: okyields=0 events=0 dropped=0 pauses=0 hookpauses=0 prop=0 failprop=0 defer=0 soft=1 resumes=3 depth_hw=2 deptherr=0 floorerr=0 pauselat(avg/max)=0.0/0.0 us maxdefer=0.0 us ckpt=0 stack_hw=14257 reqs=0
+    [ref   ] check: ok soft=1 pauses=0
+    [paused] FINISHED 138 ms: okyields=0 events=0 dropped=0 pauses=155 hookpauses=155 prop=308 failprop=0 defer=0 soft=1 resumes=311 depth_hw=2 deptherr=0 floorerr=0 pauselat(avg/max)=0.4/6.8 us maxdefer=0.0 us ckpt=0 stack_hw=14257 reqs=155
+    [paused] check: ok soft=1 pauses=155
+    result: <chunk>:97: Too long without yielding	1762855629
+RESULT soft_caught PASS 
+CASE tests/t5_abort.lua:soft_uncaught
+    [ref   ] ERROR 120 ms: okyields=0 events=0 dropped=0 pauses=0 hookpauses=0 prop=0 failprop=0 defer=0 soft=1 resumes=4 depth_hw=4 deptherr=0 floorerr=0 pauselat(avg/max)=0.0/0.0 us maxdefer=0.0 us ckpt=0 stack_hw=14705 reqs=0
+    [paused] ERROR 120 ms: okyields=0 events=0 dropped=0 pauses=126 hookpauses=126 prop=498 failprop=0 defer=0 soft=1 resumes=502 depth_hw=4 deptherr=0 floorerr=0 pauselat(avg/max)=0.2/0.9 us maxdefer=0.0 us ckpt=0 stack_hw=14705 reqs=126
+    result: tests/t5_abort.lua:123: Too long without yielding
+RESULT soft_uncaught PASS 
+CASE tests/t5_abort.lua:soft_then_hard
+    [paused] TIMEOUT 180 ms: okyields=0 events=0 dropped=0 pauses=205 hookpauses=205 prop=1021 failprop=0 defer=1 soft=1 resumes=1026 depth_hw=5 deptherr=0 floorerr=0 pauselat(avg/max)=1.1/175.1 us maxdefer=174.8 us ckpt=0 stack_hw=14929 reqs=205
+    abort latency 1.6 us
+RESULT soft_then_hard PASS 
+
+## t4_cboundary detail
+pausehost: tests/t4_cboundary.lua jit=on naive=0 hookn=10000 maxdepth=200 pause=300..1500 us poke=250 us defer_hookn=0 rearm=0 checkpoint=0 floor=256 KB
+VM thread stack reservation: 1024 KB
+CASE tests/t4_cboundary.lua:sort_comparator
+    [ref   ] FINISHED 511 ms: okyields=0 events=0 dropped=0 pauses=0 hookpauses=0 prop=0 failprop=0 defer=0 soft=0 resumes=2 depth_hw=2 deptherr=0 floorerr=0 pauselat(avg/max)=0.0/0.0 us maxdefer=0.0 us ckpt=0 stack_hw=14065 reqs=0
+    [ref   ] check: ok region 1: pauses inside=0 deferrals inside=0, total pauses=0, max deferral=0 us -> no hook hit
+    [paused] FINISHED 507 ms: okyields=0 events=0 dropped=0 pauses=1 hookpauses=1 prop=1 failprop=0 defer=2591 soft=0 resumes=3 depth_hw=2 deptherr=0 floorerr=0 pauselat(avg/max)=0.6/0.6 us maxdefer=0.0 us ckpt=0 stack_hw=14065 reqs=573
+    [paused] check: ok region 1: pauses inside=0 deferrals inside=2585, total pauses=1, max deferral=0 us -> DEFERRED
+    result: ok	1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20
+RESULT sort_comparator PASS 
+CASE tests/t4_cboundary.lua:gsub_callback
+    [ref   ] FINISHED 674 ms: okyields=0 events=0 dropped=0 pauses=0 hookpauses=0 prop=0 failprop=0 defer=0 soft=0 resumes=2 depth_hw=2 deptherr=0 floorerr=0 pauselat(avg/max)=0.0/0.0 us maxdefer=0.0 us ckpt=0 stack_hw=14065 reqs=0
+    [ref   ] check: ok region 2: pauses inside=0 deferrals inside=0, total pauses=0, max deferral=0 us -> no hook hit
+    [paused] FINISHED 674 ms: okyields=0 events=0 dropped=0 pauses=1 hookpauses=1 prop=1 failprop=0 defer=3441 soft=0 resumes=3 depth_hw=2 deptherr=0 floorerr=0 pauselat(avg/max)=0.6/0.6 us maxdefer=0.0 us ckpt=0 stack_hw=14065 reqs=757
+    [paused] check: ok region 2: pauses inside=0 deferrals inside=3436, total pauses=1, max deferral=0 us -> DEFERRED
+    result: ok	WORD WORD WORD WORD 	20000
+RESULT gsub_callback PASS 
+CASE tests/t4_cboundary.lua:pcall_body
+    [ref   ] FINISHED 583 ms: okyields=0 events=0 dropped=0 pauses=0 hookpauses=0 prop=0 failprop=0 defer=0 soft=0 resumes=2 depth_hw=2 deptherr=0 floorerr=0 pauselat(avg/max)=0.0/0.0 us maxdefer=0.0 us ckpt=0 stack_hw=14065 reqs=0
+    [ref   ] check: ok region 3: pauses inside=0 deferrals inside=0, total pauses=0, max deferral=0 us -> no hook hit
+    [paused] FINISHED 572 ms: okyields=0 events=0 dropped=0 pauses=635 hookpauses=635 prop=1269 failprop=0 defer=0 soft=0 resumes=1271 depth_hw=2 deptherr=0 floorerr=0 pauselat(avg/max)=0.6/118.5 us maxdefer=0.0 us ckpt=0 stack_hw=14065 reqs=635
+    [paused] check: ok region 3: pauses inside=634 deferrals inside=0, total pauses=635, max deferral=0 us -> YIELDABLE
+    result: ok	611641487
+RESULT pcall_body PASS 
+CASE tests/t4_cboundary.lua:xpcall_body
+    [ref   ] FINISHED 570 ms: okyields=0 events=0 dropped=0 pauses=0 hookpauses=0 prop=0 failprop=0 defer=0 soft=0 resumes=2 depth_hw=2 deptherr=0 floorerr=0 pauselat(avg/max)=0.0/0.0 us maxdefer=0.0 us ckpt=0 stack_hw=14065 reqs=0
+    [ref   ] check: ok region 4: pauses inside=0 deferrals inside=0, total pauses=0, max deferral=0 us -> no hook hit
+    [paused] FINISHED 571 ms: okyields=0 events=0 dropped=0 pauses=635 hookpauses=635 prop=1268 failprop=0 defer=0 soft=0 resumes=1270 depth_hw=2 deptherr=0 floorerr=0 pauselat(avg/max)=0.3/13.3 us maxdefer=0.0 us ckpt=0 stack_hw=14065 reqs=635
+    [paused] check: ok region 4: pauses inside=634 deferrals inside=0, total pauses=635, max deferral=0 us -> YIELDABLE
+    result: ok	611641487
+RESULT xpcall_body PASS 
+CASE tests/t4_cboundary.lua:xpcall_handler
+    [ref   ] FINISHED 570 ms: okyields=0 events=0 dropped=0 pauses=0 hookpauses=0 prop=0 failprop=0 defer=0 soft=0 resumes=2 depth_hw=2 deptherr=0 floorerr=0 pauselat(avg/max)=0.0/0.0 us maxdefer=0.0 us ckpt=0 stack_hw=14065 reqs=0
+    [ref   ] check: ok region 5: pauses inside=0 deferrals inside=0, total pauses=0, max deferral=0 us -> no hook hit
+    [paused] FINISHED 570 ms: okyields=0 events=0 dropped=0 pauses=1 hookpauses=1 prop=0 failprop=0 defer=2905 soft=0 resumes=2 depth_hw=2 deptherr=0 floorerr=0 pauselat(avg/max)=0.6/0.6 us maxdefer=0.0 us ckpt=0 stack_hw=14065 reqs=630
+    [paused] check: ok region 5: pauses inside=0 deferrals inside=2905, total pauses=1, max deferral=0 us -> DEFERRED
+    result: ok	1538044178
+RESULT xpcall_handler PASS 
+CASE tests/t4_cboundary.lua:index_metamethod
+    [ref   ] FINISHED 571 ms: okyields=0 events=0 dropped=0 pauses=0 hookpauses=0 prop=0 failprop=0 defer=0 soft=0 resumes=2 depth_hw=2 deptherr=0 floorerr=0 pauselat(avg/max)=0.0/0.0 us maxdefer=0.0 us ckpt=0 stack_hw=14065 reqs=0
+    [ref   ] check: ok region 6: pauses inside=0 deferrals inside=0, total pauses=0, max deferral=0 us -> no hook hit
+    [paused] FINISHED 572 ms: okyields=0 events=0 dropped=0 pauses=637 hookpauses=637 prop=1272 failprop=0 defer=0 soft=0 resumes=1274 depth_hw=2 deptherr=0 floorerr=0 pauselat(avg/max)=0.3/16.2 us maxdefer=0.0 us ckpt=0 stack_hw=14065 reqs=637
+    [paused] check: ok region 6: pauses inside=636 deferrals inside=0, total pauses=637, max deferral=0 us -> YIELDABLE
+    result: ok	611641487
+RESULT index_metamethod PASS 
+CASE tests/t4_cboundary.lua:lt_metamethod
+    [ref   ] FINISHED 570 ms: okyields=0 events=0 dropped=0 pauses=0 hookpauses=0 prop=0 failprop=0 defer=0 soft=0 resumes=2 depth_hw=2 deptherr=0 floorerr=0 pauselat(avg/max)=0.0/0.0 us maxdefer=0.0 us ckpt=0 stack_hw=14065 reqs=0
+    [ref   ] check: ok region 7: pauses inside=0 deferrals inside=0, total pauses=0, max deferral=0 us -> no hook hit
+    [paused] FINISHED 574 ms: okyields=0 events=0 dropped=0 pauses=639 hookpauses=639 prop=1276 failprop=0 defer=0 soft=0 resumes=1278 depth_hw=2 deptherr=0 floorerr=0 pauselat(avg/max)=0.6/127.2 us maxdefer=0.0 us ckpt=0 stack_hw=14065 reqs=639
+    [paused] check: ok region 7: pauses inside=637 deferrals inside=0, total pauses=639, max deferral=0 us -> YIELDABLE
+    result: ok	49
+RESULT lt_metamethod PASS 
+CASE tests/t4_cboundary.lua:arith_concat_eq_call_len
+    [ref   ] FINISHED 414 ms: okyields=0 events=0 dropped=0 pauses=0 hookpauses=0 prop=0 failprop=0 defer=0 soft=0 resumes=2 depth_hw=2 deptherr=0 floorerr=0 pauselat(avg/max)=0.0/0.0 us maxdefer=0.0 us ckpt=0 stack_hw=14065 reqs=0
+    [ref   ] check: ok region 8: pauses inside=0 deferrals inside=0, total pauses=0, max deferral=0 us -> no hook hit
+    [paused] FINISHED 413 ms: okyields=0 events=0 dropped=0 pauses=476 hookpauses=476 prop=950 failprop=0 defer=1 soft=0 resumes=952 depth_hw=2 deptherr=0 floorerr=0 pauselat(avg/max)=0.4/86.3 us maxdefer=85.7 us ckpt=0 stack_hw=14065 reqs=476
+    [paused] check: ok region 8: pauses inside=475 deferrals inside=1, total pauses=476, max deferral=86 us -> YIELDABLE
+    result: ok	124708230
+RESULT arith_concat_eq_call_len PASS 
+CASE tests/t4_cboundary.lua:tostring_metamethod
+    [ref   ] FINISHED 569 ms: okyields=0 events=0 dropped=0 pauses=0 hookpauses=0 prop=0 failprop=0 defer=0 soft=0 resumes=2 depth_hw=2 deptherr=0 floorerr=0 pauselat(avg/max)=0.0/0.0 us maxdefer=0.0 us ckpt=0 stack_hw=14065 reqs=0
+    [ref   ] check: ok region 9: pauses inside=0 deferrals inside=0, total pauses=0, max deferral=0 us -> no hook hit
+    [paused] FINISHED 572 ms: okyields=0 events=0 dropped=0 pauses=641 hookpauses=641 prop=1280 failprop=0 defer=1 soft=0 resumes=1282 depth_hw=2 deptherr=0 floorerr=0 pauselat(avg/max)=0.3/36.0 us maxdefer=35.8 us ckpt=0 stack_hw=14065 reqs=641
+    [paused] check: ok region 9: pauses inside=640 deferrals inside=1, total pauses=641, max deferral=36 us -> YIELDABLE
+    result: ok	455559729
+RESULT tostring_metamethod PASS 
+CASE tests/t4_cboundary.lua:format_tostring
+    [ref   ] FINISHED 571 ms: okyields=0 events=0 dropped=0 pauses=0 hookpauses=0 prop=0 failprop=0 defer=0 soft=0 resumes=2 depth_hw=2 deptherr=0 floorerr=0 pauselat(avg/max)=0.0/0.0 us maxdefer=0.0 us ckpt=0 stack_hw=14065 reqs=0
+    [ref   ] check: ok region 10: pauses inside=0 deferrals inside=0, total pauses=0, max deferral=0 us -> no hook hit
+    [paused] FINISHED 570 ms: okyields=0 events=0 dropped=0 pauses=2 hookpauses=2 prop=2 failprop=0 defer=2907 soft=0 resumes=4 depth_hw=2 deptherr=0 floorerr=0 pauselat(avg/max)=479.0/957.5 us maxdefer=73473.0 us ckpt=0 stack_hw=14065 reqs=638
+    [paused] check: ok region 10: pauses inside=0 deferrals inside=2906, total pauses=2, max deferral=73473 us -> DEFERRED
+    result: ok	455559729
+RESULT format_tostring PASS 
+CASE tests/t4_cboundary.lua:sort_lt_metamethod
+    [ref   ] FINISHED 515 ms: okyields=0 events=0 dropped=0 pauses=0 hookpauses=0 prop=0 failprop=0 defer=0 soft=0 resumes=2 depth_hw=2 deptherr=0 floorerr=0 pauselat(avg/max)=0.0/0.0 us maxdefer=0.0 us ckpt=0 stack_hw=14065 reqs=0
+    [ref   ] check: ok region 11: pauses inside=0 deferrals inside=0, total pauses=0, max deferral=0 us -> no hook hit
+    [paused] FINISHED 518 ms: okyields=0 events=0 dropped=0 pauses=1 hookpauses=1 prop=0 failprop=0 defer=2626 soft=0 resumes=2 depth_hw=2 deptherr=0 floorerr=0 pauselat(avg/max)=0.3/0.3 us maxdefer=0.0 us ckpt=0 stack_hw=14065 reqs=565
+    [paused] check: ok region 11: pauses inside=0 deferrals inside=2617, total pauses=1, max deferral=0 us -> DEFERRED
+    result: ok	1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20
+RESULT sort_lt_metamethod PASS 
+CASE tests/t4_cboundary.lua:wrap_inside_gsub
+    [ref   ] FINISHED 519 ms: okyields=0 events=0 dropped=0 pauses=0 hookpauses=0 prop=0 failprop=0 defer=0 soft=0 resumes=602 depth_hw=3 deptherr=0 floorerr=0 pauselat(avg/max)=0.0/0.0 us maxdefer=0.0 us ckpt=0 stack_hw=15649 reqs=0
+    [ref   ] check: ok region 12: pauses inside=0 deferrals inside=0, total pauses=0, max deferral=0 us -> no hook hit
+    [paused] FINISHED 518 ms: okyields=0 events=0 dropped=0 pauses=1 hookpauses=1 prop=0 failprop=0 defer=2630 soft=0 resumes=602 depth_hw=3 deptherr=0 floorerr=0 pauselat(avg/max)=0.7/0.7 us maxdefer=0.0 us ckpt=0 stack_hw=15649 reqs=572
+    [paused] check: ok region 12: pauses inside=0 deferrals inside=2625, total pauses=1, max deferral=0 us -> DEFERRED
+    result: ok	400	1236045586
+RESULT wrap_inside_gsub PASS 
+CASE tests/t4_cboundary.lua:load_reader
+    [ref   ] FINISHED 514 ms: okyields=0 events=0 dropped=0 pauses=0 hookpauses=0 prop=0 failprop=0 defer=0 soft=0 resumes=2 depth_hw=2 deptherr=0 floorerr=0 pauselat(avg/max)=0.0/0.0 us maxdefer=0.0 us ckpt=0 stack_hw=14065 reqs=0
+    [ref   ] check: ok region 13: pauses inside=0 deferrals inside=0, total pauses=0, max deferral=0 us -> no hook hit
+    [paused] FINISHED 519 ms: okyields=0 events=0 dropped=0 pauses=1 hookpauses=1 prop=0 failprop=0 defer=2646 soft=0 resumes=2 depth_hw=2 deptherr=0 floorerr=0 pauselat(avg/max)=0.4/0.4 us maxdefer=0.0 us ckpt=0 stack_hw=14065 reqs=577
+    [paused] check: ok region 13: pauses inside=0 deferrals inside=2645, total pauses=1, max deferral=0 us -> DEFERRED
+    result: ok	582671254
+RESULT load_reader PASS 
+CASE tests/t4_cboundary.lua:gsub_sort_nested
+    [ref   ] FINISHED 226 ms: okyields=0 events=0 dropped=0 pauses=0 hookpauses=0 prop=0 failprop=0 defer=0 soft=0 resumes=2 depth_hw=2 deptherr=0 floorerr=0 pauselat(avg/max)=0.0/0.0 us maxdefer=0.0 us ckpt=0 stack_hw=14065 reqs=0
+    [ref   ] check: ok region 14: pauses inside=0 deferrals inside=0, total pauses=0, max deferral=0 us -> no hook hit
+    [paused] FINISHED 226 ms: okyields=0 events=0 dropped=0 pauses=1 hookpauses=1 prop=0 failprop=0 defer=1152 soft=0 resumes=2 depth_hw=2 deptherr=0 floorerr=0 pauselat(avg/max)=0.3/0.3 us maxdefer=0.0 us ckpt=0 stack_hw=14065 reqs=253
+    [paused] check: ok region 14: pauses inside=0 deferrals inside=1149, total pauses=1, max deferral=0 us -> DEFERRED
+    result: ok	yyyyy	665508034
+RESULT gsub_sort_nested PASS 
+CASE tests/t4_cboundary.lua:table_foreach
+    [ref   ] FINISHED 570 ms: okyields=0 events=0 dropped=0 pauses=0 hookpauses=0 prop=0 failprop=0 defer=0 soft=0 resumes=2 depth_hw=2 deptherr=0 floorerr=0 pauselat(avg/max)=0.0/0.0 us maxdefer=0.0 us ckpt=0 stack_hw=14065 reqs=0
+    [ref   ] check: ok region 15: pauses inside=0 deferrals inside=0, total pauses=0, max deferral=0 us -> no hook hit
+    [paused] FINISHED 572 ms: okyields=0 events=0 dropped=0 pauses=625 hookpauses=625 prop=1248 failprop=0 defer=1 soft=0 resumes=1250 depth_hw=2 deptherr=0 floorerr=0 pauselat(avg/max)=0.5/121.3 us maxdefer=120.9 us ckpt=0 stack_hw=14065 reqs=625
+    [paused] check: ok region 15: pauses inside=624 deferrals inside=1, total pauses=625, max deferral=121 us -> YIELDABLE
+    result: ok	611641487
+RESULT table_foreach PASS 
+CASE tests/t4_cboundary.lua:pairs_metamethod
+    [ref   ] FINISHED 571 ms: okyields=0 events=0 dropped=0 pauses=0 hookpauses=0 prop=0 failprop=0 defer=0 soft=0 resumes=2 depth_hw=2 deptherr=0 floorerr=0 pauselat(avg/max)=0.0/0.0 us maxdefer=0.0 us ckpt=0 stack_hw=14065 reqs=0
+    [ref   ] check: ok region 16: pauses inside=0 deferrals inside=0, total pauses=0, max deferral=0 us -> no hook hit
+    [paused] FINISHED 572 ms: okyields=0 events=0 dropped=0 pauses=632 hookpauses=632 prop=1262 failprop=0 defer=0 soft=0 resumes=1264 depth_hw=2 deptherr=0 floorerr=0 pauselat(avg/max)=0.4/78.2 us maxdefer=0.0 us ckpt=0 stack_hw=14065 reqs=632
+    [paused] check: ok region 16: pauses inside=631 deferrals inside=0, total pauses=632, max deferral=0 us -> YIELDABLE
+    result: ok	611641487
+RESULT pairs_metamethod PASS 
+CASE tests/t4_cboundary.lua:gmatch_loop
+    [ref   ] FINISHED 572 ms: okyields=0 events=0 dropped=0 pauses=0 hookpauses=0 prop=0 failprop=0 defer=0 soft=0 resumes=2 depth_hw=2 deptherr=0 floorerr=0 pauselat(avg/max)=0.0/0.0 us maxdefer=0.0 us ckpt=0 stack_hw=14065 reqs=0
+    [ref   ] check: ok region 17: pauses inside=0 deferrals inside=0, total pauses=0, max deferral=0 us -> no hook hit
+    [paused] FINISHED 571 ms: okyields=0 events=0 dropped=0 pauses=640 hookpauses=640 prop=1278 failprop=0 defer=0 soft=0 resumes=1280 depth_hw=2 deptherr=0 floorerr=0 pauselat(avg/max)=0.4/91.4 us maxdefer=0.0 us ckpt=0 stack_hw=14065 reqs=640
+    [paused] check: ok region 17: pauses inside=639 deferrals inside=0, total pauses=640, max deferral=0 us -> YIELDABLE
+    result: ok	1032743471
+RESULT gmatch_loop PASS 

@@ -1,0 +1,26 @@
+plugins {
+    id 'net.fabricmc.fabric-loom-remap'
+}
+
+dependencies {
+    minecraft "com.mojang:minecraft:${minecraft_version}"
+    mappings loom.officialMojangMappings()
+    modImplementation "net.fabricmc:fabric-loader:${fabric_loader_version}"
+    modRuntimeOnly "net.fabricmc.fabric-api:fabric-api:${fabric_api_version}"
+
+    compileOnly project(':common')
+    compileOnly "cc.tweaked:cc-tweaked-${minecraft_version}-core-api:${cct_version}"
+    compileOnly "cc.tweaked:cc-tweaked-${minecraft_version}-core:${cct_version}"
+    compileOnly "cc.tweaked:cc-tweaked-${minecraft_version}-common:${cct_version}"
+    modRuntimeOnly "cc.tweaked:cc-tweaked-${minecraft_version}-fabric:${cct_version}"
+}
+
+// Compile the common sources/resources straight into this jar (MultiLoader-Template style) instead of jar-in-jar.
+tasks.named('compileJava', JavaCompile) { source(project(':common').sourceSets.main.allSource) }
+tasks.named('sourcesJar', Jar) { from(project(':common').sourceSets.main.allSource); exclude 'natives/**' }
+def modVersion = project.version.toString() // captured at configuration time (no Task.project at execution)
+tasks.named('processResources', ProcessResources) {
+    from(project(':common').sourceSets.main.resources)
+    inputs.property 'version', modVersion
+    filesMatching('fabric.mod.json') { expand 'version': modVersion }
+}

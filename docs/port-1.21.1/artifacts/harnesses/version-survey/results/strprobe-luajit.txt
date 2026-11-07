@@ -1,0 +1,273 @@
+== _VERSION candidates:
+   [0] "Lua 5.2"
+   [1] "Lua 5.2 (LuaJIT)"
+   [2] "Lua 5.2 LuaJIT 2.1"
+   [3] "LuaJIT 2.1 (Lua 5.2)"
+   [4] "Lua 5.2 (CCLuaJIT 0.1.0)"
+_VERSION == "Lua 5.1"                                        | CraftOS-PC bios.lua:37, Basalt, Phoenix, telem, dr-roboto
+      [0] false
+      [1] false
+      [2] false
+      [3] false
+      [4] false
+_VERSION == "Lua 5.2"                                        | sha2.lua:140, Phoenix kernel.lua:7988
+      [0] true
+      [1] DIFF false
+      [2] DIFF false
+      [3] DIFF false
+      [4] DIFF false
+_VERSION < "Lua 5.2"                                         | Phoenix 00-init.lua:161
+      [0] false
+      [1] false
+      [2] false
+      [3] false
+      [4] false
+_VERSION >= "Lua 5.2"                                        | 20 non-CC files
+      [0] true
+      [1] true
+      [2] true
+      [3] true
+      [4] true
+_VERSION <= "Lua 5.1"                                        | 9 non-CC files
+      [0] false
+      [1] false
+      [2] false
+      [3] false
+      [4] false
+_VERSION < 'Lua 5.3'                                         | lua-MessagePack MessagePack.lua:13
+      [0] true
+      [1] true
+      [2] true
+      [3] DIFF false
+      [4] true
+_VERSION >= "Lua 5.3"                                        | non-CC
+      [0] false
+      [1] false
+      [2] false
+      [3] DIFF true
+      [4] false
+_VERSION:sub(-3)                                             | compat53 module.lua:2
+      [0] "5.2"
+      [1] DIFF "IT)"
+      [2] DIFF "2.1"
+      [3] DIFF ".2)"
+      [4] DIFF ".0)"
+_VERSION:sub(5)                                              | luarocks util.lua:425
+      [0] "5.2"
+      [1] DIFF "5.2 (LuaJIT)"
+      [2] DIFF "5.2 LuaJIT 2.1"
+      [3] DIFF "IT 2.1 (Lua 5.2)"
+      [4] DIFF "5.2 (CCLuaJIT 0.1.0)"
+tonumber(_VERSION:sub(5))                                    | common idiom
+      [0] 5.2
+      [1] DIFF nil
+      [2] DIFF nil
+      [3] DIFF nil
+      [4] DIFF nil
+_VERSION:match("^Lua 5%.2")                                  | non-CC
+      [0] "Lua 5.2"
+      [1] "Lua 5.2"
+      [2] "Lua 5.2"
+      [3] DIFF nil
+      [4] "Lua 5.2"
+_VERSION:match('^Lua 5%.[12]$')                              | non-CC
+      [0] "Lua 5.2"
+      [1] DIFF nil
+      [2] DIFF nil
+      [3] DIFF nil
+      [4] DIFF nil
+_VERSION:match("(%d+%.%d+)")                                 | non-CC
+      [0] "5.2"
+      [1] "5.2"
+      [2] "5.2"
+      [3] DIFF "2.1"
+      [4] "5.2"
+_VERSION:match("Lua (%d%.%d)")                               | non-CC
+      [0] "5.2"
+      [1] "5.2"
+      [2] "5.2"
+      [3] "5.2"
+      [4] "5.2"
+_VERSION:match("Lua (%S+)")                                  | non-CC
+      [0] "5.2"
+      [1] "5.2"
+      [2] "5.2"
+      [3] DIFF "5.2)"
+      [4] "5.2"
+tonumber(_VERSION:match("%d%.*%d*"))                         | non-CC
+      [0] 5.2
+      [1] 5.2
+      [2] 5.2
+      [3] DIFF 2.1
+      [4] 5.2
+tonumber((_VERSION or ''):match('[%d.]*$')) or 0             | Teal _tl_compat (inspect.lua:1, RobertBouillon)
+      [0] 5.2
+      [1] DIFF 0
+      [2] DIFF 2.1
+      [3] DIFF 0
+      [4] DIFF 0
+_VERSION:find("5.1")                                         | CCJam-2017 vim.lua:3
+      [0] nil
+      [1] nil
+      [2] nil
+      [3] nil
+      [4] nil
+tonumber(_VERSION:match("Lua (%d+)")) .. "/" .. tonumber(_VE | croissant do.lua:342-343
+      [0] "5/2"
+      [1] "5/2"
+      [2] "5/2"
+      [3] "5/2"
+      [4] "5/2"
+_VERSION:match("^Lua 5%.([1-5])")                            | non-CC
+      [0] "2"
+      [1] "2"
+      [2] "2"
+      [3] DIFF nil
+      [4] "2"
+== _HOST candidates:
+   [0] "ComputerCraft 1.121.0 (Minecraft 1.21.1)"
+   [1] "ComputerCraft 1.121.0 (Minecraft 1.21.1) (CCLuaJIT 0.1.0; LuaJIT 2.1)"
+   [2] "ComputerCraft 1.121.0 (Minecraft 1.21.1) (CCLuaJIT 0.1.0)"
+   [3] "ComputerCraft 1.121.0 (Minecraft 1.21.1; CCLuaJIT 0.1.0)"
+   [4] "ComputerCraft 1.121.0 (Minecraft 1.21.1) CCLuaJIT/0.1.0"
+   [5] "ComputerCraft 1.121.0 (Minecraft 1.21.1) (UnBIOS)"
+_HOST:match("ComputerCraft 1%.1%d+")                         | rawterm.lua:279, Phoenix 00-init.lua:1107
+      [0] "ComputerCraft 1.121"
+      [1] "ComputerCraft 1.121"
+      [2] "ComputerCraft 1.121"
+      [3] "ComputerCraft 1.121"
+      [4] "ComputerCraft 1.121"
+      [5] "ComputerCraft 1.121"
+(_HOST:gsub("(ComputerCraft 1%.)([02-9])", "%10%2"))         | rawterm.lua:281
+      [0] "ComputerCraft 1.121.0 (Minecraft 1.21.1)"
+      [1] DIFF "ComputerCraft 1.121.0 (Minecraft 1.21.1) (CCLuaJIT 0.1.0; LuaJIT 2.1)"
+      [2] DIFF "ComputerCraft 1.121.0 (Minecraft 1.21.1) (CCLuaJIT 0.1.0)"
+      [3] DIFF "ComputerCraft 1.121.0 (Minecraft 1.21.1; CCLuaJIT 0.1.0)"
+      [4] DIFF "ComputerCraft 1.121.0 (Minecraft 1.21.1) CCLuaJIT/0.1.0"
+      [5] DIFF "ComputerCraft 1.121.0 (Minecraft 1.21.1) (UnBIOS)"
+_HOST:match("ComputerCraft ([0-9%.]+)")                      | rawterm.lua:283
+      [0] "1.121.0"
+      [1] "1.121.0"
+      [2] "1.121.0"
+      [3] "1.121.0"
+      [4] "1.121.0"
+      [5] "1.121.0"
+tonumber(_HOST:match("ComputerCraft 1.(%d+)"))               | Phoenix kernel.lua:365
+      [0] 121
+      [1] 121
+      [2] 121
+      [3] 121
+      [4] 121
+      [5] 121
+tonumber(_HOST:sub(17, 19))                                  | kwei install.lua:137
+      [0] 121
+      [1] 121
+      [2] 121
+      [3] 121
+      [4] 121
+      [5] 121
+_HOST:match("%(.-%)"):sub(2, -2)                             | obsi2.lua:2004
+      [0] "Minecraft 1.21.1"
+      [1] "Minecraft 1.21.1"
+      [2] "Minecraft 1.21.1"
+      [3] DIFF "Minecraft 1.21.1; CCLuaJIT 0.1.0"
+      [4] "Minecraft 1.21.1"
+      [5] "Minecraft 1.21.1"
+_HOST:sub(15, 21)                                            | obsi2.lua:2005
+      [0] "1.121.0"
+      [1] "1.121.0"
+      [2] "1.121.0"
+      [3] "1.121.0"
+      [4] "1.121.0"
+      [5] "1.121.0"
+_HOST:lower():match("minecraft")                             | obsi2.lua:2007
+      [0] "minecraft"
+      [1] "minecraft"
+      [2] "minecraft"
+      [3] "minecraft"
+      [4] "minecraft"
+      [5] "minecraft"
+_HOST:sub(15, #_HOST) >= "1.80"                              | wave.lua:34
+      [0] false
+      [1] false
+      [2] false
+      [3] false
+      [4] false
+      [5] false
+local m = {} for s in string.gmatch(_HOST, "%S+") do m[#m +  | qtccv wave.lua:40-44 (2nd word)
+      [0] "1.121.0"
+      [1] "1.121.0"
+      [2] "1.121.0"
+      [3] "1.121.0"
+      [4] "1.121.0"
+      [5] "1.121.0"
+(_HOST:find("CCEmuX") or _HOST:find("CC:Tweaked") or _HOST:f | disknet.lua:17
+      [0] true
+      [1] true
+      [2] true
+      [3] true
+      [4] true
+      [5] true
+_HOST:sub(_HOST:find("Minecraft") + 10):sub(1, -2):gsub("^%s | clsTurtle.lua:32 (Inksaver)
+      [0] "1.21.1"
+      [1] DIFF "1.21.1) (CCLuaJIT 0.1.0; LuaJIT 2.1"
+      [2] DIFF "1.21.1) (CCLuaJIT 0.1.0"
+      [3] DIFF "1.21.1; CCLuaJIT 0.1.0"
+      [4] DIFF "1.21.1) CCLuaJIT/0.1."
+      [5] DIFF "1.21.1) (UnBIOS"
+local v = _HOST:sub(_HOST:find("Minecraft") + 10):sub(1, -2) | clsTurtle.lua:35-42 (minor version)
+      [0] "1.21 minor=1"
+      [1] DIFF "1.21 minor=nil"
+      [2] DIFF "1.21 minor=nil"
+      [3] DIFF "1.21 minor=nil"
+      [4] DIFF "1.21 minor=nil"
+      [5] DIFF "1.21 minor=nil"
+_HOST:match("^[^%(]+")                                       | yellowbox.lua:113
+      [0] "ComputerCraft 1.121.0 "
+      [1] "ComputerCraft 1.121.0 "
+      [2] "ComputerCraft 1.121.0 "
+      [3] "ComputerCraft 1.121.0 "
+      [4] "ComputerCraft 1.121.0 "
+      [5] "ComputerCraft 1.121.0 "
+(_HOST:gsub("^ComputerCraft ", "CC: Tweaked "))              | WardenOS neofetch.lua:41
+      [0] "CC: Tweaked 1.121.0 (Minecraft 1.21.1)"
+      [1] DIFF "CC: Tweaked 1.121.0 (Minecraft 1.21.1) (CCLuaJIT 0.1.0; LuaJIT 2.1)"
+      [2] DIFF "CC: Tweaked 1.121.0 (Minecraft 1.21.1) (CCLuaJIT 0.1.0)"
+      [3] DIFF "CC: Tweaked 1.121.0 (Minecraft 1.21.1; CCLuaJIT 0.1.0)"
+      [4] DIFF "CC: Tweaked 1.121.0 (Minecraft 1.21.1) CCLuaJIT/0.1.0"
+      [5] DIFF "CC: Tweaked 1.121.0 (Minecraft 1.21.1) (UnBIOS)"
+_HOST:find("CraftOS%-PC") ~= nil                             | Basalt main.lua:458, love.lua:25
+      [0] false
+      [1] false
+      [2] false
+      [3] false
+      [4] false
+      [5] false
+string.find(_HOST, "CraftOS-PC", 1, true) ~= nil             | Kristify init.lua:141
+      [0] false
+      [1] false
+      [2] false
+      [3] false
+      [4] false
+      [5] false
+_HOST:match("CraftOS%-PC [%a]* ?(v[%d%.]+)")                 | craftos2-rom motd.lua:13
+      [0] nil
+      [1] nil
+      [2] nil
+      [3] nil
+      [4] nil
+      [5] nil
+_HOST:find("UnBIOS") ~= nil                                  | UnBIOS unbios.lua:16
+      [0] false
+      [1] false
+      [2] false
+      [3] false
+      [4] false
+      [5] DIFF true
+string.find(_HOST, "Minecraft 1.20.1") ~= nil                | 19PHOBOSS98 DroneBaseClassSP.lua:151
+      [0] false
+      [1] false
+      [2] false
+      [3] false
+      [4] false
+      [5] false

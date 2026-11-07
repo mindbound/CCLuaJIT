@@ -1,0 +1,276 @@
+diff --git a/src/lj_lex.c b/src/lj_lex.c
+index 7a9ab09d..af0c485e 100644
+--- a/src/lj_lex.c
++++ b/src/lj_lex.c
+@@ -99,12 +99,12 @@ static void lex_number(LexState *ls, TValue *tv)
+   lj_assertLS(lj_char_isdigit(ls->c), "bad usage");
+   if ((c = ls->c) == '0') {
+     lex_save(ls, c);
+-    do { c = lex_next(ls); } while (c == '_');
++    do { c = lex_next(ls); } while (LJ_V3SYNTAX && c == '_');
+     if ((c | 0x20) == 'x') xp = 'p';
+   }
+   while (lj_char_isident(ls->c) || ls->c == '.' ||
+ 	 ((ls->c == '-' || ls->c == '+') && (c | 0x20) == xp)) {
+-    if (LJ_LIKELY(ls->c != '_')) {
++    if (LJ_LIKELY(!LJ_V3SYNTAX || ls->c != '_')) {
+       c = ls->c;
+       lex_save(ls, ls->c);
+     }
+@@ -367,7 +367,7 @@ static LexToken lex_scan(LexState *ls, TValue *tv)
+     case '\n':
+     case '\r':
+       lex_newline(ls);
+-      while (ls->c == '#') {
++      while (LJ_V3SYNTAX && ls->c == '#') {
+ 	if (!lex_linedir(ls))
+ 	  return '#';
+       }
+@@ -381,7 +381,8 @@ static LexToken lex_scan(LexState *ls, TValue *tv)
+     case '-':
+       lex_next(ls);
+       if (ls->c != '-') {
+-	if (ls->c != '>') return '-'; else { lex_next(ls); return TK_arrow; }
++	if (!LJ_V3SYNTAX || ls->c != '>') return '-';
++	lex_next(ls); return TK_arrow;
+       }
+       lex_next(ls);
+       if (ls->c == '[') {  /* Long comment "--[=*[...]=*]". */
+@@ -415,17 +416,17 @@ static LexToken lex_scan(LexState *ls, TValue *tv)
+     case '<':
+       lex_next(ls);
+       if (ls->c == '=') { lex_next(ls); return TK_le; }
+-      if (ls->c == '<') { lex_next(ls); return TK_shl; }
++      if (LJ_V3SYNTAX && ls->c == '<') { lex_next(ls); return TK_shl; }
+       return '<';
+     case '>':
+       lex_next(ls);
+       if (ls->c == '=') { lex_next(ls); return TK_ge; }
+-      if (ls->c == '>') { lex_next(ls); return TK_shr; }
++      if (LJ_V3SYNTAX && ls->c == '>') { lex_next(ls); return TK_shr; }
+       return '>';
+     case '~':
+       lex_next(ls);
+       if (ls->c == '=') { lex_next(ls); return TK_ne; }
+-      if (ls->c == '>') {
++      if (LJ_V3SYNTAX && ls->c == '>') {
+ 	lex_next(ls);
+ 	if (ls->c != '>') lj_lex_error(ls, '~', LJ_ERR_XSYMBOL);
+ 	lex_next(ls);
+@@ -434,21 +435,24 @@ static LexToken lex_scan(LexState *ls, TValue *tv)
+       return '~';
+     case '!':
+       lex_next(ls);
+-      if (ls->c != '=') return '!'; else { lex_next(ls); return TK_ne_; }
++      if (!LJ_V3SYNTAX || ls->c != '=') return '!';
++      lex_next(ls); return TK_ne_;
+     case ':':
+       lex_next(ls);
+       if (ls->c != ':') return ':'; else { lex_next(ls); return TK_label; }
+     case '?':
+       lex_next(ls);
+-      if (ls->c == '.') { lex_next(ls); return TK_nav; }
+-      if (ls->c == '?') { lex_next(ls); return TK_coal; }
++      if (LJ_V3SYNTAX && ls->c == '.') { lex_next(ls); return TK_nav; }
++      if (LJ_V3SYNTAX && ls->c == '?') { lex_next(ls); return TK_coal; }
+       return '?';
+     case '&':
+       lex_next(ls);
+-      if (ls->c != '&') return '&'; else { lex_next(ls); return TK_and_; }
++      if (!LJ_V3SYNTAX || ls->c != '&') return '&';
++      lex_next(ls); return TK_and_;
+     case '|':
+       lex_next(ls);
+-      if (ls->c != '|') return '|'; else { lex_next(ls); return TK_or_; }
++      if (!LJ_V3SYNTAX || ls->c != '|') return '|';
++      lex_next(ls); return TK_or_;
+     case '"':
+     case '\'': {
+       LexChar delim = ls->c;
+@@ -509,7 +513,7 @@ int lj_lex_setup(lua_State *L, LexState *ls)
+     header = 1;
+   }
+   if (ls->c == '#') {
+-    if (ls->p < ls->pe && ls->p[0] == '!') {
++    if (!LJ_V3SYNTAX || (ls->p < ls->pe && ls->p[0] == '!')) {
+       /* Skip POSIX #! header line (if buffered). */
+       do {
+ 	lex_next(ls);
+@@ -603,7 +607,10 @@ void lj_lex_init(lua_State *L)
+ {
+   uint32_t i;
+   for (i = 0; i < TK_RESERVED; i++) {
+-    GCstr *s = lj_str_newz(L, tokennames[i]);
++    GCstr *s;
++    if (!LJ_V3SYNTAX && (TK_OFS+1+i == TK_const || TK_OFS+1+i == TK_continue))
++      continue;  /* Plain names, as in Lua 5.1/5.2. */
++    s = lj_str_newz(L, tokennames[i]);
+     fixstring(s);  /* Reserved words are never collected. */
+     s->reserved = (uint8_t)(i+1);
+   }
+diff --git a/src/lj_lex.h b/src/lj_lex.h
+index 03f2b2d5..71e6fa91 100644
+--- a/src/lj_lex.h
++++ b/src/lj_lex.h
+@@ -102,4 +102,13 @@ LJ_FUNC void lj_lex_init(lua_State *L);
+ #define lj_assertLS(c, ...)	((void)ls)
+ #endif
+ 
++/* CC: -DLUAJIT_DISABLE_V3_SYNTAX rejects the syntax backported from LuaJIT 3.0
++** (a2ce8114 and later). The parser then accepts the same language as before.
++*/
++#ifdef LUAJIT_DISABLE_V3_SYNTAX
++#define LJ_V3SYNTAX		0
++#else
++#define LJ_V3SYNTAX		1
++#endif
++
+ #endif
+diff --git a/src/lj_parse.c b/src/lj_parse.c
+index 9ee4c64b..00730a9b 100644
+--- a/src/lj_parse.c
++++ b/src/lj_parse.c
+@@ -1827,6 +1827,18 @@ static void expr_index(FuncState *fs, ExpDesc *t, ExpDesc *e)
+   t->u.s.aux = expr_toanyreg(fs, e);  /* 0..255: register */
+ }
+ 
++/* CC: Like lex_opt(), but with LUAJIT_DISABLE_V3_SYNTAX the prefix is
++** discharged before '.' or ':' is skipped. Its load then keeps the line
++** of the prefix, as before a2ce8114.
++*/
++static int lex_optfield(LexState *ls, ExpDesc *v, LexToken tok)
++{
++  if (ls->tok != tok) return 0;
++  if (!LJ_V3SYNTAX) expr_toanyreg(ls->fs, v);
++  lj_lex_next(ls);
++  return 1;
++}
++
+ /* Parse index expression with named field. */
+ static void expr_field(LexState *ls, ExpDesc *v)
+ {
+@@ -2036,6 +2048,7 @@ static void parse_body(LexState *ls, ExpDesc *e, int needself, BCLine line)
+   FuncScope bl;
+   fs_init(ls, &fs);
+   fscope_begin(&fs, &bl, 0);
++  fs.minline = line;  /* CC: err_limit() reads it in parse_params(). */
+   proto_begin(&fs, line, parse_params(ls, needself, '(', ')'));
+   parse_chunk(ls);
+   if (ls->tok != TK_end) lex_match(ls, TK_end, TK_function, line);
+@@ -2196,7 +2209,7 @@ static BCPos expr_primary_nav(LexState *ls, ExpDesc *v, int eflags)
+ 	  !(ls->tok == TK_nav || ls->tok == '[' || ls->tok == ':' ||
+ 	    ls->tok == '(' || ls->tok == TK_string || ls->tok == '{' ||
+ 	    ls->tok == '.')) break;
+-    } else if (nav || lex_opt(ls, '.')) {
++    } else if (nav || lex_optfield(ls, v, '.')) {
+       expr_field(ls, v);
+     } else {
+       break;
+@@ -2266,9 +2279,11 @@ static void expr_simple(LexState *ls, ExpDesc *v, int eflags)
+     lj_lex_next(ls);
+     parse_body(ls, v, 0, ls->linenumber);
+     return;
++#if LJ_V3SYNTAX
+   case '|': case TK_or_:
+     parse_shortfunc(ls, v, NULL, eflags, ls->linenumber);
+     return;
++#endif
+   default:
+     expr_primary(ls, v, eflags);
+     return;
+@@ -2299,9 +2314,11 @@ static BinOpr token2binop(LexToken tok)
+   case '/':	return OPR_DIV;
+   case '%':	return OPR_MOD;
+   case '^':	return OPR_POW;
++#if LJ_V3SYNTAX
+   case '&':	return OPR_BAND;
+   case '|':	return OPR_BOR;
+   case '~':	return OPR_BXOR;
++#endif
+   case TK_shl:	return OPR_BSHL;
+   case TK_shr:	return OPR_BSHR;
+   case TK_sar:	return OPR_BSAR;
+@@ -2343,13 +2360,13 @@ static BinOpr expr_binop(LexState *ls, ExpDesc *v, uint32_t limit, int eflags);
+ static void expr_unop(LexState *ls, ExpDesc *v, int eflags)
+ {
+   BCOp op;
+-  if (ls->tok == TK_not || ls->tok == '!') {
++  if (ls->tok == TK_not || (LJ_V3SYNTAX && ls->tok == '!')) {
+     op = BC_NOT;
+   } else if (ls->tok == '-') {
+     op = BC_UNM;
+   } else if (ls->tok == '#') {
+     op = BC_LEN;
+-  } else if (ls->tok == '~') {
++  } else if (LJ_V3SYNTAX && ls->tok == '~') {
+     op = BC_BNOT;
+   } else {
+     expr_simple(ls, v, eflags);
+@@ -2385,7 +2402,7 @@ static BinOpr expr_binop(LexState *ls, ExpDesc *v, uint32_t limit, int eflags)
+ static void expr(LexState *ls, ExpDesc *v, int eflags)
+ {
+   expr_binop(ls, v, 0, eflags);  /* Priority 0: parse whole expression. */
+-  if (lex_opt(ls, '?')) {  /* Ternary ?: conditional operator. Right-assoc. */
++  if (LJ_V3SYNTAX && lex_opt(ls, '?')) {  /* Ternary ?: operator. Right-assoc. */
+     FuncState *fs = ls->fs;
+     BCPos escapelist = NO_JMP, cond;
+     BCReg reg;
+@@ -2436,7 +2453,7 @@ static int parse_compound(LexState *ls, ExpDesc *e)
+   FuncState *fs;
+   ExpDesc estore, v;
+   BinOpr opr;
+-  if (!(e->k >= VLOCAL && e->k <= VINDEXED)) return 0;
++  if (!LJ_V3SYNTAX || !(e->k >= VLOCAL && e->k <= VINDEXED)) return 0;
+   opr = token2binop(ls->tok);
+   /* '^=' aka exponentiation assignment is deliberately omitted to avoid
+   ** confusion with xor assignment in other computer languages.
+@@ -2649,9 +2666,9 @@ static void parse_func(LexState *ls, BCLine line)
+   int needself = 0;
+   lj_lex_next(ls);  /* Skip 'function'. */
+   var_lookup(ls, &v, lex_str(ls));  /* Parse function name. */
+-  while (lex_opt(ls, '.'))  /* Multiple dot-separated fields. */
++  while (lex_optfield(ls, &v, '.'))  /* Multiple dot-separated fields. */
+     expr_field(ls, &v);
+-  if (lex_opt(ls, ':')) {  /* Optional colon to signify method call. */
++  if (lex_optfield(ls, &v, ':')) {  /* Optional colon to signify method call. */
+     needself = 1;
+     expr_field(ls, &v);
+   }
+@@ -2771,7 +2788,7 @@ static void parse_label(LexState *ls)
+       synlevel_begin(ls);
+       parse_label(ls);
+       synlevel_end(ls);
+-    } else if (ls->tok == ';') {
++    } else if ((LJ_52 || LJ_V3SYNTAX) && ls->tok == ';') {
+       lj_lex_next(ls);
+     } else {
+       break;
+@@ -3068,14 +3085,17 @@ static int parse_stmt(LexState *ls)
+     parse_continue(ls);
+     return 1;  /* Must be last. */
+   }
++#if LJ_52 || LJ_V3SYNTAX
+   case ';':
+     lj_lex_next(ls);
+     break;
++#endif
+   case TK_label:
+     parse_label(ls);
+     break;
+   case TK_goto:
+-    if (LJ_GOTO_RESERVED || lex_isname(lj_lex_lookahead(ls))) {  /* 5.1 soft keyword. */
++    if (LJ_GOTO_RESERVED || (LJ_V3SYNTAX ? lex_isname(lj_lex_lookahead(ls)) :
++					   lj_lex_lookahead(ls) == TK_name)) {
+       lj_lex_next(ls);
+       parse_goto(ls);
+       break;
+@@ -3096,7 +3116,8 @@ static void parse_chunk(LexState *ls)
+   synlevel_begin(ls);
+   while (!islast && !parse_isend(ls->tok)) {
+     islast = parse_stmt(ls);
+-    while (ls->tok == ';') lj_lex_next(ls);
++    if (LJ_V3SYNTAX) { while (ls->tok == ';') lj_lex_next(ls); }
++    else lex_opt(ls, ';');
+     lj_assertLS(ls->fs->framesize >= ls->fs->freereg &&
+ 		ls->fs->freereg >= ls->fs->nactvar,
+ 		"bad regalloc");

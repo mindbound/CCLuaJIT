@@ -1,0 +1,33 @@
+From fa2c8be5c740300fca0942eee2c2966bc4353b44 Mon Sep 17 00:00:00 2001
+From: Mike Pall <mike>
+Date: Wed, 14 Oct 2026 16:31:01 +0200
+Subject: [PATCH 17/26] Windows: Use 64 bit conversion for tonumber() with
+ base.
+
+Thanks to yEv3yKw. #911 #1523
+
+(cherry picked from commit 2a8e017ef1ece6a95b983ffca073d30609dce7c4)
+---
+ src/lib_base.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/src/lib_base.c b/src/lib_base.c
+index f120b2de..f19f550b 100644
+--- a/src/lib_base.c
++++ b/src/lib_base.c
+@@ -298,13 +298,13 @@ LJLIB_ASM(tonumber)		LJLIB_REC(.)
+     const char *p = strdata(lj_lib_checkstr(L, 1));
+     char *ep;
+     unsigned int neg = 0;
+-    unsigned long ul;
++    unsigned long long ul;
+     if (base < 2 || base > 36)
+       lj_err_arg(L, 2, LJ_ERR_BASERNG);
+     while (lj_char_isspace((unsigned char)(*p))) p++;
+     if (*p == '-') { p++; neg = 1; } else if (*p == '+') { p++; }
+     if (lj_char_isalnum((unsigned char)(*p))) {
+-      ul = strtoul(p, &ep, base);
++      ul = strtoull(p, &ep, base);
+       if (p != ep) {
+ 	while (lj_char_isspace((unsigned char)(*ep))) ep++;
+ 	if (*ep == '\0') {

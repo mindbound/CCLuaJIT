@@ -1,0 +1,24 @@
+From f9407ae8ca5e3f85c1aefb9e9a8fb2193648ff10 Mon Sep 17 00:00:00 2001
+From: Mike Pall <mike>
+Date: Tue, 13 Oct 2026 12:11:01 +0200
+Subject: [PATCH 14/26] FFI: Fix recording of string buffer put() method.
+
+Thanks to GitSparTV. #1527
+
+(cherry picked from commit 9451be00e2f3df5eafeb1b76f96da9d028908c1c)
+---
+ src/lj_ffrecord.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/src/lj_ffrecord.c b/src/lj_ffrecord.c
+index 6c74f40f..3743b3f1 100644
+--- a/src/lj_ffrecord.c
++++ b/src/lj_ffrecord.c
+@@ -1328,6 +1328,7 @@ static void LJ_FASTCALL recff_buffer_method_put(jit_State *J, RecordFFData *rd)
+       trbuf = lj_ir_call(J, IRCALL_lj_buf_putmem, trbuf, trr, len);
+     } else {
+       recff_nyiu(J, rd);
++      return;
+     }
+   }
+   emitir(IRT(IR_USE, IRT_NIL), trbuf, 0);

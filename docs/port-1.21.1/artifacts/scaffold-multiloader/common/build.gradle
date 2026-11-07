@@ -1,0 +1,34 @@
+// Loader-independent code. CCLuaJIT only talks to CC:T core (no Minecraft classes), so this is a plain Java
+// library: no Loom, no MDG, no Minecraft jar, no mappings.
+dependencies {
+    compileOnly "cc.tweaked:cc-tweaked-${minecraft_version}-core-api:${cct_version}"
+    compileOnly "cc.tweaked:cc-tweaked-${minecraft_version}-core:${cct_version}"
+    // ServerContext (the one static field we set) is in CC:T "common". It is Mojang-named, but we never touch a
+    // Minecraft type, so javac does not need Minecraft on the classpath.
+    compileOnly "cc.tweaked:cc-tweaked-${minecraft_version}-common:${cct_version}"
+    // Provided by Minecraft at runtime on both loaders (MC 1.21.1 ships slf4j 2.0.9).
+    compileOnly "org.slf4j:slf4j-api:2.0.9"
+}
+
+// Natives: CI drops <platform>/<lib> folders into -Pcclj.nativesDir (default: <root>/natives/out). They are
+// packaged at natives/<platform>/<lib> inside the jar, where NativeLoader looks for them.
+def nativesDir = rootProject.file(findProperty('cclj.nativesDir') ?: 'natives/out')
+def expectedNatives = ['windows-x86_64/cclj.dll', 'linux-x86_64/libcclj.so', 'linux-aarch64/libcclj.so',
+                       'macos-x86_64/libcclj.dylib', 'macos-aarch64/libcclj.dylib']
+def requireAll = findProperty('cclj.requireAllNatives') == 'true'
+def collectNatives = tasks.register('collectNatives', Sync) {
+    from(nativesDir) { include expectedNatives }
+    into layout.buildDirectory.dir('generated/natives/natives')
+    inputs.property('requireAll', requireAll)
+    doFirst {
+        def missing = expectedNatives.findAll { !new File(nativesDir, it).isFile() }
+        if (!missing.isEmpty()) {
+            if (requireAll) throw new GradleException("Missing natives in ${nativesDir}: ${missing}")
+            logger.warn("CCLuaJIT: building without natives for ${missing}")
+        }
+    }
+}
+sourceSets.main.resources.srcDir(collectNatives.map { it.destinationDir.parentFile })
+
+// Keep the ~0.6 MB-per-platform binaries out of the -sources jars.
+tasks.named('sourcesJar', Jar) { exclude 'natives/**' }

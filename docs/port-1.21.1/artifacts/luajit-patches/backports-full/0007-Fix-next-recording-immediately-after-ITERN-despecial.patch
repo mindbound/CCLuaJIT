@@ -1,0 +1,27 @@
+From 3b7366639526d6e52ec5b7b972f048f9108803d1 Mon Sep 17 00:00:00 2001
+From: Mike Pall <mike>
+Date: Tue, 18 Aug 2026 15:08:34 +0200
+Subject: [PATCH 07/26] Fix next() recording immediately after ITERN
+ despecialization.
+
+Thanks to rvanschoren. #1510
+
+(cherry picked from commit 27f169c6c64175896d86e14f0d23c8d85c119c2c)
+---
+ src/lj_ffrecord.c | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/src/lj_ffrecord.c b/src/lj_ffrecord.c
+index 851a9788..cca24cc6 100644
+--- a/src/lj_ffrecord.c
++++ b/src/lj_ffrecord.c
+@@ -601,6 +601,9 @@ static void LJ_FASTCALL recff_next(jit_State *J, RecordFFData *rd)
+     if (tref_isnil(J->base[1])) {  /* Shortcut for start of traversal. */
+       ix.key = lj_ir_kint(J, 0);
+       keyv = niltvg(J2G(J));
++    } else if ((J->base[1] & TREF_KEYINDEX)) {
++      ix.key = J->base[1] & ~TREF_KEYINDEX;
++      keyv = &rd->argv[1];
+     } else {
+       TRef tmp = recff_tmpref(J, J->base[1], IRTMPREF_IN1);
+       ix.key = lj_ir_call(J, IRCALL_lj_tab_keyindex, tab, tmp);

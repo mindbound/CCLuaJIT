@@ -1,0 +1,34 @@
+plugins {
+    id 'net.neoforged.moddev'
+}
+
+neoForge {
+    version = neoforge_version
+    runs {
+        client { client() }
+        server { server() }
+    }
+    mods {
+        ccluajit {
+            sourceSet(sourceSets.main)
+        }
+    }
+}
+
+dependencies {
+    compileOnly project(':common')
+    compileOnly "cc.tweaked:cc-tweaked-${minecraft_version}-core-api:${cct_version}"
+    compileOnly "cc.tweaked:cc-tweaked-${minecraft_version}-core:${cct_version}"
+    compileOnly "cc.tweaked:cc-tweaked-${minecraft_version}-common:${cct_version}"
+    // The CC:T "forge" artifact is the NeoForge mod (META-INF/neoforge.mods.toml, Cobalt inside via jarJar).
+    runtimeOnly "cc.tweaked:cc-tweaked-${minecraft_version}-forge:${cct_version}"
+}
+
+tasks.named('compileJava', JavaCompile) { source(project(':common').sourceSets.main.allSource) }
+tasks.named('sourcesJar', Jar) { from(project(':common').sourceSets.main.allSource); exclude 'natives/**' }
+def props = [mod_version: project.version]
+tasks.named('processResources', ProcessResources) {
+    from(project(':common').sourceSets.main.resources)
+    inputs.properties(props)
+    filesMatching('META-INF/neoforge.mods.toml') { expand(props) }
+}

@@ -1,0 +1,26 @@
+t1_parallel: rc=0 1 pass, 0 fail
+t2_nesting: rc=0 3 pass, 0 fail
+t3_semantics: rc=0 6 pass, 0 fail
+t4_cboundary: rc=0 17 pass, 0 fail
+t5_abort: rc=0 9 pass, 0 fail
+t6_depth: rc=0 7 pass, 0 fail
+t7_bench: rc=0 3 pass, 0 fail
+fast-t1_parallel: rc=0 1 pass
+fast-t2_nesting: rc=0 3 pass
+fast-t3_semantics: rc=0 6 pass
+hard-abort latency over 42 runs: min 0.1 us, median 3.9 us, max 38.5 us
+naive control: rc=1 (expected 1) RESULT parallel FAIL kind ERROR vs ref FINISHED check failed expected FINISHED got ERROR
+./run-linux.sh: line 20:   626 Segmentation fault         ./pausehost-linux --native-nest > logs/native-nest.log 2>&1
+native nesting: rc=139 (139 = SIGSEGV) depth 13000 stack 1044825
+./run-linux.sh: line 21:   629 Segmentation fault         ./pausehost-linux --wrapper-nest > logs/wrapper-nest.log 2>&1
+wrapper nesting, no limit: rc=139 depth 5400 stack 1041625
+  BENCH resume/yield pingpong  native    21.2 ns/op  wrapper    36.5 ns/op  ratio 1.72x
+  BENCH   (C part only)        native    22.4 ns/op  wrapper    27.9 ns/op  ratio 1.25x
+  BENCH wrap generator         native    22.3 ns/op  wrapper    35.1 ns/op  ratio 1.58x
+  BENCH 3-level pass-through   native    63.2 ns/op  wrapper   104.4 ns/op  ratio 1.65x
+  BENCH 4-coroutine scheduler  native   118.0 ns/op  wrapper   169.2 ns/op  ratio 1.43x
+false	coroutine nesting too deep (limit 200)	201	bytes/level=192
+err@201	coroutine nesting too deep (limit 200)	201	bytes/level=192
+err@84: C stack overflow	84	bytes/level=9200	count limit
+err@84: C stack overflow	84	bytes/level=9200	floor only
+failing runs: 0

@@ -1,0 +1,49 @@
+-- must be REJECTED (v3.0 syntax):
+ok   REJECTED bit and &                        probe:1: unexpected symbol near '&'
+ok   REJECTED bit or |                         probe:1: unexpected symbol near '|'
+ok   REJECTED bit xor ~                        probe:1: unexpected symbol near '~'
+ok   REJECTED bit not ~x                       probe:1: unexpected symbol near '~'
+ok   REJECTED shift <<                         probe:1: unexpected symbol near '<'
+ok   REJECTED shift >>                         probe:1: unexpected symbol near '>'
+ok   REJECTED arith shift ~>>                  probe:1: unexpected symbol near '~'
+ok   REJECTED != operator                      probe:1: unexpected symbol near '!'
+ok   REJECTED ! operator                       probe:1: unexpected symbol near '!'
+ok   REJECTED && operator                      probe:1: unexpected symbol near '&'
+ok   REJECTED || operator                      probe:1: unexpected symbol near '|'
+ok   REJECTED ternary ?:                       probe:1: unexpected symbol near '?'
+ok   REJECTED safe navigation ?.               probe:1: unexpected symbol near '?'
+ok   REJECTED nil-coalescing ??                probe:1: unexpected symbol near '?'
+ok   REJECTED +=                               probe:1: '=' expected near '+'
+ok   REJECTED -=                               probe:1: '=' expected near '-'
+ok   REJECTED *=                               probe:1: '=' expected near '*'
+ok   REJECTED /=                               probe:1: '=' expected near '/'
+ok   REJECTED %=                               probe:1: '=' expected near '%'
+ok   REJECTED &=                               probe:1: '=' expected near '&'
+ok   REJECTED |=                               probe:1: '=' expected near '|'
+ok   REJECTED ~= as statement (bxor-assign)    probe:1: '=' expected near '~='
+ok   REJECTED <<=                              probe:1: '=' expected near '<'
+ok   REJECTED >>=                              probe:1: '=' expected near '>'
+ok   REJECTED ~>>=                             probe:1: '=' expected near '~'
+ok   REJECTED ..=                              probe:1: '=' expected near '..'
+ok   REJECTED continue statement               probe:1: '=' expected near 'end'
+ok   REJECTED const declaration                probe:1: '=' expected near 'x'
+ok   REJECTED short function x->               probe:1: unexpected symbol near '>'
+ok   REJECTED short function |a,b|->           probe:1: unexpected symbol near '|'
+ok   REJECTED short function ||->              probe:1: unexpected symbol near '|'
+ok   REJECTED underscore number                probe:1: malformed number near '1_000'
+ok   REJECTED semicolon after return           probe:1: 'end' expected near ';'
+ok   REJECTED line directive #10 (line 2)      probe:2: unexpected symbol near '#'
+ok   REJECTED line directive #10 "f" (line 2)  probe:2: unexpected symbol near '#'
+-- must be ACCEPTED (Lua 5.2 / Cobalt):
+ok   ACCEPTED ~= comparison                    
+ok   ACCEPTED goto as field name (patch 06)    
+ok   ACCEPTED goto statement                   
+ok   ACCEPTED continue as variable             
+ok   ACCEPTED continue as function             
+ok   ACCEPTED const as variable                
+ok   ACCEPTED empty statements (5.2)           
+ok   ACCEPTED return with one ;                
+ok   ACCEPTED long string / comments           
+ok   ACCEPTED nested function                  
+info ACCEPTED first-line '#' skipped by load()
+SUMMARY ok=45 bad=0 (LuaJIT 2.1.1784360928)

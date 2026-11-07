@@ -1,0 +1,5 @@
+seed 1: 543693 lines, base vs final(+1ms stress): IDENTICAL; hook runs with request: in C 31, in Lua 341
+seed 2: 544616 lines, base vs final(+1ms stress): IDENTICAL; hook runs with request: in C 52, in Lua 309
+seed 3: 544927 lines, base vs final(+1ms stress): IDENTICAL; hook runs with request: in C 44, in Lua 330
+seed 4: 543937 lines, base vs final(+1ms stress): IDENTICAL; hook runs with request: in C 34, in Lua 320
+chunk-boundary differential: IDENTICAL (4218 cases)

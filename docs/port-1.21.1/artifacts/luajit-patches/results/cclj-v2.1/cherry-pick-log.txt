@@ -1,0 +1,18 @@
+CLEAN    346ab587 DynASM/x86: Fix movd/movq and vmovd/vmovq operand sizes. -> 52de4bc2
+CLEAN    c5569108 Handle OOM error during trace stitching. -> 3afa04e6
+CLEAN    27f169c6 Fix next() recording immediately after ITERN despecialization. -> bff2db34
+CLEAN    a9981441 DynASM/ARM64: Prevent sanitizer warning in dasm_imm13(). -> 0f86db59
+CLEAN    2c9f5cf6 ARM64: Fix BC_JFORI on empty FP range. -> 0a8aee85
+CLEAN    ce8ec8dc ARM64: Fix getmetatable() for cleared __metatable field. -> 7cd36864
+CLEAN    9451be00 FFI: Fix recording of string buffer put() method. -> 4c916070
+CLEAN    849bbbe7 x64: Fix math.floor()/ceil() argument check. -> 65c52cde
+CLEAN    bc9261a3 Don't record for loops with +-0 step. -> f7d29c81
+CLEAN    2a8e017e Windows: Use 64 bit conversion for tonumber() with base. -> 071f8002
+CLEAN    716f74a6 macOS: Avoid collision of mcode with xzone malloc reclaim ring. -> 91a7cf1e
+CLEAN    95f931cb Check for IR_NEWREF in IR_ALEN forwarding. -> 19114da3
+CLEAN    a4c06453 Don't compile select() indexing beyond varargs. -> 60a0dc35
+CONFLICT 55853647 x86/x64: Use scratch register for IR_TOBIT and IR_CONV u64.num.: src/lj_asm_x86.h 
+RESOLVED b7b5c1ee 55853647 (trivial; matches upstream merge 47fc4e39)
+CLEAN    592f9e3f x86/x64: Don't sink IR_CONV num.int with -O-dce. -> 39ea88a2
+CLEAN    8ca76297 DynASM/ARM64: Prevent sanitizer warning in dasm_encode(). -> 56147a2b
+CLEAN    ea9eb7ed Don't FOLD ldexp with non-integer exponent. -> a8f03353

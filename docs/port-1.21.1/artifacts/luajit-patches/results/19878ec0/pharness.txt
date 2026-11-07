@@ -1,0 +1,267 @@
+CASE find_backtrack [error]
+  state at request: C
+  RESULT OK: status=2 msg="interrupted" latency=3.0 us (ran 300 ms) hook-in-C=1 (yieldable 0) hook-in-Lua=0
+  state usable afterwards: 1,22,333 hell0 w0rld
+CASE match_backtrack [error]
+  state at request: C
+  RESULT OK: status=2 msg="interrupted" latency=2.6 us (ran 301 ms) hook-in-C=1 (yieldable 0) hook-in-Lua=0
+  state usable afterwards: 1,22,333 hell0 w0rld
+CASE gmatch_backtrack [error]
+  state at request: C
+  RESULT OK: status=2 msg="[string "for m in string.gmatch(string.rep('a', 40), s..."]:1: interrupted" latency=2.6 us (ran 301 ms) hook-in-C=1 (yieldable 0) hook-in-Lua=0
+  state usable afterwards: 1,22,333 hell0 w0rld
+CASE gsub_backtrack [error]
+  state at request: C
+  RESULT OK: status=2 msg="interrupted" latency=1.4 us (ran 301 ms) hook-in-C=1 (yieldable 0) hook-in-Lua=0
+  state usable afterwards: 1,22,333 hell0 w0rld
+CASE captures_backtrack [error]
+  state at request: C
+  RESULT OK: status=2 msg="interrupted" latency=2.1 us (ran 301 ms) hook-in-C=1 (yieldable 0) hook-in-Lua=0
+  state usable afterwards: 1,22,333 hell0 w0rld
+CASE minexpand_lazy [error]
+  state at request: C
+  RESULT OK: status=2 msg="interrupted" latency=1.8 us (ran 300 ms) hook-in-C=1 (yieldable 0) hook-in-Lua=0
+  state usable afterwards: 1,22,333 hell0 w0rld
+CASE gsub_quadratic [error]
+  state at request: C
+  RESULT OK: status=2 msg="interrupted" latency=3.2 us (ran 300 ms) hook-in-C=1 (yieldable 0) hook-in-Lua=0
+  state usable afterwards: 1,22,333 hell0 w0rld
+CASE gmatch_quadratic [error]
+  state at request: C
+  RESULT OK: status=2 msg="[string "local n = 0 for m in string.gmatch(string.rep..."]:1: interrupted" latency=1.9 us (ran 301 ms) hook-in-C=1 (yieldable 0) hook-in-Lua=0
+  state usable afterwards: 1,22,333 hell0 w0rld
+CASE balance_quadratic [error]
+  state at request: C
+  RESULT OK: status=2 msg="interrupted" latency=2.8 us (ran 300 ms) hook-in-C=1 (yieldable 0) hook-in-Lua=0
+  state usable afterwards: 1,22,333 hell0 w0rld
+CASE maxexpand_scan_200MB [error]
+  state at request: C
+  RESULT OK: status=2 msg="interrupted" latency=2.2 us (ran 301 ms) hook-in-C=1 (yieldable 0) hook-in-Lua=0
+  state usable afterwards: 1,22,333 hell0 w0rld
+CASE frontier_backtrack [error]
+  state at request: C
+  RESULT OK: status=2 msg="interrupted" latency=3.2 us (ran 301 ms) hook-in-C=1 (yieldable 0) hook-in-Lua=0
+  state usable afterwards: 1,22,333 hell0 w0rld
+CASE anchored_backtrack [error]
+  state at request: C
+  RESULT OK: status=2 msg="interrupted" latency=2.7 us (ran 301 ms) hook-in-C=1 (yieldable 0) hook-in-Lua=0
+  state usable afterwards: 1,22,333 hell0 w0rld
+CASE sort_killer_100k [error]
+  state at request: C
+  RESULT OK: status=2 msg="[string "local a, n = {}, 0 for l in io.lines(KILLER) ..."]:2: interrupted" latency=2.9 us (ran 301 ms) hook-in-C=1 (yieldable 0) hook-in-Lua=0
+  state usable afterwards: 1,22,333 hell0 w0rld
+CASE gsub_fn_repl_backtrack [error]
+  state at request: C
+  RESULT OK: status=2 msg="interrupted" latency=1.7 us (ran 300 ms) hook-in-C=1 (yieldable 0) hook-in-Lua=0
+  state usable afterwards: 1,22,333 hell0 w0rld
+CASE Q_plain_find_quadratic [error]
+  RESULT OK: finished in 11.8 ms before the request (no longer pathological)
+CASE Q_plain_find_periodic [error]
+  RESULT OK: finished in 8.8 ms before the request (no longer pathological)
+CASE Q_plain_find_jit [error]
+  RESULT OK: finished in 12.1 ms before the request (no longer pathological)
+CASE find_backtrack [pcall]
+  state at request: C
+  RESULT OK: status=0 msg="pcall returned false, interrupted" latency=2.5 us (ran 301 ms) hook-in-C=1 (yieldable 0) hook-in-Lua=0
+  state usable afterwards: 1,22,333 hell0 w0rld
+CASE match_backtrack [pcall]
+  state at request: C
+  RESULT OK: status=0 msg="pcall returned false, interrupted" latency=2.5 us (ran 301 ms) hook-in-C=1 (yieldable 0) hook-in-Lua=0
+  state usable afterwards: 1,22,333 hell0 w0rld
+CASE gmatch_backtrack [pcall]
+  state at request: C
+  RESULT OK: status=0 msg="pcall returned false, [string "local ok, e = pcall(function() for m in strin..."]:1: interrupted" latency=2.9 us (ran 301 ms) hook-in-C=1 (yieldable 0) hook-in-Lua=0
+  state usable afterwards: 1,22,333 hell0 w0rld
+CASE gsub_backtrack [pcall]
+  state at request: C
+  RESULT OK: status=0 msg="pcall returned false, interrupted" latency=2.6 us (ran 301 ms) hook-in-C=1 (yieldable 0) hook-in-Lua=0
+  state usable afterwards: 1,22,333 hell0 w0rld
+CASE captures_backtrack [pcall]
+  state at request: C
+  RESULT OK: status=0 msg="pcall returned false, interrupted" latency=2.0 us (ran 301 ms) hook-in-C=1 (yieldable 0) hook-in-Lua=0
+  state usable afterwards: 1,22,333 hell0 w0rld
+CASE minexpand_lazy [pcall]
+  state at request: C
+  RESULT OK: status=0 msg="pcall returned false, interrupted" latency=2.5 us (ran 300 ms) hook-in-C=1 (yieldable 0) hook-in-Lua=0
+  state usable afterwards: 1,22,333 hell0 w0rld
+CASE gsub_quadratic [pcall]
+  state at request: C
+  RESULT OK: status=0 msg="pcall returned false, interrupted" latency=2.6 us (ran 301 ms) hook-in-C=1 (yieldable 0) hook-in-Lua=0
+  state usable afterwards: 1,22,333 hell0 w0rld
+CASE gmatch_quadratic [pcall]
+  state at request: C
+  RESULT OK: status=0 msg="pcall returned false, [string "local ok, e = pcall(function() local n = 0 fo..."]:1: interrupted" latency=4.8 us (ran 301 ms) hook-in-C=1 (yieldable 0) hook-in-Lua=0
+  state usable afterwards: 1,22,333 hell0 w0rld
+CASE balance_quadratic [pcall]
+  state at request: C
+  RESULT OK: status=0 msg="pcall returned false, interrupted" latency=3.0 us (ran 300 ms) hook-in-C=1 (yieldable 0) hook-in-Lua=0
+  state usable afterwards: 1,22,333 hell0 w0rld
+CASE maxexpand_scan_200MB [pcall]
+  state at request: C
+  RESULT OK: status=0 msg="pcall returned false, interrupted" latency=2.7 us (ran 301 ms) hook-in-C=1 (yieldable 0) hook-in-Lua=0
+  state usable afterwards: 1,22,333 hell0 w0rld
+CASE frontier_backtrack [pcall]
+  state at request: C
+  RESULT OK: status=0 msg="pcall returned false, interrupted" latency=2.7 us (ran 301 ms) hook-in-C=1 (yieldable 0) hook-in-Lua=0
+  state usable afterwards: 1,22,333 hell0 w0rld
+CASE anchored_backtrack [pcall]
+  state at request: C
+  RESULT OK: status=0 msg="pcall returned false, interrupted" latency=2.6 us (ran 300 ms) hook-in-C=1 (yieldable 0) hook-in-Lua=0
+  state usable afterwards: 1,22,333 hell0 w0rld
+CASE sort_killer_100k [pcall]
+  state at request: C
+  RESULT OK: status=0 msg="pcall returned false, [string "local ok, e = pcall(function() local a, n = {..."]:2: interrupted" latency=3.0 us (ran 301 ms) hook-in-C=1 (yieldable 0) hook-in-Lua=0
+  state usable afterwards: 1,22,333 hell0 w0rld
+CASE gsub_fn_repl_backtrack [pcall]
+  state at request: C
+  RESULT OK: status=0 msg="pcall returned false, interrupted" latency=2.6 us (ran 301 ms) hook-in-C=1 (yieldable 0) hook-in-Lua=0
+  state usable afterwards: 1,22,333 hell0 w0rld
+CASE Q_plain_find_quadratic [pcall]
+  RESULT OK: finished in 11.8 ms before the request (no longer pathological)
+CASE Q_plain_find_periodic [pcall]
+  RESULT OK: finished in 9.0 ms before the request (no longer pathological)
+CASE Q_plain_find_jit [pcall]
+  RESULT OK: finished in 12.3 ms before the request (no longer pathological)
+CASE find_backtrack [hard]
+  state at request: C
+  RESULT OK: status=2 msg="hard abort" latency=2.3 us (ran 300 ms) hook-in-C=1 (yieldable 0) hook-in-Lua=0
+  state usable afterwards: 1,22,333 hell0 w0rld
+CASE match_backtrack [hard]
+  state at request: C
+  RESULT OK: status=2 msg="hard abort" latency=2.8 us (ran 301 ms) hook-in-C=1 (yieldable 0) hook-in-Lua=0
+  state usable afterwards: 1,22,333 hell0 w0rld
+CASE gmatch_backtrack [hard]
+  state at request: C
+  RESULT OK: status=2 msg="hard abort" latency=3.0 us (ran 301 ms) hook-in-C=1 (yieldable 0) hook-in-Lua=0
+  state usable afterwards: 1,22,333 hell0 w0rld
+CASE gsub_backtrack [hard]
+  state at request: C
+  RESULT OK: status=2 msg="hard abort" latency=2.7 us (ran 301 ms) hook-in-C=1 (yieldable 0) hook-in-Lua=0
+  state usable afterwards: 1,22,333 hell0 w0rld
+CASE captures_backtrack [hard]
+  state at request: C
+  RESULT OK: status=2 msg="hard abort" latency=2.7 us (ran 300 ms) hook-in-C=1 (yieldable 0) hook-in-Lua=0
+  state usable afterwards: 1,22,333 hell0 w0rld
+CASE minexpand_lazy [hard]
+  state at request: C
+  RESULT OK: status=2 msg="hard abort" latency=2.5 us (ran 301 ms) hook-in-C=1 (yieldable 0) hook-in-Lua=0
+  state usable afterwards: 1,22,333 hell0 w0rld
+CASE gsub_quadratic [hard]
+  state at request: C
+  RESULT OK: status=2 msg="hard abort" latency=2.4 us (ran 300 ms) hook-in-C=1 (yieldable 0) hook-in-Lua=0
+  state usable afterwards: 1,22,333 hell0 w0rld
+CASE gmatch_quadratic [hard]
+  state at request: C
+  RESULT OK: status=2 msg="hard abort" latency=3.4 us (ran 300 ms) hook-in-C=1 (yieldable 0) hook-in-Lua=0
+  state usable afterwards: 1,22,333 hell0 w0rld
+CASE balance_quadratic [hard]
+  state at request: C
+  RESULT OK: status=2 msg="hard abort" latency=3.5 us (ran 300 ms) hook-in-C=1 (yieldable 0) hook-in-Lua=0
+  state usable afterwards: 1,22,333 hell0 w0rld
+CASE maxexpand_scan_200MB [hard]
+  state at request: C
+  RESULT OK: status=2 msg="hard abort" latency=2.1 us (ran 301 ms) hook-in-C=1 (yieldable 0) hook-in-Lua=0
+  state usable afterwards: 1,22,333 hell0 w0rld
+CASE frontier_backtrack [hard]
+  state at request: C
+  RESULT OK: status=2 msg="hard abort" latency=2.7 us (ran 301 ms) hook-in-C=1 (yieldable 0) hook-in-Lua=0
+  state usable afterwards: 1,22,333 hell0 w0rld
+CASE anchored_backtrack [hard]
+  state at request: C
+  RESULT OK: status=2 msg="hard abort" latency=2.7 us (ran 301 ms) hook-in-C=1 (yieldable 0) hook-in-Lua=0
+  state usable afterwards: 1,22,333 hell0 w0rld
+CASE sort_killer_100k [hard]
+  state at request: C
+  RESULT OK: status=2 msg="hard abort" latency=2.7 us (ran 301 ms) hook-in-C=1 (yieldable 0) hook-in-Lua=0
+  state usable afterwards: 1,22,333 hell0 w0rld
+CASE gsub_fn_repl_backtrack [hard]
+  state at request: C
+  RESULT OK: status=2 msg="hard abort" latency=2.5 us (ran 300 ms) hook-in-C=1 (yieldable 0) hook-in-Lua=0
+  state usable afterwards: 1,22,333 hell0 w0rld
+CASE Q_plain_find_quadratic [hard]
+  state at request: C
+  RESULT OK: status=2 msg="hard abort" latency=6570.9 us (ran 308 ms) hook-in-C=0 (yieldable 0) hook-in-Lua=1
+  state usable afterwards: 1,22,333 hell0 w0rld
+CASE Q_plain_find_periodic [hard]
+  state at request: C
+  RESULT OK: status=2 msg="hard abort" latency=1500.0 us (ran 302 ms) hook-in-C=0 (yieldable 0) hook-in-Lua=1
+  state usable afterwards: 1,22,333 hell0 w0rld
+CASE Q_plain_find_jit [hard]
+  state at request: C
+  RESULT OK: status=2 msg="hard abort" latency=66.5 us (ran 301 ms) hook-in-C=0 (yieldable 0) hook-in-Lua=1
+  state usable afterwards: 1,22,333 hell0 w0rld
+CASE find_backtrack [hardyield]
+  state at request: C
+  RESULT OK: lua_resume -> 1 (yield) msg="" latency=2.0 us hook-in-C=1 (yieldable 0) hook-in-Lua=0
+CASE match_backtrack [hardyield]
+  state at request: C
+  RESULT OK: lua_resume -> 1 (yield) msg="" latency=2.4 us hook-in-C=1 (yieldable 0) hook-in-Lua=0
+CASE gmatch_backtrack [hardyield]
+  state at request: C
+  RESULT OK: lua_resume -> 1 (yield) msg="" latency=2.6 us hook-in-C=1 (yieldable 0) hook-in-Lua=0
+CASE gsub_backtrack [hardyield]
+  state at request: C
+  RESULT OK: lua_resume -> 1 (yield) msg="" latency=1.7 us hook-in-C=1 (yieldable 0) hook-in-Lua=0
+CASE captures_backtrack [hardyield]
+  state at request: C
+  RESULT OK: lua_resume -> 1 (yield) msg="" latency=1.7 us hook-in-C=1 (yieldable 0) hook-in-Lua=0
+CASE minexpand_lazy [hardyield]
+  state at request: C
+  RESULT OK: lua_resume -> 1 (yield) msg="" latency=2.7 us hook-in-C=1 (yieldable 0) hook-in-Lua=0
+CASE gsub_quadratic [hardyield]
+  state at request: C
+  RESULT OK: lua_resume -> 1 (yield) msg="" latency=2.5 us hook-in-C=1 (yieldable 0) hook-in-Lua=0
+CASE gmatch_quadratic [hardyield]
+  state at request: C
+  RESULT OK: lua_resume -> 1 (yield) msg="" latency=4.3 us hook-in-C=1 (yieldable 0) hook-in-Lua=0
+CASE balance_quadratic [hardyield]
+  state at request: C
+  RESULT OK: lua_resume -> 1 (yield) msg="" latency=2.9 us hook-in-C=1 (yieldable 0) hook-in-Lua=0
+CASE maxexpand_scan_200MB [hardyield]
+  state at request: C
+  RESULT OK: lua_resume -> 1 (yield) msg="" latency=2.2 us hook-in-C=1 (yieldable 0) hook-in-Lua=0
+CASE frontier_backtrack [hardyield]
+  state at request: C
+  RESULT OK: lua_resume -> 1 (yield) msg="" latency=3.9 us hook-in-C=1 (yieldable 0) hook-in-Lua=0
+CASE anchored_backtrack [hardyield]
+  state at request: C
+  RESULT OK: lua_resume -> 1 (yield) msg="" latency=2.4 us hook-in-C=1 (yieldable 0) hook-in-Lua=0
+CASE sort_killer_100k [hardyield]
+  state at request: C
+  RESULT OK: lua_resume -> 1 (yield) msg="" latency=2.8 us hook-in-C=1 (yieldable 0) hook-in-Lua=0
+CASE gsub_fn_repl_backtrack [hardyield]
+  state at request: C
+  RESULT OK: lua_resume -> 1 (yield) msg="" latency=2.4 us hook-in-C=1 (yieldable 0) hook-in-Lua=0
+CASE Q_plain_find_quadratic [hardyield]
+  state at request: C
+  RESULT OK: lua_resume -> 1 (yield) msg="" latency=5888.0 us hook-in-C=0 (yieldable 0) hook-in-Lua=1
+CASE Q_plain_find_periodic [hardyield]
+  state at request: C
+  RESULT OK: lua_resume -> 1 (yield) msg="" latency=3317.3 us hook-in-C=0 (yieldable 0) hook-in-Lua=1
+CASE Q_plain_find_jit [hardyield]
+  state at request: TRACE#2
+  RESULT OK: lua_resume -> 1 (yield) msg="" latency=2400.4 us hook-in-C=0 (yieldable 0) hook-in-Lua=1
+CASE f_gsub [pause]
+  reference 341 ms, interrupted run 377 ms, resumes=2 hook-runs=19426 in-C=19425 (yieldable 0) in-Lua=1 yields=1 deferred=19425 stress=0
+  result: aaaaaaaaaaaaaaaaaacaaaaaaaaaaaaaaaaaacaaaaaaaaaaaaaaaaaacaaa... (len 99)
+  RESULT OK: result matches reference
+CASE f_gsub_captures [pause]
+  reference 525 ms, interrupted run 694 ms, resumes=2 hook-runs=45555 in-C=45554 (yieldable 0) in-Lua=1 yields=1 deferred=45554 stress=0
+  result: aaaaaaaaaaaaaaaaaacaaaaaaaaaaaaaaaaaacaaaaaaaaaaaaaaaaaacaaa... (len 696)
+  RESULT OK: result matches reference
+CASE f_find [pause]
+  reference 1513 ms, interrupted run 2071 ms, resumes=2 hook-runs=130621 in-C=130620 (yieldable 0) in-Lua=1 yields=1 deferred=130620 stress=0
+  result: |1,20,aaaaaaaaaaaaaaaaaaa,,,,,,,,,, (len 35)
+  RESULT OK: result matches reference
+CASE f_gmatch [pause]
+  reference 370 ms, interrupted run 421 ms, resumes=2 hook-runs=22435 in-C=22434 (yieldable 0) in-Lua=1 yields=1 deferred=22434 stress=0
+  result: 14b,14b,14b,14b,14b,14b,14b,14b|0 (len 33)
+  RESULT OK: result matches reference
+CASE f_balance [pause]
+  reference 306 ms, interrupted run 304 ms, resumes=3 hook-runs=77 in-C=75 (yieldable 0) in-Lua=2 yields=2 deferred=75 stress=0
+  result: 30000|15001 (len 11)
+  RESULT OK: result matches reference
+CASE f_sort [pause]
+  reference 1311 ms, interrupted run 1338 ms, resumes=3 hook-runs=62466 in-C=62464 (yieldable 0) in-Lua=2 yields=2 deferred=62464 stress=0
+  result: 985064001 (len 9)
+  RESULT OK: result matches reference

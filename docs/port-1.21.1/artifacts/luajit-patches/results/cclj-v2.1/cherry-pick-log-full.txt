@@ -1,0 +1,28 @@
+CLEAN    346ab587 DynASM/x86: Fix movd/movq and vmovd/vmovq operand sizes. -> 2f9260d8
+CLEAN    afa81a57 x64/LJ_GC64: Enable XLOAD/STRREF fusion. -> cc644399
+CLEAN    59447257 Optimize common 1-char case of string.sub/string.byte. -> 74fd62c2
+CLEAN    1edc3e52 x64/LJ_GC64: Fix XLOAD fusion. -> b3b969c6
+CLEAN    52cdb12e Compile unpack(). -> b623f24a
+CLEAN    c5569108 Handle OOM error during trace stitching. -> deb1f6a3
+CLEAN    27f169c6 Fix next() recording immediately after ITERN despecialization. -> 3b736663
+CLEAN    21ecb361 Fix unpack() recording. -> 606e1333
+CLEAN    8c23d6aa Fix unpack() recording. -> 568994b5
+CLEAN    1ee778a4 Add FOLD rule for ALEN of TNEW/TDUP. -> b03366c8
+CLEAN    a9981441 DynASM/ARM64: Prevent sanitizer warning in dasm_imm13(). -> b4c9188d
+CLEAN    2c9f5cf6 ARM64: Fix BC_JFORI on empty FP range. -> 2496972e
+CLEAN    ce8ec8dc ARM64: Fix getmetatable() for cleared __metatable field. -> ef8b129c
+CLEAN    9451be00 FFI: Fix recording of string buffer put() method. -> f9407ae8
+CLEAN    849bbbe7 x64: Fix math.floor()/ceil() argument check. -> 2f0697d2
+CLEAN    bc9261a3 Don't record for loops with +-0 step. -> 18ff9489
+CLEAN    2a8e017e Windows: Use 64 bit conversion for tonumber() with base. -> fa2c8be5
+CLEAN    716f74a6 macOS: Avoid collision of mcode with xzone malloc reclaim ring. -> b54b0d13
+CLEAN    95f931cb Check for IR_NEWREF in IR_ALEN forwarding. -> 3185f24b
+CLEAN    a4c06453 Don't compile select() indexing beyond varargs. -> d5f8ebd4
+CLEAN    b310887b x64/LJ_GC64: Avoid s2l fwd stall after stack restore, part 2. -> c8995643
+CONFLICT 55853647 x86/x64: Use scratch register for IR_TOBIT and IR_CONV u64.num.: src/lj_asm_x86.h 
+  lj_asm_x86.h now identical to upstream merge 47fc4e39
+RESOLVED fedc1b35 55853647
+CLEAN    592f9e3f x86/x64: Don't sink IR_CONV num.int with -O-dce. -> 9cacafe7
+CLEAN    8ca76297 DynASM/ARM64: Prevent sanitizer warning in dasm_encode(). -> df84687d
+CLEAN    3a658cac x86/x64: Fix for change to avoid s2l fwd stall in stores. -> d49a66b5
+CLEAN    ea9eb7ed Don't FOLD ldexp with non-integer exponent. -> 67261ece

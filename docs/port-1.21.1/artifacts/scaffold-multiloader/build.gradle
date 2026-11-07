@@ -1,0 +1,26 @@
+// Shared configuration for all three subprojects.
+subprojects {
+    apply plugin: 'java-library'
+
+    group = rootProject.maven_group
+    version = rootProject.mod_version
+    base.archivesName = "${rootProject.mod_id}-${project.name}"
+
+    java {
+        toolchain.languageVersion = JavaLanguageVersion.of(21)
+        withSourcesJar()
+    }
+    tasks.withType(JavaCompile).configureEach {
+        options.release = 21
+        options.encoding = 'UTF-8'
+    }
+
+    repositories {
+        maven {
+            name = 'SquidDev'
+            url = 'https://maven.squiddev.cc'
+            content { includeGroup('cc.tweaked') }
+        }
+        mavenCentral()
+    }
+}

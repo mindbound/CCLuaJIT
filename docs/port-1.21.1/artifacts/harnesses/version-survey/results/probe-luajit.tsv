@@ -1,0 +1,150 @@
+luajit-3c4f9fe2+01-08	a	sha2: is_LuaJIT	pure_lua_SHA sha2.lua:120	true
+luajit-3c4f9fe2+01-08	a	sha2: bit library	sha2.lua:120-146	LuaJIT branch; require'bit' errors -> sha2 fails to load
+luajit-3c4f9fe2+01-08	a	MessagePack: header probe	lua-MessagePack src/MessagePack.lua:5-17	string.dump path (CC: errors)
+luajit-3c4f9fe2+01-08	a	Teal/inspect: version num	inspect.lua:1 (Teal _tl_compat)	5.2 (<5.3: try compat53)
+luajit-3c4f9fe2+01-08	a	compat53: lua_version	compat53/module.lua:2,7,420	"5.2" <5.3=true ==5.1=false
+luajit-3c4f9fe2+01-08	a	Penlight: lua51 / jit	pl/compat.lua:14,18	lua51=false jit=true
+luajit-3c4f9fe2+01-08	a	lbase64: extract impl	lbase64 base64.lua:28-34	bit32.extract
+luajit-3c4f9fe2+01-08	a	AUKit: sinc window/chunk	aukit.lua:131,1011	10 / 32768
+luajit-3c4f9fe2+01-08	a	CraftOS-PC bios: 5.1 layer	craftos2-rom bios.lua:14,37	5.2 path
+luajit-3c4f9fe2+01-08	a	CraftOS-PC bios: jit.off	craftos2-rom bios.lua:23	no call
+luajit-3c4f9fe2+01-08	a	CraftOS-PC motd: version	craftos2-rom motd.lua:13	nil
+luajit-3c4f9fe2+01-08	a	Basalt: CraftOS-PC check	Basalt/main.lua:458	false
+luajit-3c4f9fe2+01-08	a	AUKit: CCPC 2.6.4 check	aukit.lua:2000	false
+luajit-3c4f9fe2+01-08	a	rxi json bench: VM name	json.lua bench/util/bench.lua:43	Lua 5.2
+luajit-3c4f9fe2+01-08	a	VM: tostring(assert)	(VM)	function: builtin#2
+luajit-3c4f9fe2+01-08	b1	sha2: is_LuaJIT	pure_lua_SHA sha2.lua:120	true
+luajit-3c4f9fe2+01-08	b1	sha2: bit library	sha2.lua:120-146	LuaJIT branch; require'bit' errors -> sha2 fails to load
+luajit-3c4f9fe2+01-08	b1	MessagePack: header probe	lua-MessagePack src/MessagePack.lua:5-17	string.dump path (CC: errors)
+luajit-3c4f9fe2+01-08	b1	Teal/inspect: version num	inspect.lua:1 (Teal _tl_compat)	0 (<5.3: try compat53)
+luajit-3c4f9fe2+01-08	b1	compat53: lua_version	compat53/module.lua:2,7,420	"IT)" <5.3=false ==5.1=false
+luajit-3c4f9fe2+01-08	b1	Penlight: lua51 / jit	pl/compat.lua:14,18	lua51=false jit=true
+luajit-3c4f9fe2+01-08	b1	lbase64: extract impl	lbase64 base64.lua:28-34	bit32.extract
+luajit-3c4f9fe2+01-08	b1	AUKit: sinc window/chunk	aukit.lua:131,1011	10 / 32768
+luajit-3c4f9fe2+01-08	b1	CraftOS-PC bios: 5.1 layer	craftos2-rom bios.lua:14,37	5.2 path
+luajit-3c4f9fe2+01-08	b1	CraftOS-PC bios: jit.off	craftos2-rom bios.lua:23	no call
+luajit-3c4f9fe2+01-08	b1	CraftOS-PC motd: version	craftos2-rom motd.lua:13	nil
+luajit-3c4f9fe2+01-08	b1	Basalt: CraftOS-PC check	Basalt/main.lua:458	false
+luajit-3c4f9fe2+01-08	b1	AUKit: CCPC 2.6.4 check	aukit.lua:2000	false
+luajit-3c4f9fe2+01-08	b1	rxi json bench: VM name	json.lua bench/util/bench.lua:43	Lua 5.2 (LuaJIT)
+luajit-3c4f9fe2+01-08	b1	VM: tostring(assert)	(VM)	function: builtin#2
+luajit-3c4f9fe2+01-08	b2	sha2: is_LuaJIT	pure_lua_SHA sha2.lua:120	true
+luajit-3c4f9fe2+01-08	b2	sha2: bit library	sha2.lua:120-146	LuaJIT branch; require'bit' errors -> sha2 fails to load
+luajit-3c4f9fe2+01-08	b2	MessagePack: header probe	lua-MessagePack src/MessagePack.lua:5-17	string.dump path (CC: errors)
+luajit-3c4f9fe2+01-08	b2	Teal/inspect: version num	inspect.lua:1 (Teal _tl_compat)	2.1 (<5.3: try compat53)
+luajit-3c4f9fe2+01-08	b2	compat53: lua_version	compat53/module.lua:2,7,420	"2.1" <5.3=true ==5.1=false
+luajit-3c4f9fe2+01-08	b2	Penlight: lua51 / jit	pl/compat.lua:14,18	lua51=false jit=true
+luajit-3c4f9fe2+01-08	b2	lbase64: extract impl	lbase64 base64.lua:28-34	bit32.extract
+luajit-3c4f9fe2+01-08	b2	AUKit: sinc window/chunk	aukit.lua:131,1011	10 / 32768
+luajit-3c4f9fe2+01-08	b2	CraftOS-PC bios: 5.1 layer	craftos2-rom bios.lua:14,37	5.2 path
+luajit-3c4f9fe2+01-08	b2	CraftOS-PC bios: jit.off	craftos2-rom bios.lua:23	no call
+luajit-3c4f9fe2+01-08	b2	CraftOS-PC motd: version	craftos2-rom motd.lua:13	nil
+luajit-3c4f9fe2+01-08	b2	Basalt: CraftOS-PC check	Basalt/main.lua:458	false
+luajit-3c4f9fe2+01-08	b2	AUKit: CCPC 2.6.4 check	aukit.lua:2000	false
+luajit-3c4f9fe2+01-08	b2	rxi json bench: VM name	json.lua bench/util/bench.lua:43	Lua 5.2 LuaJIT 2.1
+luajit-3c4f9fe2+01-08	b2	VM: tostring(assert)	(VM)	function: builtin#2
+luajit-3c4f9fe2+01-08	b3	sha2: is_LuaJIT	pure_lua_SHA sha2.lua:120	true
+luajit-3c4f9fe2+01-08	b3	sha2: bit library	sha2.lua:120-146	LuaJIT branch; require'bit' errors -> sha2 fails to load
+luajit-3c4f9fe2+01-08	b3	MessagePack: header probe	lua-MessagePack src/MessagePack.lua:5-17	skips string.dump
+luajit-3c4f9fe2+01-08	b3	Teal/inspect: version num	inspect.lua:1 (Teal _tl_compat)	0 (<5.3: try compat53)
+luajit-3c4f9fe2+01-08	b3	compat53: lua_version	compat53/module.lua:2,7,420	".2)" <5.3=true ==5.1=false
+luajit-3c4f9fe2+01-08	b3	Penlight: lua51 / jit	pl/compat.lua:14,18	lua51=false jit=true
+luajit-3c4f9fe2+01-08	b3	lbase64: extract impl	lbase64 base64.lua:28-34	bit32.extract
+luajit-3c4f9fe2+01-08	b3	AUKit: sinc window/chunk	aukit.lua:131,1011	10 / 32768
+luajit-3c4f9fe2+01-08	b3	CraftOS-PC bios: 5.1 layer	craftos2-rom bios.lua:14,37	5.2 path
+luajit-3c4f9fe2+01-08	b3	CraftOS-PC bios: jit.off	craftos2-rom bios.lua:23	no call
+luajit-3c4f9fe2+01-08	b3	CraftOS-PC motd: version	craftos2-rom motd.lua:13	nil
+luajit-3c4f9fe2+01-08	b3	Basalt: CraftOS-PC check	Basalt/main.lua:458	false
+luajit-3c4f9fe2+01-08	b3	AUKit: CCPC 2.6.4 check	aukit.lua:2000	false
+luajit-3c4f9fe2+01-08	b3	rxi json bench: VM name	json.lua bench/util/bench.lua:43	LuaJIT 2.1 (Lua 5.2)
+luajit-3c4f9fe2+01-08	b3	VM: tostring(assert)	(VM)	function: builtin#2
+luajit-3c4f9fe2+01-08	c	sha2: is_LuaJIT	pure_lua_SHA sha2.lua:120	true
+luajit-3c4f9fe2+01-08	c	sha2: bit library	sha2.lua:120-146	LuaJIT branch; require'bit' errors -> sha2 fails to load
+luajit-3c4f9fe2+01-08	c	MessagePack: header probe	lua-MessagePack src/MessagePack.lua:5-17	string.dump path (CC: errors)
+luajit-3c4f9fe2+01-08	c	Teal/inspect: version num	inspect.lua:1 (Teal _tl_compat)	5.2 (<5.3: try compat53)
+luajit-3c4f9fe2+01-08	c	compat53: lua_version	compat53/module.lua:2,7,420	"5.2" <5.3=true ==5.1=false
+luajit-3c4f9fe2+01-08	c	Penlight: lua51 / jit	pl/compat.lua:14,18	lua51=false jit=true
+luajit-3c4f9fe2+01-08	c	lbase64: extract impl	lbase64 base64.lua:28-34	bit32.extract
+luajit-3c4f9fe2+01-08	c	AUKit: sinc window/chunk	aukit.lua:131,1011	30 / 7680
+luajit-3c4f9fe2+01-08	c	CraftOS-PC bios: 5.1 layer	craftos2-rom bios.lua:14,37	5.2 path
+luajit-3c4f9fe2+01-08	c	CraftOS-PC bios: jit.off	craftos2-rom bios.lua:23	no call
+luajit-3c4f9fe2+01-08	c	CraftOS-PC motd: version	craftos2-rom motd.lua:13	nil
+luajit-3c4f9fe2+01-08	c	Basalt: CraftOS-PC check	Basalt/main.lua:458	false
+luajit-3c4f9fe2+01-08	c	AUKit: CCPC 2.6.4 check	aukit.lua:2000	false
+luajit-3c4f9fe2+01-08	c	rxi json bench: VM name	json.lua bench/util/bench.lua:43	LuaJIT 2.1.1783773675
+luajit-3c4f9fe2+01-08	c	VM: tostring(assert)	(VM)	function: builtin#2
+luajit-3c4f9fe2+01-08	cL	sha2: is_LuaJIT	pure_lua_SHA sha2.lua:120	true
+luajit-3c4f9fe2+01-08	cL	sha2: bit library	sha2.lua:120-146	LuaJIT branch; require'bit' errors -> sha2 fails to load
+luajit-3c4f9fe2+01-08	cL	MessagePack: header probe	lua-MessagePack src/MessagePack.lua:5-17	skips string.dump
+luajit-3c4f9fe2+01-08	cL	Teal/inspect: version num	inspect.lua:1 (Teal _tl_compat)	5.2 (<5.3: try compat53)
+luajit-3c4f9fe2+01-08	cL	compat53: lua_version	compat53/module.lua:2,7,420	"5.2" <5.3=true ==5.1=false
+luajit-3c4f9fe2+01-08	cL	Penlight: lua51 / jit	pl/compat.lua:14,18	lua51=false jit=true
+luajit-3c4f9fe2+01-08	cL	lbase64: extract impl	lbase64 base64.lua:28-34	bit32.extract
+luajit-3c4f9fe2+01-08	cL	AUKit: sinc window/chunk	aukit.lua:131,1011	30 / 7680
+luajit-3c4f9fe2+01-08	cL	CraftOS-PC bios: 5.1 layer	craftos2-rom bios.lua:14,37	5.2 path
+luajit-3c4f9fe2+01-08	cL	CraftOS-PC bios: jit.off	craftos2-rom bios.lua:23	no call
+luajit-3c4f9fe2+01-08	cL	CraftOS-PC motd: version	craftos2-rom motd.lua:13	nil
+luajit-3c4f9fe2+01-08	cL	Basalt: CraftOS-PC check	Basalt/main.lua:458	false
+luajit-3c4f9fe2+01-08	cL	AUKit: CCPC 2.6.4 check	aukit.lua:2000	false
+luajit-3c4f9fe2+01-08	cL	rxi json bench: VM name	json.lua bench/util/bench.lua:43	LuaJIT 2.1.1783773675
+luajit-3c4f9fe2+01-08	cL	VM: tostring(assert)	(VM)	function: builtin#2
+luajit-3c4f9fe2+01-08	d	sha2: is_LuaJIT	pure_lua_SHA sha2.lua:120	true
+luajit-3c4f9fe2+01-08	d	sha2: bit library	sha2.lua:120-146	LuaJIT branch; require'bit' errors -> sha2 fails to load
+luajit-3c4f9fe2+01-08	d	MessagePack: header probe	lua-MessagePack src/MessagePack.lua:5-17	string.dump path (CC: errors)
+luajit-3c4f9fe2+01-08	d	Teal/inspect: version num	inspect.lua:1 (Teal _tl_compat)	5.2 (<5.3: try compat53)
+luajit-3c4f9fe2+01-08	d	compat53: lua_version	compat53/module.lua:2,7,420	"5.2" <5.3=true ==5.1=false
+luajit-3c4f9fe2+01-08	d	Penlight: lua51 / jit	pl/compat.lua:14,18	lua51=false jit=true
+luajit-3c4f9fe2+01-08	d	lbase64: extract impl	lbase64 base64.lua:28-34	bit32.extract
+luajit-3c4f9fe2+01-08	d	AUKit: sinc window/chunk	aukit.lua:131,1011	10 / 32768
+luajit-3c4f9fe2+01-08	d	CraftOS-PC bios: 5.1 layer	craftos2-rom bios.lua:14,37	5.2 path
+luajit-3c4f9fe2+01-08	d	CraftOS-PC bios: jit.off	craftos2-rom bios.lua:23	no call
+luajit-3c4f9fe2+01-08	d	CraftOS-PC motd: version	craftos2-rom motd.lua:13	nil
+luajit-3c4f9fe2+01-08	d	Basalt: CraftOS-PC check	Basalt/main.lua:458	false
+luajit-3c4f9fe2+01-08	d	AUKit: CCPC 2.6.4 check	aukit.lua:2000	false
+luajit-3c4f9fe2+01-08	d	rxi json bench: VM name	json.lua bench/util/bench.lua:43	Lua 5.2
+luajit-3c4f9fe2+01-08	d	VM: tostring(assert)	(VM)	function: builtin#2
+luajit-3c4f9fe2+01-08	a+bitL	sha2: is_LuaJIT	pure_lua_SHA sha2.lua:120	true
+luajit-3c4f9fe2+01-08	a+bitL	sha2: bit library	sha2.lua:120-146	LuaJIT branch; require'bit' ok (ror=function)
+luajit-3c4f9fe2+01-08	a+bitL	MessagePack: header probe	lua-MessagePack src/MessagePack.lua:5-17	string.dump path (CC: errors)
+luajit-3c4f9fe2+01-08	a+bitL	Teal/inspect: version num	inspect.lua:1 (Teal _tl_compat)	5.2 (<5.3: try compat53)
+luajit-3c4f9fe2+01-08	a+bitL	compat53: lua_version	compat53/module.lua:2,7,420	"5.2" <5.3=true ==5.1=false
+luajit-3c4f9fe2+01-08	a+bitL	Penlight: lua51 / jit	pl/compat.lua:14,18	lua51=false jit=true
+luajit-3c4f9fe2+01-08	a+bitL	lbase64: extract impl	lbase64 base64.lua:28-34	bit32.extract
+luajit-3c4f9fe2+01-08	a+bitL	AUKit: sinc window/chunk	aukit.lua:131,1011	10 / 32768
+luajit-3c4f9fe2+01-08	a+bitL	CraftOS-PC bios: 5.1 layer	craftos2-rom bios.lua:14,37	5.2 path
+luajit-3c4f9fe2+01-08	a+bitL	CraftOS-PC bios: jit.off	craftos2-rom bios.lua:23	no call
+luajit-3c4f9fe2+01-08	a+bitL	CraftOS-PC motd: version	craftos2-rom motd.lua:13	nil
+luajit-3c4f9fe2+01-08	a+bitL	Basalt: CraftOS-PC check	Basalt/main.lua:458	false
+luajit-3c4f9fe2+01-08	a+bitL	AUKit: CCPC 2.6.4 check	aukit.lua:2000	false
+luajit-3c4f9fe2+01-08	a+bitL	rxi json bench: VM name	json.lua bench/util/bench.lua:43	Lua 5.2
+luajit-3c4f9fe2+01-08	a+bitL	VM: tostring(assert)	(VM)	function: builtin#2
+luajit-3c4f9fe2+01-08	cL+bitL	sha2: is_LuaJIT	pure_lua_SHA sha2.lua:120	true
+luajit-3c4f9fe2+01-08	cL+bitL	sha2: bit library	sha2.lua:120-146	LuaJIT branch; require'bit' ok (ror=function)
+luajit-3c4f9fe2+01-08	cL+bitL	MessagePack: header probe	lua-MessagePack src/MessagePack.lua:5-17	skips string.dump
+luajit-3c4f9fe2+01-08	cL+bitL	Teal/inspect: version num	inspect.lua:1 (Teal _tl_compat)	5.2 (<5.3: try compat53)
+luajit-3c4f9fe2+01-08	cL+bitL	compat53: lua_version	compat53/module.lua:2,7,420	"5.2" <5.3=true ==5.1=false
+luajit-3c4f9fe2+01-08	cL+bitL	Penlight: lua51 / jit	pl/compat.lua:14,18	lua51=false jit=true
+luajit-3c4f9fe2+01-08	cL+bitL	lbase64: extract impl	lbase64 base64.lua:28-34	bit32.extract
+luajit-3c4f9fe2+01-08	cL+bitL	AUKit: sinc window/chunk	aukit.lua:131,1011	30 / 7680
+luajit-3c4f9fe2+01-08	cL+bitL	CraftOS-PC bios: 5.1 layer	craftos2-rom bios.lua:14,37	5.2 path
+luajit-3c4f9fe2+01-08	cL+bitL	CraftOS-PC bios: jit.off	craftos2-rom bios.lua:23	no call
+luajit-3c4f9fe2+01-08	cL+bitL	CraftOS-PC motd: version	craftos2-rom motd.lua:13	nil
+luajit-3c4f9fe2+01-08	cL+bitL	Basalt: CraftOS-PC check	Basalt/main.lua:458	false
+luajit-3c4f9fe2+01-08	cL+bitL	AUKit: CCPC 2.6.4 check	aukit.lua:2000	false
+luajit-3c4f9fe2+01-08	cL+bitL	rxi json bench: VM name	json.lua bench/util/bench.lua:43	LuaJIT 2.1.1783773675
+luajit-3c4f9fe2+01-08	cL+bitL	VM: tostring(assert)	(VM)	function: builtin#2
+luajit-3c4f9fe2+01-08	accel	sha2: is_LuaJIT	pure_lua_SHA sha2.lua:120	true
+luajit-3c4f9fe2+01-08	accel	sha2: bit library	sha2.lua:120-146	LuaJIT branch; require'bit' errors -> sha2 fails to load
+luajit-3c4f9fe2+01-08	accel	MessagePack: header probe	lua-MessagePack src/MessagePack.lua:5-17	skips string.dump
+luajit-3c4f9fe2+01-08	accel	Teal/inspect: version num	inspect.lua:1 (Teal _tl_compat)	5.1 (<5.3: try compat53)
+luajit-3c4f9fe2+01-08	accel	compat53: lua_version	compat53/module.lua:2,7,420	"5.1" <5.3=true ==5.1=true
+luajit-3c4f9fe2+01-08	accel	Penlight: lua51 / jit	pl/compat.lua:14,18	lua51=true jit=true
+luajit-3c4f9fe2+01-08	accel	lbase64: extract impl	lbase64 base64.lua:28-34	bit32.extract
+luajit-3c4f9fe2+01-08	accel	AUKit: sinc window/chunk	aukit.lua:131,1011	30 / 7680
+luajit-3c4f9fe2+01-08	accel	CraftOS-PC bios: 5.1 layer	craftos2-rom bios.lua:14,37	loadstring + 5.1 compat layer
+luajit-3c4f9fe2+01-08	accel	CraftOS-PC bios: jit.off	craftos2-rom bios.lua:23	no call
+luajit-3c4f9fe2+01-08	accel	CraftOS-PC motd: version	craftos2-rom motd.lua:13	v2.8.3
+luajit-3c4f9fe2+01-08	accel	Basalt: CraftOS-PC check	Basalt/main.lua:458	true
+luajit-3c4f9fe2+01-08	accel	AUKit: CCPC 2.6.4 check	aukit.lua:2000	false
+luajit-3c4f9fe2+01-08	accel	rxi json bench: VM name	json.lua bench/util/bench.lua:43	LuaJIT 2.1.1783773675
+luajit-3c4f9fe2+01-08	accel	VM: tostring(assert)	(VM)	function: builtin#2

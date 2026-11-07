@@ -1,0 +1,15 @@
+OK        Successfully built LuaJIT
+cstack08 (Linux x64, 1 MB pthread stacks, margin 128 KB): completed=31 crashed=0
+cstack_base (Linux x64, 1 MB pthread stacks, margin 128 KB): completed=9 crashed=22
+  run 1: error  depth=102    0 ms: C stack overflow
+  run 1: error  depth=11408  9 ms: C stack overflow
+case 0: status=2 fired=1 latency=3.6 us msg=interrupted (yieldable=0)
+  usable afterwards: hell0 w0rld
+case 1: status=2 fired=1 latency=2.4 us msg=interrupted (yieldable=0)
+  usable afterwards: hell0 w0rld
+case 2: status=2 fired=1 latency=1.9 us msg=[string "for m in string.gmatch(string.rep('a', 40), s..."]:1: interrupted (yieldable=0)
+  usable afterwards: hell0 w0rld
+case 3: status=0 fired=1 latency=5.5 us msg=pcall caught: interrupted (yieldable=0)
+  usable afterwards: hell0 w0rld
+case 4: status=2 fired=1 latency=1.7 us msg=[string "local t = {} for i = 1, 3e6 do t[i] = (i * 79..."]:1: interrupted (yieldable=0)
+  usable afterwards: hell0 w0rld

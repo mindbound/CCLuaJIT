@@ -1,0 +1,11 @@
+build: OK (8 patches applied), 99 warnings; LuaJIT 2.1.1794068125 -- Copyright (C) 2005-2026 Mike Pall. https://luajit.org/
+preempt harness (Linux): 33 OK, 2 hang: X_finalizer_loop X_lua_hook_loop 
+plinux: 5/5 fired, 5/5 usable afterwards
+cstack harness (Linux): 31 completed, 0 crashed
+compat_check:
+grep: <scratch>/work/pin-backports/linux/backports/results/compat.txt: binary file matches
+syntax probe: SUMMARY ok=45 bad=0 (LuaJIT 2.1.1794068125)
+
+real	0m35.048s
+user	0m0.000s
+sys	0m0.015s

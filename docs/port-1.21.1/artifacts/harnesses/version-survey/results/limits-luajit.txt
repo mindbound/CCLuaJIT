@@ -1,0 +1,14 @@
+byte   n=7680    main=ok                                       coroutine=ok
+byte   n=8000    main=ok                                       coroutine=ok
+byte   n=32768   main=ERR string slice too long                coroutine=ERR string slice too long
+byte   n=48000   main=ERR string slice too long                coroutine=ERR string slice too long
+byte   n=65000   main=ERR string slice too long                coroutine=ERR string slice too long
+byte   n=70000   main=ERR string slice too long                coroutine=ERR string slice too long
+byte   n=524288  main=ERR string slice too long                coroutine=ERR string slice too long
+unpack n=7680    main=ok                                       coroutine=ok
+unpack n=8000    main=ERR too many results to unpack           coroutine=ERR too many results to unpack
+unpack n=32768   main=ERR too many results to unpack           coroutine=ERR too many results to unpack
+unpack n=48000   main=ERR too many results to unpack           coroutine=ERR too many results to unpack
+unpack n=65000   main=ERR too many results to unpack           coroutine=ERR too many results to unpack
+unpack n=70000   main=ERR too many results to unpack           coroutine=ERR too many results to unpack
+unpack n=524288  main=ERR too many results to unpack           coroutine=ERR too many results to unpack

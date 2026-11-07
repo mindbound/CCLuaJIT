@@ -1,0 +1,14 @@
+===== Linux x64 (WSL): base-14d8a7a2 (-Ohotloop=1)
+FAIL 95f931cb #t after NEWREF rehash (CSE case)           jit=0 interp=3
+FAIL 849bbbe7 math.floor() without argument errors        floor: true 11 | ceil: false bad argument #1 to '?' (number expected, got no value)
+FAIL bc9261a3 for loops with variable +-0 step (JIT vs interp) 12 of 96 loops differ
+PASS 2a8e017e tonumber('ffffffffff', 16)                  got 1099511627775
+FAIL ea9eb7ed math.ldexp(k, non-integer k) JIT vs interp  interp=[1 3 4 inf 0 nan inf 0] jit=[1 3 4 0 0 0 0 0]
+PASS a4c06453 select(2^28+k, ...) beyond varargs          mismatches=0
+===== Linux x64 (WSL): backports (-Ohotloop=1)
+PASS 95f931cb #t after NEWREF rehash (CSE case)           jit=3 interp=3
+PASS 849bbbe7 math.floor() without argument errors        floor: false bad argument #1 to '?' (number expected, got no value) | ceil: false bad argument #1 to '?' (number expected, got no value)
+PASS bc9261a3 for loops with variable +-0 step (JIT vs interp) 0 of 96 loops differ
+PASS 2a8e017e tonumber('ffffffffff', 16)                  got 1099511627775
+PASS ea9eb7ed math.ldexp(k, non-integer k) JIT vs interp  interp=[1 3 4 inf 0 nan inf 0] jit=[1 3 4 inf 0 nan inf 0]
+PASS a4c06453 select(2^28+k, ...) beyond varargs          mismatches=0

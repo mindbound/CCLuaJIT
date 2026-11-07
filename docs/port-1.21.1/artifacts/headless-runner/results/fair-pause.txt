@@ -1,0 +1,4 @@
+[A] busy loop start
+[B] timer lateness over 60 sleeps: worst 76 ms, mean 13 ms
+[A] busy loop done (3 s CPU, no yield)
+mode=cobalt-PAUSE closed=true

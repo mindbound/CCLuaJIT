@@ -1,0 +1,42 @@
+From b7b5c1ee4c4d80053b9748f6a4d497ce52ce2336 Mon Sep 17 00:00:00 2001
+From: Mike Pall <mike>
+Date: Thu, 29 Oct 2026 12:40:59 +0100
+Subject: [PATCH 14/17] x86/x64: Use scratch register for IR_TOBIT and IR_CONV
+ u64.num.
+
+Reported by aleksisch. Thanks to Sergey Kaplun. #1536
+
+(cherry picked from commit 5585364753b52ac7de4695026fc28be2480c82bd)
+
+[cclj backport] Conflict in src/lj_asm_x86.h (master-side commit vs v2.1 code):
+resolved exactly as upstream merge 47fc4e39 did; asm_tobit() and asm_conv()
+are identical to upstream v2.1 at 47fc4e39.
+---
+ src/lj_asm_x86.h | 7 ++-----
+ 1 file changed, 2 insertions(+), 5 deletions(-)
+
+diff --git a/src/lj_asm_x86.h b/src/lj_asm_x86.h
+index 3c024092..959260ed 100644
+--- a/src/lj_asm_x86.h
++++ b/src/lj_asm_x86.h
+@@ -843,9 +843,7 @@ static void asm_tointg(ASMState *as, IRIns *ir, Reg left)
+ static void asm_tobit(ASMState *as, IRIns *ir)
+ {
+   Reg dest = ra_dest(as, ir, RSET_GPR);
+-  Reg tmp = ra_noreg(IR(ir->op1)->r) ?
+-	      ra_alloc1(as, ir->op1, RSET_FPR) :
+-	      ra_scratch(as, RSET_FPR);
++  Reg tmp = ra_scratch(as, RSET_FPR);
+   Reg right;
+   emit_rr(as, XO_MOVDto, tmp, dest);
+   right = asm_fuseload(as, ir->op2, rset_exclude(RSET_FPR, tmp));
+@@ -909,8 +907,7 @@ static void asm_conv(ASMState *as, IRIns *ir)
+ #if LJ_64
+       if (irt_isu64(ir->t)) {
+ 	/* For the indefinite result -2^63, add -2^64 and convert again. */
+-	Reg tmp = ra_noreg(IR(lref)->r) ? ra_alloc1(as, lref, RSET_FPR) :
+-					  ra_scratch(as, RSET_FPR);
++	Reg tmp = ra_scratch(as, RSET_FPR);
+ 	MCLabel l_end = emit_label(as);
+ 	emit_rr(as, op, dest|REX_64, tmp);
+ 	if (st == IRT_NUM)

@@ -1,0 +1,7 @@
+benchmark                   p07 p0708_noguardflag      p0708  p0708_noguardflag/p07     p0708/p07
+coroutine_pingpong       0.1540     0.1620     0.1620         +5.2%         +5.2%
+coroutine_resume         0.1470     0.1550     0.1550         +5.4%         +5.4%
+gsub_fn_callback         0.0350     0.0350     0.0360         +0.0%         +2.9%
+host_like_sort_cmp       0.0770     0.0770     0.0780         +0.0%         +1.3%
+geomean p0708_noguardflag vs p07: +2.62%  (runs per build: 9 rounds x best-of-3)
+geomean p0708 vs p07: +3.68%  (runs per build: 9 rounds x best-of-3)

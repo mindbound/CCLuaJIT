@@ -1,0 +1,200 @@
+case                               | ref==gated | 3c4f9fe2+01-08 (= gated HEAD)                                | ungated HEAD+01-08                            | Cobalt 0.9.9
+l52.goto_basic                     | same   | OK                                                           | OK                                            | OK
+l52.goto_forward                   | same   | OK                                                           | OK                                            | OK
+l52.goto_continue_idiom            | same   | OK                                                           | OK                                            | OK
+l52.goto_undefined                 | same   | 1: undefined label 'nowhere'                                 | 1: undefined label 'nowhere'                  | 1: no visible label 'nowhere' for <goto> at line 1
+l52.goto_dup_label                 | same   | 1: duplicate label 'a'                                       | 1: duplicate label 'a'                        | 1: label 'a' already defined on line 1
+l52.goto_into_scope                | same   | 1: <goto f> jumps into the scope of local 'x'                | 1: <goto f> jumps into the scope of local 'x' | 4: <goto f> at line 1 jumps into the scope of local 'x'
+l52.goto_scope_end_ok              | same   | OK                                                           | OK                                            | OK
+l52.goto_nested_fn                 | same   | 2: undefined label 'a'                                       | 2: undefined label 'a'                        | 2: no visible label 'a' for <goto> at line 2
+l52.goto_eof                       | same   | 1: '=' expected near '<eof>'                                 | 1: '=' expected near '<eof>'                  | 1: syntax error near <eof>
+l52.goto_number                    | same   | 1: '=' expected near '1'                                     | 1: '=' expected near '1'                      | 1: syntax error near '1'
+l52.goto_goto                      | same   | 1: '=' expected near 'goto'                                  | OK                                            | OK
+l52.goto_label_named_goto          | same   | OK                                                           | OK                                            | OK
+l52.goto_label_continue            | same   | OK                                                           | OK                                            | OK
+l52.goto_label_const               | same   | OK                                                           | OK                                            | OK
+l52.goto_continue_target           | same   | OK                                                           | OK                                            | OK
+l52.goto_break_label               | same   | OK                                                           | OK                                            | OK
+l52.goto_semicolons                | same   | OK                                                           | OK                                            | OK
+l52.goto_label_end_of_loop         | same   | OK                                                           | OK                                            | OK
+l52.goto_repeat_scope              | same   | 1: <goto x> jumps into the scope of local 'a'                | 1: <goto x> jumps into the scope of local 'a' | 1: <goto x> at line 1 jumps into the scope of local 'a'
+l52.goto_field                     | same   | OK                                                           | OK                                            | OK
+l52.goto_local                     | same   | OK                                                           | OK                                            | OK
+l52.goto_param                     | same   | OK                                                           | OK                                            | OK
+l52.goto_tablekey                  | same   | OK                                                           | OK                                            | OK
+l52.goto_call                      | same   | OK                                                           | OK                                            | OK
+l52.goto_string_call               | same   | OK                                                           | OK                                            | OK
+l52.goto_index                     | same   | OK                                                           | OK                                            | OK
+l52.goto_method                    | same   | OK                                                           | OK                                            | OK
+l52.goto_assign_global             | same   | OK                                                           | OK                                            | OK
+l52.continue_local                 | same   | OK                                                           | OK                                            | OK
+l52.continue_global                | same   | OK                                                           | OK                                            | OK
+l52.continue_field                 | same   | OK                                                           | OK                                            | OK
+l52.continue_func                  | same   | OK                                                           | OK                                            | OK
+l52.continue_localfunc             | same   | OK                                                           | OK                                            | OK
+l52.continue_call                  | same   | OK                                                           | OK                                            | OK
+l52.continue_string_call           | same   | OK                                                           | OK                                            | OK
+l52.continue_method                | same   | OK                                                           | OK                                            | OK
+l52.continue_param                 | same   | OK                                                           | OK                                            | OK
+l52.continue_forvar                | same   | OK                                                           | OK                                            | OK
+l52.continue_forin                 | same   | OK                                                           | OK                                            | OK
+l52.continue_key                   | same   | OK                                                           | OK                                            | OK
+l52.continue_expr                  | same   | OK                                                           | OK                                            | OK
+l52.continue_end                   | same   | 1: '=' expected near 'end'                                   | OK                                            | 1: syntax error near 'end'
+l52.continue_semicolon             | same   | 1: '=' expected near ';'                                     | 1: no loop to continue                        | 1: syntax error near ';'
+l52.continue_index                 | same   | OK                                                           | OK                                            | OK
+l52.continue_upvalue               | same   | OK                                                           | OK                                            | OK
+l52.continue_dotted_fn             | same   | OK                                                           | OK                                            | OK
+l52.const_local                    | same   | OK                                                           | OK                                            | OK
+l52.const_global                   | same   | OK                                                           | OK                                            | OK
+l52.const_call                     | same   | OK                                                           | OK                                            | OK
+l52.const_field                    | same   | OK                                                           | OK                                            | OK
+l52.const_func                     | same   | OK                                                           | OK                                            | OK
+l52.const_index                    | same   | OK                                                           | OK                                            | OK
+l52.const_method                   | same   | OK                                                           | OK                                            | OK
+l52.const_name_stmt                | same   | 1: '=' expected near 'x'                                     | OK                                            | 1: syntax error near 'x'
+l52.const_function_stmt            | same   | 1: '=' expected near 'function'                              | OK                                            | 1: syntax error near 'function'
+l52.const_multi_assign             | same   | OK                                                           | OK                                            | OK
+l52.longstr                        | same   | OK                                                           | OK                                            | OK
+l52.longstr_level                  | same   | OK                                                           | OK                                            | OK
+l52.longstr_leading_nl             | same   | OK                                                           | OK                                            | OK
+l52.longstr_unfinished             | same   | 1: unfinished long string near '<eof>'                       | 1: unfinished long string near '<eof>'        | 1: unfinished long string (started at line 1) near <eof>
+l52.longstr_bad_delim              | same   | 1: invalid long string delimiter near '[='                   | 1: invalid long string delimiter near '[='    | 1: invalid long string delimiter near '[='
+l52.longstr_wrong_close            | same   | 1: unfinished long string near '<eof>'                       | 1: unfinished long string near '<eof>'        | 1: unfinished long string (started at line 1) near <eof>
+l52.longcomment                    | same   | OK                                                           | OK                                            | OK
+l52.longcomment_level              | same   | OK                                                           | OK                                            | OK
+l52.longcomment_unfinished         | same   | 1: unfinished long comment near '<eof>'                      | 1: unfinished long comment near '<eof>'       | 1: unfinished long comment (started at line 1) near <eof>
+l52.comment_arrow                  | same   | OK                                                           | OK                                            | OK
+l52.comment_dashdash_gt            | same   | OK                                                           | OK                                            | OK
+l52.num_hexfloat                   | same   | OK                                                           | OK                                            | OK
+l52.num_hexfrac                    | same   | OK                                                           | OK                                            | OK
+l52.num_hexfloat2                  | same   | OK                                                           | OK                                            | OK
+l52.num_big                        | same   | OK                                                           | OK                                            | OK
+l52.num_inf                        | same   | OK                                                           | OK                                            | OK
+l52.num_hex_big                    | same   | OK                                                           | OK                                            | OK
+l52.num_hex_huge                   | same   | OK                                                           | OK                                            | OK
+l52.num_trailing_dot               | same   | OK                                                           | OK                                            | OK
+l52.num_leading_dot                | same   | OK                                                           | OK                                            | OK
+l52.num_e                          | same   | 1: malformed number near '1e'                                | 1: malformed number near '1e'                 | 1: malformed number near '1e'
+l52.num_e_plus                     | same   | 1: malformed number near '1e+'                               | 1: malformed number near '1e+'                | 1: malformed number near '1e+'
+l52.num_0x                         | same   | 1: malformed number near '0x'                                | 1: malformed number near '0x'                 | 1: malformed number near '0x'
+l52.num_08                         | same   | OK                                                           | OK                                            | OK
+l52.num_dotdot                     | same   | 1: malformed number near '1..2'                              | 1: malformed number near '1..2'               | 1: malformed number near '1..2'
+l52.num_exp_neg                    | same   | OK                                                           | OK                                            | OK
+l52.num_upper_hex                  | same   | OK                                                           | OK                                            | OK
+l52.num_ll                         | same   | 1: malformed number near '1LL'                               | 1: malformed number near '1LL'                | 1: syntax error near <eof>
+l52.num_imag                       | same   | 1: malformed number near '1i'                                | 1: malformed number near '1i'                 | 1: syntax error near <eof>
+l52.num_bin                        | same   | OK                                                           | OK                                            | 1: malformed number near '0b101'
+l52.num_two_dots                   | same   | 1: malformed number near '1.2.3'                             | 1: malformed number near '1.2.3'              | 1: malformed number near '1.2.3'
+l52.num_ee                         | same   | 1: malformed number near '1e5e5'                             | 1: malformed number near '1e5e5'              | 1: malformed number near '1e5e5'
+l52.num_hex_e_plus                 | same   | OK                                                           | OK                                            | OK
+l52.num_hex_p                      | same   | 1: malformed number near '0x1p'                              | 1: malformed number near '0x1p'               | 1: malformed number near '0x1p'
+l52.num_dot_e                      | same   | OK                                                           | OK                                            | OK
+l52.num_neg_zero                   | same   | OK                                                           | OK                                            | OK
+l52.num_concat_space               | same   | OK                                                           | OK                                            | OK
+l52.num_ident_suffix               | same   | 1: malformed number near '3abc'                              | 1: malformed number near '3abc'               | 1: malformed number near '3abc'
+l52.str_z                          | same   | OK                                                           | OK                                            | OK
+l52.str_hex                        | same   | OK                                                           | OK                                            | OK
+l52.str_hex_bad                    | same   | 1: invalid escape sequence near '"'                          | 1: invalid escape sequence near '"'           | 1: hexadecimal digit expected near '"\\xZ'
+l52.str_utf8                       | same   | OK                                                           | OK                                            | OK
+l52.str_utf8_big                   | same   | 1: invalid escape sequence near '"'                          | 1: invalid escape sequence near '"'           | 1: UTF-8 value too large near '"\\u{7FFFFF'
+l52.str_utf8_bad                   | same   | 1: invalid escape sequence near '"'                          | 1: invalid escape sequence near '"'           | 1: UTF-8 value too large near '"\\u{110000'
+l52.str_dec_big                    | same   | 1: invalid escape sequence near '"'                          | 1: invalid escape sequence near '"'           | 1: escape sequence too large near '"\\300"'
+l52.str_bad_escape                 | same   | 1: invalid escape sequence near '"'                          | 1: invalid escape sequence near '"'           | OK
+l52.str_unfinished                 | same   | 1: unfinished string near '<eof>'                            | 1: unfinished string near '<eof>'             | 1: unfinished string near <eof>
+l52.str_newline                    | same   | 1: unfinished string near '"a'                               | 1: unfinished string near '"a'                | 1: unfinished string near '"a'
+l52.str_backslash_nl               | same   | OK                                                           | OK                                            | OK
+l52.str_bang_inside                | same   | OK                                                           | OK                                            | OK
+l52.semi_lead                      | same   | OK                                                           | OK                                            | OK
+l52.semi_block                     | same   | OK                                                           | OK                                            | OK
+l52.semi_break                     | same   | OK                                                           | OK                                            | OK
+l52.semi_only                      | same   | OK                                                           | OK                                            | OK
+l52.semi_return_one                | same   | OK                                                           | OK                                            | OK
+l52.semi_after_if                  | same   | OK                                                           | OK                                            | OK
+l52.break_not_last                 | same   | OK                                                           | OK                                            | OK
+l52.hash_comment_first             | same   | OK                                                           | 1: unexpected symbol near '#'                 | OK
+l52.hash_alone_first               | same   | OK                                                           | 1: unexpected symbol near '#'                 | OK
+l52.hash_digit_first               | same   | OK                                                           | OK                                            | OK
+l52.shebang                        | same   | OK                                                           | OK                                            | OK
+l52.hash_len_line                  | same   | OK                                                           | OK                                            | OK
+l52.hash_len_number_line           | same   | OK                                                           | 5: unexpected symbol near '<eof>'             | OK
+l52.hash_len_space_name            | same   | OK                                                           | OK                                            | OK
+l52.bom_hash                       | same   | OK                                                           | 1: unexpected symbol near '#'                 | 1: unexpected symbol near <\\239>'
+l52.bom_code                       | same   | OK                                                           | OK                                            | 1: unexpected symbol near <\\239>'
+l52.highbyte_ident                 | same   | OK                                                           | OK                                            | 1: syntax error near <\\195>'
+l52.err_eq_eq                      | same   | 1: unexpected symbol near '='                                | 1: unexpected symbol near '='                 | 1: unexpected symbol near '='
+l52.err_local_function             | same   | 1: '<name>' expected near 'end'                              | 1: '<name>' expected near 'end'               | 1: <name> expected near 'end'
+l52.err_if_eof                     | same   | 1: 'end' expected near '<eof>'                               | 1: 'end' expected near '<eof>'                | 1: 'end' expected near <eof>
+l52.err_call_eof                   | same   | 1: unexpected symbol near '<eof>'                            | 1: unexpected symbol near '<eof>'             | 1: unexpected symbol near <eof>
+l52.err_method_noargs              | same   | 1: function arguments expected near '<eof>'                  | 1: function arguments expected near '<eof>'   | 1: function arguments expected near <eof>
+l52.err_return_return              | same   | 1: unexpected symbol near 'return'                           | 1: unexpected symbol near 'return'            | 1: unexpected symbol near 'return'
+l52.err_local_number               | same   | 1: '<name>' expected near '1'                                | 1: '<name>' expected near '1'                 | 1: <name> expected near '1'
+l52.err_close_brace                | same   | 1: unexpected symbol near '}'                                | 1: unexpected symbol near '}'                 | 1: unexpected symbol near '}'
+l52.err_for                        | same   | 1: ',' expected near 'do'                                    | 1: ',' expected near 'do'                     | 1: ',' expected near 'do'
+l52.err_for_multi                  | same   | 1: 'in' expected near '='                                    | 1: 'in' expected near '='                     | 1: 'in' expected near '='
+l52.err_param_trailing             | same   | 1: <name> or '...' expected near ')'                         | 1: <name> or '...' expected near ')'          | 1: <name> or '...' expected near ')'
+l52.err_param_dots                 | same   | 1: ')' expected near ','                                     | 1: ')' expected near ','                      | 1: ')' expected near ','
+l52.err_dots_outside               | same   | 1: cannot use '...' outside a vararg function near '...'     | 1: cannot use '...' outside a vararg function | 1: cannot use '...' outside a vararg function near '...'
+l52.err_break_outside              | same   | 1: no loop to break                                          | 1: no loop to break                           | 1: break outside loop at line 1
+l52.err_paren_stmt                 | same   | 1: syntax error near '<eof>'                                 | 1: syntax error near '<eof>'                  | 1: syntax error near <eof>
+l52.err_assign_call                | same   | 1: unexpected symbol near '='                                | 1: unexpected symbol near '='                 | 1: syntax error near '='
+l52.err_assign_list_call           | same   | 1: syntax error near '='                                     | 1: syntax error near '='                      | 1: syntax error near '='
+l52.err_attrib_54                  | same   | 1: unexpected symbol near '<'                                | 1: unexpected symbol near '<'                 | 1: unexpected symbol near '<'
+l52.err_floor_div                  | same   | 1: unexpected symbol near '/'                                | 1: unexpected symbol near '/'                 | 1: unexpected symbol near '/'
+l52.err_len_eof                    | same   | 1: unexpected symbol near '<eof>'                            | 1: unexpected symbol near '<eof>'             | 1: unexpected symbol near <eof>
+l52.err_after_return               | same   | 1: '<eof>' expected near 'x'                                 | 1: '<eof>' expected near 'x'                  | 1: <eof> expected near 'x'
+l52.err_end_end                    | same   | 1: '<eof>' expected near 'end'                               | 1: '<eof>' expected near 'end'                | 1: <eof> expected near 'end'
+l52.err_stray_elseif               | same   | 1: '<eof>' expected near 'elseif'                            | 1: '<eof>' expected near 'elseif'             | 1: <eof> expected near 'elseif'
+l52.err_stray_until                | same   | 1: '<eof>' expected near 'until'                             | 1: '<eof>' expected near 'until'              | 1: <eof> expected near 'until'
+l52.err_label_open                 | same   | 1: '::' expected near '<eof>'                                | 1: '::' expected near '<eof>'                 | 1: '::' expected near <eof>
+l52.err_label_number               | same   | 1: '<name>' expected near '1'                                | 1: '<name>' expected near '1'                 | 1: <name> expected near '1'
+l52.err_arrow_expr                 | same   | 1: unexpected symbol near '>'                                | OK                                            | 1: unexpected symbol near '>'
+l52.err_question_end               | same   | 1: unexpected symbol near '?'                                | 1: unexpected symbol near '<eof>'             | 1: unexpected symbol near '?'
+l52.err_bang_alone                 | same   | 1: unexpected symbol near '!'                                | 1: unexpected symbol near '!'                 | 1: unexpected symbol near '!'
+l52.err_amp_alone                  | same   | 1: unexpected symbol near '&'                                | 1: unexpected symbol near '&'                 | 1: unexpected symbol near '&'
+l52.err_pipe_alone                 | same   | 1: unexpected symbol near '|'                                | 1: unexpected symbol near '|'                 | 1: unexpected symbol near '|'
+l52.err_question_alone             | same   | 1: unexpected symbol near '?'                                | 1: unexpected symbol near '?'                 | 1: unexpected symbol near '?'
+l52.err_tilde_alone                | same   | 1: unexpected symbol near '~'                                | 1: unexpected symbol near '~'                 | 1: unexpected symbol near '~'
+l52.err_dollar                     | same   | 1: unexpected symbol near '$'                                | 1: unexpected symbol near '$'                 | 1: unexpected symbol near '$'
+l52.err_backtick                   | same   | 1: unexpected symbol near '`'                                | 1: unexpected symbol near '`'                 | 1: unexpected symbol near '`'
+l52.err_at                         | same   | 1: unexpected symbol near '@'                                | 1: unexpected symbol near '@'                 | 1: unexpected symbol near '@'
+l52.err_ne_stmt                    | same   | 1: '=' expected near '~='                                    | OK                                            | 1: syntax error near '~='
+l52.err_eq_stmt                    | same   | 1: '=' expected near '=='                                    | 1: '=' expected near '=='                     | 1: syntax error near '=='
+l52.err_lt_lt_stmt                 | same   | 1: '=' expected near '<'                                     | 1: '=' expected near '<<'                     | 1: syntax error near '<'
+l52.err_call_then_op               | same   | 1: unexpected symbol near '+'                                | 1: unexpected symbol near '+'                 | 1: unexpected symbol near '+'
+l52.err_nested_fn_line             | same   | 3: unexpected symbol near 'end'                              | 3: unexpected symbol near 'end'               | 3: unexpected symbol near 'end'
+l52.err_multiline                  | same   | 4: '}' expected (to close '{' at line 1) near 'c'            | 4: '}' expected (to close '{' at line 1) near | 4: '}' expected (to close '{' at line 1) near 'c'
+l52.err_match_far                  | same   | 6: 'end' expected (to close 'if' at line 1) near '<eof>'     | 6: 'end' expected (to close 'if' at line 1) n | 6: 'end' expected (to close 'if' at line 1) near <eof>
+l52.err_match_fn                   | same   | 4: 'end' expected (to close 'function' at line 1) near '<eof | 4: 'end' expected (to close 'function' at lin | 4: 'end' expected (to close 'function' at line 1) near <eof>
+l52.err_string_after_number        | same   | 1: unexpected symbol near ''a''                              | 1: unexpected symbol near ''a''               | 1: unexpected symbol near ''a''
+l52.chain_dot_newline              | same   | OK                                                           | OK                                            | OK
+l52.chain_dot_newline_global       | same   | OK                                                           | OK                                            | OK
+l52.chain_dot_newline_3            | same   | OK                                                           | OK                                            | OK
+l52.chain_colon_newline            | same   | OK                                                           | OK                                            | OK
+l52.chain_mixed_newline            | same   | OK                                                           | OK                                            | OK
+l52.fname_dot_newline              | same   | OK                                                           | OK                                            | OK
+l52.fname_colon_newline            | same   | OK                                                           | OK                                            | OK
+l52.index_newline                  | same   | OK                                                           | OK                                            | OK
+l52.call_newline                   | same   | OK                                                           | OK                                            | OK
+l52.string_call_newline            | same   | OK                                                           | OK                                            | OK
+l52.table_call_newline             | same   | OK                                                           | OK                                            | OK
+l52.assign_chain_newline           | same   | OK                                                           | OK                                            | OK
+l52.local_chain_newline            | same   | OK                                                           | OK                                            | OK
+l52.limit_params_201               | same   | 1: function at line 1 has more than 200 local variables      | 1: main function has more than 200 local vari | 1: function at line 1 has more than 200 local variables
+l52.limit_params_201_stmt          | same   | 3: function at line 3 has more than 200 local variables      | 3: function at line 12714177 has more than 20 | 3: function at line 3 has more than 200 local variables
+l52.limit_locals_201               | same   | 202: function at line 1 has more than 200 local variables    | 202: function at line 1 has more than 200 loc | 202: function at line 1 has more than 200 local variables
+l52.limit_locals_main_201          | same   | 201: main function has more than 200 local variables         | 201: main function has more than 200 local va | 201: main function has more than 200 local variables
+l52.limit_upvalues_61              | same   | 62: function at line 62 has more than 60 upvalues            | 62: function at line 62 has more than 60 upva | OK
+l52.limit_parens_250               | same   | 1: chunk has too many syntax levels                          | 1: chunk has too many syntax levels           | 1: main function has more than 200 syntax levels
+l52.limit_nested_fn_250            | same   | 1: chunk has too many syntax levels                          | 1: chunk has too many syntax levels           | 1: function at line 1 has more than 200 syntax levels
+l52.limit_nested_tables_300        | same   | 1: chunk has too many syntax levels                          | 1: chunk has too many syntax levels           | 1: main function has more than 200 syntax levels
+l52.limit_concat_chain             | same   | 1: chunk has too many syntax levels                          | 1: chunk has too many syntax levels           | 1: main function has more than 200 syntax levels
+
+l52 cases where Cobalt's accept/reject differs from 3c4f9fe2+01-08:
+  l52.goto_goto                    ref: 1: '=' expected near 'goto'                        cobalt: OK
+  l52.num_bin                      ref: OK                                                 cobalt: 1: malformed number near '0b101'
+  l52.str_bad_escape               ref: 1: invalid escape sequence near '"'                cobalt: OK
+  l52.bom_hash                     ref: OK                                                 cobalt: 1: unexpected symbol near <\\239>'
+  l52.bom_code                     ref: OK                                                 cobalt: 1: unexpected symbol near <\\239>'
+  l52.highbyte_ident               ref: OK                                                 cobalt: 1: syntax error near <\\195>'
+  l52.limit_upvalues_61            ref: 62: function at line 62 has more than 60 upvalues  cobalt: OK

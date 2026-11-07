@@ -1,0 +1,43 @@
+From d5f8ebd4dc462ce4956a088bef1feb92e5892483 Mon Sep 17 00:00:00 2001
+From: Mike Pall <mike>
+Date: Wed, 21 Oct 2026 15:09:24 +0200
+Subject: [PATCH 20/26] Don't compile select() indexing beyond varargs.
+
+Reported by Arets Paeglis. #1535
+
+(cherry picked from commit a4c064539ea931274d407e1249b4bb575424a0f4)
+---
+ src/lj_record.c | 13 +++----------
+ 1 file changed, 3 insertions(+), 10 deletions(-)
+
+diff --git a/src/lj_record.c b/src/lj_record.c
+index 5c361b39..dc4ff404 100644
+--- a/src/lj_record.c
++++ b/src/lj_record.c
+@@ -2039,7 +2039,7 @@ static void rec_varg(jit_State *J, BCReg dst, ptrdiff_t nresults)
+       TRef tridx = getslot(J, dst-1);
+       TRef tr = TREF_NIL;
+       ptrdiff_t idx = lj_ffrecord_select_mode(J, tridx, &J->L->base[dst-1]);
+-      if (idx < 0) goto nyivarg;
++      if (idx < 0 || idx > LUAI_MAXSTACK) goto nyivarg;
+       if (idx != 0 && !tref_isinteger(tridx)) {
+ 	if (tref_isstr(tridx))
+ 	  tridx = emitir(IRTG(IR_STRTO, IRT_NUM), tridx, 0);
+@@ -2058,15 +2058,8 @@ static void rec_varg(jit_State *J, BCReg dst, ptrdiff_t nresults)
+ 	  tridx = emitir(IRTI(IR_ADD), tridx, lj_ir_kint(J, -1));
+ 	  rec_idx_abc(J, tr, tridx, (uint32_t)nvararg);
+ 	}
+-      } else {
+-	TRef tmp = lj_ir_kint(J, frofs);
+-	if (idx != 0) {
+-	  TRef tmp2 = emitir(IRTI(IR_BSHL), tridx, lj_ir_kint(J, 3));
+-	  tmp = emitir(IRTI(IR_ADD), tmp2, tmp);
+-	} else {
+-	  tr = lj_ir_kint(J, 0);
+-	}
+-	emitir(IRTGI(IR_LT), fr, tmp);
++      } else {  /* Indexing beyond nvararg. */
++	goto nyivarg;  /* Uncommon and pointless to compile it. */
+       }
+       if (idx != 0 && idx <= nvararg) {
+ 	IRType t;

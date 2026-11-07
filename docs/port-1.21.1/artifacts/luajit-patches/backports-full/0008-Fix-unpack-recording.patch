@@ -1,0 +1,29 @@
+From 606e1333236b455c933086de7c218c47eb043297 Mon Sep 17 00:00:00 2001
+From: Mike Pall <mike>
+Date: Wed, 19 Aug 2026 18:21:10 +0200
+Subject: [PATCH 08/26] Fix unpack() recording.
+
+Thanks to Appla. #1512
+
+(cherry picked from commit 21ecb3610e0ef5f9f6badf5119b2098d351db773)
+---
+ src/lj_ffrecord.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/src/lj_ffrecord.c b/src/lj_ffrecord.c
+index cca24cc6..6c62e54c 100644
+--- a/src/lj_ffrecord.c
++++ b/src/lj_ffrecord.c
+@@ -354,10 +354,11 @@ static void LJ_FASTCALL recff_unpack(jit_State *J, RecordFFData *rd)
+     rd->nres = (ptrdiff_t)(len + 1);
+     ix.tab = trtab; ix.val = 0; ix.idxchain = 0;
+     settabV(J->L, &ix.tabv, t);
+-    for (i = start; i <= end; i++) {
++    for (i = start; ; i++) {
+       ix.key = lj_ir_kint(J, i);
+       setintV(&ix.keyv, i);
+       J->base[i - start] = lj_record_idx(J, &ix);
++      if (i == end) break;
+     }
+   } else {  /* Empty result. */
+     emitir(IRTGI(IR_LT), trend, trstart);

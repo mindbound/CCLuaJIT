@@ -1,0 +1,33 @@
+modLoader = "javafml"
+loaderVersion = "[1,)"
+license = "MIT"
+issueTrackerURL = "https://github.com/mindbound/CCLuaJIT/issues"
+
+[[mods]]
+modId = "ccluajit"
+version = "${mod_version}"
+displayName = "CCLuaJIT"
+authors = "vereena0x13, mindbound"
+logoFile = "logo.png"
+description = '''Changes CC: Tweaked to use LuaJIT instead of Cobalt.'''
+
+[[dependencies.ccluajit]]
+modId = "neoforge"
+type = "required"
+versionRange = "[21.1.0,)"
+ordering = "NONE"
+side = "BOTH"
+
+[[dependencies.ccluajit]]
+modId = "minecraft"
+type = "required"
+versionRange = "[1.21.1,1.21.2)"
+ordering = "NONE"
+side = "BOTH"
+
+[[dependencies.ccluajit]]
+modId = "computercraft"
+type = "required"
+versionRange = "[1.121.0,)"
+ordering = "AFTER"
+side = "BOTH"

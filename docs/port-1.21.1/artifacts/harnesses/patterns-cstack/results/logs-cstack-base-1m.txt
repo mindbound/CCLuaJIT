@@ -1,0 +1,113 @@
+CASE lua_recursion (stack 1024 KB, guard off)
+  run 1: error  depth=21833  1 ms: [string "local function f(n) D = D + 1 return 1 + f(n ..."]:1: stack overflow
+  run 2: error  depth=21833  1 ms: [string "local function f(n) D = D + 1 return 1 + f(n ..."]:1: stack overflow
+  state usable: 2893 a2b3 (lua stack top 0)
+  RESULT COMPLETED (no crash)
+CASE pcall_recursion (stack 1024 KB, guard off)
+  run 1: ok     depth=32744  1 ms: true
+  run 2: ok     depth=32744  1 ms: true
+  state usable: 2893 a2b3 (lua stack top 0)
+  RESULT COMPLETED (no crash)
+CASE index_fn_recursion_vm (stack 1024 KB, guard off)
+  run 1: error  depth=9357   1 ms: [string "local t t = setmetatable({}, {__index = funct..."]:1: stack overflow
+  run 2: error  depth=9356   1 ms: [string "local t t = setmetatable({}, {__index = funct..."]:1: stack overflow
+  state usable: 2893 a2b3 (lua stack top 0)
+  RESULT COMPLETED (no crash)
+CASE tostring_tailcall (stack 1024 KB, guard off)
+  run 1: error  depth=1000001 0 ms: 1e6 tail calls, no stack growth
+  run 2: error  depth=1000001 0 ms: 1e6 tail calls, no stack growth
+  state usable: 2893 a2b3 (lua stack top 0)
+  RESULT COMPLETED (no crash)
+CASE gsub_callback (stack 1024 KB, guard off)
+  RESULT CRASH: exit code 0xC00000FD (STATUS_STACK_OVERFLOW)
+CASE gsub_table_index (stack 1024 KB, guard off)
+  RESULT CRASH: exit code 0xC00000FD (STATUS_STACK_OVERFLOW)
+CASE sort_comparator (stack 1024 KB, guard off)
+  RESULT CRASH: exit code 0xC00000FD (STATUS_STACK_OVERFLOW)
+CASE sort_lt_metamethod (stack 1024 KB, guard off)
+  RESULT CRASH: exit code 0xC00000FD (STATUS_STACK_OVERFLOW)
+CASE tostring_mm_paren (stack 1024 KB, guard off)
+  run 1: error  depth=21831  1 ms: [string "local t t = setmetatable({}, {__tostring = fu..."]:1: stack overflow
+  run 2: error  depth=21831  1 ms: [string "local t t = setmetatable({}, {__tostring = fu..."]:1: stack overflow
+  state usable: 2893 a2b3 (lua stack top 0)
+  RESULT COMPLETED (no crash)
+CASE format_s_tostring (stack 1024 KB, guard off)
+  RESULT CRASH: exit code 0xC00000FD (STATUS_STACK_OVERFLOW)
+CASE table_foreach (stack 1024 KB, guard off)
+  run 1: error  depth=5954   1 ms: [builtin:foreach]:0: stack overflow
+  run 2: error  depth=5953   1 ms: [builtin:foreach]:0: stack overflow
+  state usable: 2893 a2b3 (lua stack top 0)
+  RESULT COMPLETED (no crash)
+CASE load_reader (stack 1024 KB, guard off)
+  RESULT CRASH: exit code 0xC00000FD (STATUS_STACK_OVERFLOW)
+CASE xpcall_handler (stack 1024 KB, guard off)
+  run 1: ok     depth=1      0 ms: false
+  run 2: ok     depth=1      0 ms: false
+  state usable: 2893 a2b3 (lua stack top 0)
+  RESULT COMPLETED (no crash)
+CASE error_in_handler_deep (stack 1024 KB, guard off)
+  RESULT CRASH: exit code 0xC00000FD (STATUS_STACK_OVERFLOW)
+CASE coroutine_wrap_nesting (stack 1024 KB, guard off)
+  RESULT CRASH: exit code 0xC00000FD (STATUS_STACK_OVERFLOW)
+CASE coroutine_resume_nesting (stack 1024 KB, guard off)
+  RESULT CRASH: exit code 0xC00000FD (STATUS_STACK_OVERFLOW)
+CASE coroutine_precreated_chain (stack 1024 KB, guard off)
+  RESULT CRASH: exit code 0xC0000005
+CASE host_lua_call (stack 1024 KB, guard off)
+  RESULT CRASH: exit code 0xC0000005
+CASE host_lua_pcall (stack 1024 KB, guard off)
+  RESULT CRASH: exit code 0xC00000FD (STATUS_STACK_OVERFLOW)
+CASE host_lua_cpcall (stack 1024 KB, guard off)
+  RESULT CRASH: exit code 0xC00000FD (STATUS_STACK_OVERFLOW)
+CASE host_lua_gettable (stack 1024 KB, guard off)
+  RESULT CRASH: exit code 0xC0000005
+CASE host_lua_settable (stack 1024 KB, guard off)
+  run 1: error  depth=4387   70 ms: stack overflow
+  run 2: error  depth=4387   72 ms: stack overflow
+  state usable: 2893 a2b3 (lua stack top 0)
+  RESULT COMPLETED (no crash)
+CASE host_lua_equal (stack 1024 KB, guard off)
+  RESULT CRASH: exit code 0xC0000005
+CASE host_lua_lessthan (stack 1024 KB, guard off)
+  RESULT CRASH: exit code 0xC00000FD (STATUS_STACK_OVERFLOW)
+CASE host_lua_concat (stack 1024 KB, guard off)
+  RESULT CRASH: exit code 0xC00000FD (STATUS_STACK_OVERFLOW)
+CASE host_callmeta (stack 1024 KB, guard off)
+  RESULT CRASH: exit code 0xC00000FD (STATUS_STACK_OVERFLOW)
+CASE host_lua_resume_nesting (stack 1024 KB, guard off)
+  RESULT CRASH: exit code 0xC00000FD (STATUS_STACK_OVERFLOW)
+CASE parser_at_depth (stack 1024 KB, guard off)
+  RESULT CRASH: exit code 0xC00000FD (STATUS_STACK_OVERFLOW)
+CASE mixed_chain (stack 1024 KB, guard off)
+  RESULT CRASH: exit code 0xC00000FD (STATUS_STACK_OVERFLOW)
+
+SUMMARY (cstack_base.exe 1024)
+  lua_recursion                error  depth=21833  1 ms: [string "local function f(n) D = D + 1 return 1 + f(n ..."]:1: stack overflow
+  pcall_recursion              ok     depth=32744  1 ms: true
+  index_fn_recursion_vm        error  depth=9357   1 ms: [string "local t t = setmetatable({}, {__index = funct..."]:1: stack overflow
+  tostring_tailcall            error  depth=1000001 0 ms: 1e6 tail calls, no stack growth
+  gsub_callback                CRASH exit code 0xC00000FD (STATUS_STACK_OVERFLOW)
+  gsub_table_index             CRASH exit code 0xC00000FD (STATUS_STACK_OVERFLOW)
+  sort_comparator              CRASH exit code 0xC00000FD (STATUS_STACK_OVERFLOW)
+  sort_lt_metamethod           CRASH exit code 0xC00000FD (STATUS_STACK_OVERFLOW)
+  tostring_mm_paren            error  depth=21831  1 ms: [string "local t t = setmetatable({}, {__tostring = fu..."]:1: stack overflow
+  format_s_tostring            CRASH exit code 0xC00000FD (STATUS_STACK_OVERFLOW)
+  table_foreach                error  depth=5954   1 ms: [builtin:foreach]:0: stack overflow
+  load_reader                  CRASH exit code 0xC00000FD (STATUS_STACK_OVERFLOW)
+  xpcall_handler               ok     depth=1      0 ms: false
+  error_in_handler_deep        CRASH exit code 0xC00000FD (STATUS_STACK_OVERFLOW)
+  coroutine_wrap_nesting       CRASH exit code 0xC00000FD (STATUS_STACK_OVERFLOW)
+  coroutine_resume_nesting     CRASH exit code 0xC00000FD (STATUS_STACK_OVERFLOW)
+  coroutine_precreated_chain   CRASH exit code 0xC0000005
+  host_lua_call                CRASH exit code 0xC0000005
+  host_lua_pcall               CRASH exit code 0xC00000FD (STATUS_STACK_OVERFLOW)
+  host_lua_cpcall              CRASH exit code 0xC00000FD (STATUS_STACK_OVERFLOW)
+  host_lua_gettable            CRASH exit code 0xC0000005
+  host_lua_settable            error  depth=4387   70 ms: stack overflow
+  host_lua_equal               CRASH exit code 0xC0000005
+  host_lua_lessthan            CRASH exit code 0xC00000FD (STATUS_STACK_OVERFLOW)
+  host_lua_concat              CRASH exit code 0xC00000FD (STATUS_STACK_OVERFLOW)
+  host_callmeta                CRASH exit code 0xC00000FD (STATUS_STACK_OVERFLOW)
+  host_lua_resume_nesting      CRASH exit code 0xC00000FD (STATUS_STACK_OVERFLOW)
+  parser_at_depth              CRASH exit code 0xC00000FD (STATUS_STACK_OVERFLOW)
+  mixed_chain                  CRASH exit code 0xC00000FD (STATUS_STACK_OVERFLOW)

@@ -1,0 +1,151 @@
+# Draft .github/workflows/build.yml for the 1.21.1 multiloader layout (common/ fabric/ neoforge/).
+#
+# Natives are built on NATIVE runners (one per target) and smoke-tested there by loading them into a real JVM;
+# the jar job then packages all five into natives/<platform>/<lib> and refuses to build if one is missing.
+#
+# Assumed repo layout (see multiloader-1.21.1/ in the port-mechanics work dir):
+#   vendor/luajit                (submodule, LuaJIT v2.1 branch)
+#   src/main/cpp/*.cpp           (JNI glue; moved to e.g. natives/src/ in the new layout)
+#   natives/build-natives.sh     (static LuaJIT + one JNI lib per platform)
+#   natives/src/cclj_selftest.cpp + common/.../natives/NativeProbe.java (proven probe: System.load, run a Lua chunk,
+#                                report jit.version/jit.status; also handy as a startup self-test log line)
+name: build
+
+on:
+  push:
+    branches: [ "1.21.1" ]
+    tags: [ "v*" ]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  JNI_SOURCES: natives/src/cclj.cpp natives/src/cclj_selftest.cpp
+  PROBE_SRC: common/src/main/java/gay/vereena/cclj/natives/NativeProbe.java
+
+jobs:
+  natives-linux:
+    # manylinux_2_28 = AlmaLinux 8, glibc 2.28: the resulting .so loads on any glibc >= 2.28 distro
+    # (Debian 10+, Ubuntu 18.10+, RHEL 8+, all eclipse-temurin / itzg images). Building directly on ubuntu-24.04
+    # instead would require glibc 2.38+ (measured: __isoc23_strtoul, fmod@GLIBC_2.38).
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { platform: linux-x86_64,  runner: ubuntu-24.04,     image: quay.io/pypa/manylinux_2_28_x86_64 }
+          - { platform: linux-aarch64, runner: ubuntu-24.04-arm, image: quay.io/pypa/manylinux_2_28_aarch64 }
+    runs-on: ${{ matrix.runner }}
+    container: ${{ matrix.image }}
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          submodules: recursive
+      - name: Install JDK 21 headers
+        run: dnf install -y java-21-openjdk-devel
+      - name: Build
+        run: |
+          export JAVA_HOME=$(dirname $(dirname $(readlink -f $(which javac))))
+          JOBS=$(nproc) bash natives/build-natives.sh vendor/luajit natives/out $JNI_SOURCES
+      - name: Check glibc baseline and exports
+        run: |
+          lib=natives/out/${{ matrix.platform }}/libcclj.so
+          max=$(objdump -T "$lib" | grep -o 'GLIBC_[0-9.]*' | sort -Vu | tail -1); echo "max glibc: $max"
+          if nm -D --defined-only "$lib" | grep -v ' Java_\| JNI_' | grep ' T '; then echo "unexpected exports"; exit 1; fi
+      - name: Smoke test (load into a JVM, run Lua)
+        run: |
+          mkdir -p build/smoke && javac -d build/smoke $PROBE_SRC
+          java -cp build/smoke gay.vereena.cclj.natives.NativeProbe natives/out/${{ matrix.platform }}/libcclj.so
+      - uses: actions/upload-artifact@v4
+        with:
+          name: natives-${{ matrix.platform }}
+          path: natives/out/
+          if-no-files-found: error
+
+  natives-host:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { platform: windows-x86_64, runner: windows-2025 }
+          # macos-13 was retired in Dec 2025; macos-15-intel is the last x86_64 macOS image (until ~fall 2027).
+          # Fallback when it is gone: build x86_64 on macos-15 with CC="clang -arch x86_64" (LuaJIT supports
+          # 64->64-bit cross builds) and smoke-test under Rosetta 2.
+          - { platform: macos-x86_64,   runner: macos-15-intel }
+          - { platform: macos-aarch64,  runner: macos-15 }
+    runs-on: ${{ matrix.runner }}
+    defaults:
+      run:
+        shell: ${{ startsWith(matrix.platform, 'windows') && 'msys2 {0}' || 'bash' }}
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          submodules: recursive
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: 21
+      - if: startsWith(matrix.platform, 'windows')
+        uses: msys2/setup-msys2@v2
+        with:
+          msystem: MINGW64            # MSVCRT runtime; UCRT64 also works on Windows 10+
+          path-type: inherit          # keep JAVA_HOME / java on PATH
+          install: >-
+            mingw-w64-x86_64-gcc
+            mingw-w64-x86_64-make
+            mingw-w64-x86_64-binutils
+      - name: Build
+        env:
+          MACOSX_DEPLOYMENT_TARGET: "11.0"
+        run: |
+          if command -v cygpath >/dev/null; then export JAVA_HOME="$(cygpath -u "$JAVA_HOME")"; fi
+          JOBS=4 bash natives/build-natives.sh vendor/luajit natives/out $JNI_SOURCES
+      - name: Check dependencies
+        run: |
+          case "${{ matrix.platform }}" in
+            windows-*) objdump -p natives/out/windows-x86_64/cclj.dll | grep "DLL Name" | tee deps.txt
+                       if grep -viE 'KERNEL32|msvcrt|api-ms-win|ADVAPI32|USER32' deps.txt; then echo "non-system DLL import"; exit 1; fi ;;
+            macos-*)   otool -L natives/out/${{ matrix.platform }}/libcclj.dylib
+                       lipo -info natives/out/${{ matrix.platform }}/libcclj.dylib ;;
+          esac
+      - name: Smoke test (load into a JVM, run Lua)
+        run: |
+          lib=$(ls natives/out/${{ matrix.platform }}/*)
+          mkdir -p build/smoke && "$JAVA_HOME/bin/javac" -d build/smoke $PROBE_SRC
+          "$JAVA_HOME/bin/java" -cp build/smoke gay.vereena.cclj.natives.NativeProbe "$lib"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: natives-${{ matrix.platform }}
+          path: natives/out/
+          if-no-files-found: error
+
+  jar:
+    needs: [ natives-linux, natives-host ]
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          # 21 = compile toolchain for Minecraft 1.21.1; 25 (last = default JAVA_HOME) runs Gradle, which
+          # Fabric Loom 1.18+ requires.
+          java-version: |
+            21
+            25
+      - uses: gradle/actions/setup-gradle@v4
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: natives-*
+          path: natives/out
+          merge-multiple: true
+      - run: find natives/out -type f -exec ls -la {} +
+      - name: Build mod jars (fails if any platform library is missing)
+        run: ./gradlew build -Pcclj.requireAllNatives=true -Pcclj.nativesDir=natives/out
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ccluajit-jars
+          path: |
+            fabric/build/libs/*.jar
+            neoforge/build/libs/*.jar
+          if-no-files-found: error

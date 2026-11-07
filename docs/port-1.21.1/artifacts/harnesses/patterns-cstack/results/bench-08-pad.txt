@@ -1,0 +1,7 @@
+benchmark                   p07      p0708 p0708_pad64     p0708/p07  p0708_pad64/p07
+coroutine_pingpong       0.1530     0.1610     0.1540         +5.2%         +0.7%
+coroutine_resume         0.1470     0.1550     0.1480         +5.4%         +0.7%
+gsub_fn_callback         0.0360     0.0360     0.0360         +0.0%         +0.0%
+host_like_sort_cmp       0.0760     0.0780     0.0790         +2.6%         +3.9%
+geomean p0708 vs p07: +3.30%  (runs per build: 7 rounds x best-of-3)
+geomean p0708_pad64 vs p07: +1.31%  (runs per build: 7 rounds x best-of-3)

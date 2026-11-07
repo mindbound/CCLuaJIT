@@ -1,0 +1,25 @@
+From 2f0697d272925e8ae36a48fd7efe70f9a02ba738 Mon Sep 17 00:00:00 2001
+From: Mike Pall <mike>
+Date: Tue, 13 Oct 2026 12:19:12 +0200
+Subject: [PATCH 15/26] x64: Fix math.floor()/ceil() argument check.
+
+Thanks to RaphaelIT7. #1532
+
+(cherry picked from commit 849bbbe763e38080ae7ec6bd9b2be34156ec6b80)
+---
+ src/vm_x64.dasc | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/vm_x64.dasc b/src/vm_x64.dasc
+index bd480cbb..d500a31d 100644
+--- a/src/vm_x64.dasc
++++ b/src/vm_x64.dasc
+@@ -1733,7 +1733,7 @@ static void build_subroutines(BuildCtx *ctx)
+   |  jmp ->vm_return
+   |
+   |.macro math_round, func
+-  |  .ffunc math_ .. func
++  |  .ffunc_1 math_ .. func
+   |.if DUALNUM
+   |  mov RB, [BASE]
+   |  checknumx RB, ->fff_resRB, je

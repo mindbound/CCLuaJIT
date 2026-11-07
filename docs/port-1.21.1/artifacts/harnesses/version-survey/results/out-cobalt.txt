@@ -1,0 +1,21 @@
+VARIANT cobalt (stock CC:T 1.121.0 VM, Cobalt 0.9.9)
+PROBE _VERSION="Lua 5.2" _HOST="ComputerCraft 1.121.0 (Minecraft 1.21.1)"
+PROBE type(jit)=nil quirk({false,[1]=true})[1]=false tostring(assert)=function: <hex>
+PROBE require'bit'=error require'jit'=error require'bit32'=table require'ffi'=error _G.bit.lshift=nil string.dump=errors
+json              OK   [1,2,3]
+inspect           OK   { 1, 2, a = 3 }
+inspect+compat53  OK   { 1, 2, a = 3 }
+lume              OK   {[1]=1,[2]=2,[3]=3}
+middleclass       OK   class A
+serpent           OK   {1, 2, a = 3}
+lbase64           OK   aGVsbG8gd29ybGQ=
+sha2.sha256       OK   ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad
+sha2.sha512       OK   ddaf35a193617abacc417349ae204131
+sha2.md5          OK   900150983cd24fb0d6963f7d28e17f72
+LibDeflate        OK   18000 -> 113
+lualzw            OK   18000 -> 2497
+bigint            OK   1267650600228229401496703205376
+md5.lua           OK   900150983cd24fb0d6963f7d28e17f72
+MessagePack       FAIL ...ck/src/MessagePack.lua:16: unable to dump given function
+compat53.module   FAIL ....3/compat53/module.lua:14: attempt to index local 'io' (a nil value)
+pl.compat         FAIL ...ight/lua/pl/compat.lua:29: attempt to index field 'package' (a nil value)

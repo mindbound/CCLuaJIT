@@ -1,0 +1,50 @@
+From 3afa04e65d65419793dc47a2dce14968370370ad Mon Sep 17 00:00:00 2001
+From: Mike Pall <mike>
+Date: Tue, 18 Aug 2026 15:05:15 +0200
+Subject: [PATCH 02/17] Handle OOM error during trace stitching.
+
+Thanks to Sergey Kaplun. #1502
+
+(cherry picked from commit c55691087e743c1750c454b9da9918ff85697a55)
+---
+ src/lj_ffrecord.c | 20 ++++++++++----------
+ 1 file changed, 10 insertions(+), 10 deletions(-)
+
+diff --git a/src/lj_ffrecord.c b/src/lj_ffrecord.c
+index edbf13cc..6c6b538c 100644
+--- a/src/lj_ffrecord.c
++++ b/src/lj_ffrecord.c
+@@ -118,16 +118,7 @@ static void recff_stitch(jit_State *J)
+   TValue *pframe = frame_prevl(base-1);
+   int errcode;
+ 
+-  /* Move func + args up in Lua stack and insert continuation. */
+-  memmove(&base[1], &base[-1-LJ_FR2], sizeof(TValue)*nslot);
+-  setframe_ftsz(nframe, ((char *)nframe - (char *)pframe) + FRAME_CONT);
+-  setcont(base-LJ_FR2, cont);
+-  setframe_pc(base, pc);
+-  setnilV(base-1-LJ_FR2);  /* Incorrect, but rec_check_slots() won't run anymore. */
+-  L->base += 2 + LJ_FR2;
+-  L->top += 2 + LJ_FR2;
+-
+-  /* Ditto for the IR. */
++  /* Move func + args up in IR slots and insert continuation. */
+   memmove(&J->base[1], &J->base[-1-LJ_FR2], sizeof(TRef)*nslot);
+ #if LJ_FR2
+   J->base[2] = TREF_FRAME;
+@@ -141,6 +132,15 @@ static void recff_stitch(jit_State *J)
+   J->baseslot += 2 + LJ_FR2;
+   J->framedepth++;
+ 
++  /* Ditto for the Lua stack. */
++  memmove(&base[1], &base[-1-LJ_FR2], sizeof(TValue)*nslot);
++  setframe_ftsz(nframe, ((char *)nframe - (char *)pframe) + FRAME_CONT);
++  setcont(base-LJ_FR2, cont);
++  setframe_pc(base, pc);
++  setnilV(base-1-LJ_FR2);  /* Incorrect, but rec_check_slots() won't run anymore. */
++  L->base += 2 + LJ_FR2;
++  L->top += 2 + LJ_FR2;
++
+   errcode = lj_vm_cpcall(L, NULL, J, rec_stop_stitch_cp);
+ 
+   /* Undo Lua stack changes. */

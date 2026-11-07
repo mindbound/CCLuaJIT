@@ -1,0 +1,23 @@
+Cherry-pick, in upstream order, of the 22 non-syntax commits relevant to a Windows/Linux x64 non-FFI build, onto 3c4f9fe2:
+  14d8a7a2 clean   x64/LJ_GC64: Avoid store-to-load forwarding stall after stack restore.
+  346ab587 clean   DynASM/x86: Fix movd/movq and vmovd/vmovq operand sizes.
+  afa81a57 clean   x64/LJ_GC64: Enable XLOAD/STRREF fusion.
+  59447257 clean   Optimize common 1-char case of string.sub/string.byte.
+  5ed524c0 clean   Don't fold -a / -b for unsigned operands.
+  1edc3e52 clean   x64/LJ_GC64: Fix XLOAD fusion.
+  52cdb12e clean   Compile unpack().
+  c5569108 clean   Handle OOM error during trace stitching.
+  27f169c6 clean   Fix next() recording immediately after ITERN despecialization.
+  21ecb361 clean   Fix unpack() recording.
+  8c23d6aa clean   Fix unpack() recording.
+  1ee778a4 clean   Add FOLD rule for ALEN of TNEW/TDUP.
+  849bbbe7 clean   x64: Fix math.floor()/ceil() argument check.
+  bc9261a3 clean   Don't record for loops with +-0 step.
+  2a8e017e clean   Windows: Use 64 bit conversion for tonumber() with base.
+  95f931cb clean   Check for IR_NEWREF in IR_ALEN forwarding.
+  a4c06453 clean   Don't compile select() indexing beyond varargs.
+  b310887b clean   x64/LJ_GC64: Avoid s2l fwd stall after stack restore, part 2.
+  55853647 CONFLICT x86/x64: Use scratch register for IR_TOBIT and IR_CONV u64.num. :: src/lj_asm_x86.h 
+  592f9e3f clean   x86/x64: Don't sink IR_CONV num.int with -O-dce.
+  3a658cac clean   x86/x64: Fix for change to avoid s2l fwd stall in stores.
+  ea9eb7ed clean   Don't FOLD ldexp with non-integer exponent.

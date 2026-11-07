@@ -1,0 +1,39 @@
+== final (pristine 19878ec0 + patches 01-08), margin 64 KB, Java threads with default 1 MB stack
+  gsub_callback                  error depth=720 (thread stack 1024 KB): C stack overflow
+  sort_comparator                error depth=3218 (thread stack 1024 KB): C stack overflow
+  format_s_tostring              error depth=3059 (thread stack 1024 KB): C stack overflow
+  coroutine_wrap_nesting         error depth=12236 (thread stack 1024 KB): C stack overflow
+  host_lua_call                  error depth=7655 (thread stack 1024 KB): C stack overflow
+  gsub_with_java_upcalls         error depth=720 (thread stack 1024 KB): C stack overflow
+  coroutines_with_java_upcalls   error depth=12248 (thread stack 1024 KB): C stack overflow
+  host_call_with_java_upcalls    error depth=7652 (thread stack 1024 KB): C stack overflow
+  JVM still alive after all cases
+  java exit=0
+== final (pristine 19878ec0 + patches 01-08), margin 128 KB, Java threads with default 1 MB stack
+  gsub_callback                  error depth=672 (thread stack 1024 KB): C stack overflow
+  sort_comparator                error depth=3008 (thread stack 1024 KB): C stack overflow
+  format_s_tostring              error depth=2856 (thread stack 1024 KB): C stack overflow
+  coroutine_wrap_nesting         error depth=11409 (thread stack 1024 KB): C stack overflow
+  host_lua_call                  error depth=7144 (thread stack 1024 KB): C stack overflow
+  gsub_with_java_upcalls         error depth=672 (thread stack 1024 KB): C stack overflow
+  coroutines_with_java_upcalls   error depth=11416 (thread stack 1024 KB): C stack overflow
+  host_call_with_java_upcalls    error depth=7140 (thread stack 1024 KB): C stack overflow
+  JVM still alive after all cases
+  java exit=0
+== final (pristine 19878ec0 + patches 01-08), margin 256 KB, Java threads with default 1 MB stack
+  gsub_callback                  error depth=576 (thread stack 1024 KB): C stack overflow
+  sort_comparator                error depth=2574 (thread stack 1024 KB): C stack overflow
+  format_s_tostring              error depth=2446 (thread stack 1024 KB): C stack overflow
+  coroutine_wrap_nesting         error depth=9780 (thread stack 1024 KB): C stack overflow
+  host_lua_call                  error depth=6112 (thread stack 1024 KB): C stack overflow
+  gsub_with_java_upcalls         error depth=576 (thread stack 1024 KB): C stack overflow
+  coroutines_with_java_upcalls   error depth=9774 (thread stack 1024 KB): C stack overflow
+  host_call_with_java_upcalls    error depth=6120 (thread stack 1024 KB): C stack overflow
+  JVM still alive after all cases
+  java exit=0
+== base 01-06 (no guard), one JVM per case
+  gsub_callback: java exit=127 (bash maps 0xC00000FD to 127); hs_err files: 0
+  coroutine_wrap_nesting: java exit=127 (bash maps 0xC00000FD to 127); hs_err files: 0
+  sort_comparator: java exit=127 (bash maps 0xC00000FD to 127); hs_err files: 0
+  format_s_tostring: java exit=127 (bash maps 0xC00000FD to 127); hs_err files: 0
+  host_lua_call: java exit=127 (bash maps 0xC00000FD to 127); hs_err files: 0

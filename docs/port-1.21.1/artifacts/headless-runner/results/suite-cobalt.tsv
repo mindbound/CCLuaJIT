@@ -1,0 +1,1407 @@
+pass	Coroutines -> allow yielding -> within debug hooks
+pass	Coroutines -> allow yielding -> within metamethods
+pass	Coroutines -> allow yielding -> within pcall -> with an error
+pass	Coroutines -> allow yielding -> within pcall -> with no error
+pass	Coroutines -> allow yielding -> within string.gsub
+pass	Coroutines -> allow yielding -> within table.foreach
+pass	Coroutines -> allow yielding -> within table.foreachi
+pass	Coroutines -> allow yielding -> within table.sort -> with a yielding comparator
+pass	Coroutines -> allow yielding -> within table.sort -> within a yielding metatable comparator
+pass	Coroutines -> allow yielding -> within xpcall -> with an error in the error handler
+pass	Coroutines -> allow yielding -> within xpcall -> within the error handler
+pass	Coroutines -> allow yielding -> within xpcall -> within the error handler with an error
+pass	Coroutines -> allow yielding -> within xpcall -> within the main function
+pass	Coroutines -> allow yielding -> within xpcall -> within the main function (with an error)
+pass	Function calls into "native" CC code -> supports custom type names
+pass	The Lua base library -> dofile -> validates arguments
+pass	The Lua base library -> load -> does not prefix the chunk name with '='
+pass	The Lua base library -> loadfile -> loads a file with a specific environment
+pass	The Lua base library -> loadfile -> loads a file with the global environment
+pass	The Lua base library -> loadfile -> prefixes the filename with @
+pass	The Lua base library -> loadfile -> supports the old-style argument form
+pass	The Lua base library -> loadfile -> validates arguments
+pass	The Lua base library -> sleep -> validates arguments
+pass	The Lua base library -> write -> validates arguments
+pass	The Lua base library -> write -> writes numbers
+pass	The Lua base library -> write -> writes strings
+pass	The VM -> allows unpacking a large number of values
+pass	The VM terminates long running code :slow -> in loops
+pass	The VM terminates long running code :slow -> in string pattern matching -> string.find
+pass	The VM terminates long running code :slow -> in string pattern matching -> string.match
+pass	The alias program -> clears an alias
+pass	The alias program -> displays its usage when given too many arguments
+pass	The alias program -> lists aliases
+pass	The alias program -> sets an alias
+pass	The bg program -> opens a tab in the background
+pass	The cd program -> changes into a directory
+pass	The cd program -> displays the usage when given no arguments
+pass	The cd program -> does not move into a non-existent directory
+pass	The clear program -> clears the screen
+pass	The colors library -> colors.combine -> combines colours
+pass	The colors library -> colors.combine -> validates arguments
+pass	The colors library -> colors.fromBlit -> converts all colors
+pass	The colors library -> colors.fromBlit -> validates arguments
+pass	The colors library -> colors.packRGB -> packs colours
+pass	The colors library -> colors.packRGB -> validates arguments
+pass	The colors library -> colors.rgb8
+pass	The colors library -> colors.subtract -> accepts multiple arguments
+pass	The colors library -> colors.subtract -> does nothing when color is not present
+pass	The colors library -> colors.subtract -> subtracts colours
+pass	The colors library -> colors.subtract -> validates arguments
+pass	The colors library -> colors.test -> allows multiple colors
+pass	The colors library -> colors.test -> returns false when absent
+pass	The colors library -> colors.test -> returns true when present
+pass	The colors library -> colors.test -> validates arguments
+pass	The colors library -> colors.toBlit -> converts all colors
+pass	The colors library -> colors.toBlit -> errors on out-of-range colours
+pass	The colors library -> colors.toBlit -> floors colors
+pass	The colors library -> colors.toBlit -> validates arguments
+pass	The colors library -> colors.unpackRGB -> unpacks colours
+pass	The colors library -> colors.unpackRGB -> validates arguments
+pass	The commands program -> displays an error without the commands api
+pass	The commands program -> lists commands
+pass	The copy program -> copies a file
+pass	The copy program -> displays the usage when given no arguments
+pass	The copy program -> fails when copying a non-existent file
+pass	The copy program -> fails when copying into read-only locations
+pass	The copy program -> fails when overwriting an existing file
+pass	The craft program -> craft a single item
+pass	The craft program -> crafts all items
+pass	The craft program -> crafts multiple items
+pass	The craft program -> crafts no items
+pass	The craft program -> displays its usage when given incorrect arguments
+pass	The craft program -> displays its usage when given no arguments
+pass	The craft program -> errors when not a turtle
+pass	The craft program -> fails when turtle.craft() is unavailable
+pass	The dj program -> displays its usage when given too many arguments
+pass	The dj program -> fails when no disks are present
+pass	The drive program -> fails on a non-existent path
+pass	The drive program -> run the program
+pass	The edit program -> displays its usage when given no argument
+pass	The eject program -> displays its usage when given no argument
+pass	The eject program -> fails when trying to eject a non-drive
+pass	The exec program -> displays an error without the commands api
+pass	The exec program -> displays its usage when given no argument
+pass	The exec program -> reports command failures
+pass	The exec program -> runs a command
+pass	The exit program -> exits the shell
+pass	The fg program -> opens the shell in the foreground
+pass	The fs library -> fs.attributes -> errors on non-existent files
+pass	The fs library -> fs.attributes -> returns information about files
+pass	The fs library -> fs.attributes -> returns information about read-only mounts
+pass	The fs library -> fs.combine -> combines empty paths
+pass	The fs library -> fs.combine -> handles weird Windows paths
+pass	The fs library -> fs.combine -> preserves pattern characters
+pass	The fs library -> fs.combine -> removes . and ..
+pass	The fs library -> fs.combine -> sanitises paths
+pass	The fs library -> fs.complete -> include_hidden -> hides hidden files
+pass	The fs library -> fs.complete -> include_hidden -> shows hidden files when include_hidden is true
+pass	The fs library -> fs.complete -> include_hidden -> shows hidden files when typing a dot
+pass	The fs library -> fs.complete -> validates arguments
+pass	The fs library -> fs.copy -> copies folders
+pass	The fs library -> fs.copy -> fails on read-only mounts
+pass	The fs library -> fs.copy -> fails to copy a folder inside itself
+pass	The fs library -> fs.delete -> fails on read-only mounts
+pass	The fs library -> fs.find -> fails on invalid paths
+pass	The fs library -> fs.find -> returns a single file
+pass	The fs library -> fs.find -> returns nothing on non-existent files
+pass	The fs library -> fs.find -> supports the '*' wildcard
+pass	The fs library -> fs.find -> supports the '?' wildcard
+pass	The fs library -> fs.getCapacity -> returns nil on read-only mounts
+pass	The fs library -> fs.getCapacity -> returns the capacity on the root mount
+pass	The fs library -> fs.getDir -> preserves pattern characters
+pass	The fs library -> fs.getDir -> returns '..' for parent directories
+pass	The fs library -> fs.getDir -> returns '..' for the empty path
+pass	The fs library -> fs.getDir -> returns the directory name
+pass	The fs library -> fs.getDir -> sanitises paths
+pass	The fs library -> fs.getDrive -> returns nothing for missing files
+pass	The fs library -> fs.getDrive -> returns the drive for subdirectories
+pass	The fs library -> fs.getDrive -> returns the drive for the mount roots
+pass	The fs library -> fs.getName -> preserves pattern characters
+pass	The fs library -> fs.getName -> returns '..' for parent directories
+pass	The fs library -> fs.getName -> returns 'root' for the empty path
+pass	The fs library -> fs.getName -> returns the file name
+pass	The fs library -> fs.getName -> sanitises paths
+pass	The fs library -> fs.getSize -> fails on non-existent nodes
+pass	The fs library -> fs.isDriveRoot -> correctly identifies drive roots
+pass	The fs library -> fs.isDriveRoot -> returns false for missing files
+pass	The fs library -> fs.isDriveRoot -> validates arguments
+pass	The fs library -> fs.list -> fails on files
+pass	The fs library -> fs.list -> fails on non-existent nodes
+pass	The fs library -> fs.makeDir -> fails on files
+pass	The fs library -> fs.makeDir -> fails on read-only mounts
+pass	The fs library -> fs.move -> creates directories before renaming
+pass	The fs library -> fs.move -> directories can be renamed
+pass	The fs library -> fs.move -> fails if destination exists
+pass	The fs library -> fs.move -> fails if source does not exist
+pass	The fs library -> fs.move -> fails on read-only mounts
+pass	The fs library -> fs.move -> fails to move a directory inside itself
+pass	The fs library -> fs.move -> files can be renamed
+pass	The fs library -> fs.open -> appending -> fails on directories
+pass	The fs library -> fs.open -> appending -> fails on read-only mounts
+pass	The fs library -> fs.open -> opening in r+ mode -> can read a line of text
+pass	The fs library -> fs.open -> opening in r+ mode -> can read a line of text with the trailing separator
+pass	The fs library -> fs.open -> opening in r+ mode -> can read and write to a file
+pass	The fs library -> fs.open -> opening in r+ mode -> errors reading a negative number of bytes
+pass	The fs library -> fs.open -> opening in r+ mode -> errors when closing twice
+pass	The fs library -> fs.open -> opening in r+ mode -> fails when reading non-files
+pass	The fs library -> fs.open -> opening in r+ mode -> readAll always returns a string
+pass	The fs library -> fs.open -> opening in r+ mode -> reading an empty file returns nil
+pass	The fs library -> fs.open -> opening in r+ mode -> reads multiple bytes
+pass	The fs library -> fs.open -> opening in r+ mode -> reads multiple bytes longer than the file
+pass	The fs library -> fs.open -> opening in w+ mode -> can write a file
+pass	The fs library -> fs.open -> opening in w+ mode -> truncates an existing file
+pass	The fs library -> fs.open -> reading -> can read a line of text
+pass	The fs library -> fs.open -> reading -> can read a line of text with the trailing separator
+pass	The fs library -> fs.open -> reading -> errors reading a negative number of bytes
+pass	The fs library -> fs.open -> reading -> errors when closing twice
+pass	The fs library -> fs.open -> reading -> fails on directories
+pass	The fs library -> fs.open -> reading -> fails on non-existent nodes
+pass	The fs library -> fs.open -> reading -> readAll always returns a string
+pass	The fs library -> fs.open -> reading -> reading an empty file returns nil
+pass	The fs library -> fs.open -> reading -> reads a single byte
+pass	The fs library -> fs.open -> reading -> reads multiple bytes
+pass	The fs library -> fs.open -> reading -> reads multiple bytes longer than the file
+pass	The fs library -> fs.open -> reading in binary mode -> can read a line of text
+pass	The fs library -> fs.open -> reading in binary mode -> can read a line of text with the trailing separator
+pass	The fs library -> fs.open -> reading in binary mode -> errors reading a negative number of bytes
+pass	The fs library -> fs.open -> reading in binary mode -> errors when closing twice
+pass	The fs library -> fs.open -> reading in binary mode -> readAll always returns a string
+pass	The fs library -> fs.open -> reading in binary mode -> reading an empty file returns nil
+pass	The fs library -> fs.open -> reading in binary mode -> reads a single byte
+pass	The fs library -> fs.open -> reading in binary mode -> reads multiple bytes
+pass	The fs library -> fs.open -> reading in binary mode -> reads multiple bytes longer than the file
+pass	The fs library -> fs.open -> writing -> can write lines
+pass	The fs library -> fs.open -> writing -> errors when closing twice
+pass	The fs library -> fs.open -> writing -> fails gracefully when opening 'CON' on Windows
+pass	The fs library -> fs.open -> writing -> fails on directories
+pass	The fs library -> fs.open -> writing -> fails on read-only mounts
+pass	The fs library -> fs.open -> writing -> writing numbers coerces them to a string
+pass	The fs library -> fs.open -> writing in binary mode -> errors when closing twice
+pass	The fs library -> fs.open -> writing in binary mode -> writing numbers treats them as bytes
+pass	The gps library -> gps.locate -> validates arguments
+pass	The gps library -> on fake computers -> doesn't fail on duplicate hosts
+pass	The gps library -> on fake computers -> fails to locate a computer with insufficient hosts
+pass	The gps library -> on fake computers -> locates a computer
+pending	The gps library -> on fake computers -> locates computers at random positions
+pass	The gps program -> can locate the computer
+pass	The gps program -> displays its usage when given no arguments
+pass	The gps program -> fails on a pocket computer
+pass	The hello program -> says hello
+pass	The help library -> help.completeTopic -> completes topics without extensions
+pass	The help library -> help.completeTopic -> validates arguments
+pass	The help library -> help.lookup -> validates arguments
+pass	The help library -> help.setPath -> validates arguments
+pass	The help program -> errors when there is no such help file
+pass	The help program -> launches the viewer for a longer file
+pass	The help program -> prints a short file directly
+error	The http library -> http.checkURL -> accepts well formed domains	...pec/apis/http_spec.lua:10: attempt to index global 'http' (a nil value)
+error	The http library -> http.checkURL -> rejects local domains	...pec/apis/http_spec.lua:23: attempt to index global 'http' (a nil value)
+error	The http library -> http.checkURL -> rejects malformed URLs	...pec/apis/http_spec.lua:14: attempt to index global 'http' (a nil value)
+error	The http library -> http.requestAsync -> queues an event for immediate failures	...pec/apis/http_spec.lua:49: attempt to index global 'http' (a nil value)
+error	The http library -> http.websocketAsync -> queues an event for immediate failures	...pec/apis/http_spec.lua:37: attempt to index global 'http' (a nil value)
+pass	The id program -> displays computer id
+pass	The import program -> uploads files
+pass	The io library -> a readable handle -> cannot be written to
+pass	The io library -> a readable handle -> support seeking
+pass	The io library -> a readable handle -> supports the 'L' mode
+pass	The io library -> a readable handle -> supports various modes
+pass	The io library -> a writable handle -> supports appending
+pass	The io library -> a writable handle -> supports seeking
+pass	The io library -> defines a __name field
+pass	The io library -> io.close -> cannot close stdin
+pass	The io library -> io.close -> cannot close stdout
+pass	The io library -> io.input on a handle returns that handle
+pass	The io library -> io.lines -> accepts multiple arguments
+pass	The io library -> io.lines -> can copy a file
+pass	The io library -> io.lines -> closes the file
+pass	The io library -> io.lines -> does not close on a normal file handle
+pass	The io library -> io.lines -> validates arguments
+pass	The io library -> io.open -> checks the mode
+pass	The io library -> io.open -> returns an error message on non-existent files
+pass	The io library -> io.open -> validates arguments
+pass	The io library -> io.output on a handle returns that handle
+pass	The io library -> io.type -> returns file on handles
+pass	The io library -> io.type -> returns nil on tables
+pass	The io library -> io.type -> returns nil on values
+pass	The io library -> read/write handles -> can read and write to a file
+pass	The keys library -> keys.getName -> validates arguments
+pass	The label program -> clears the computer's label
+pass	The label program -> displays its usage when given no arguments
+pass	The label program -> displays the computer's label -> when it is labelled
+pass	The label program -> displays the computer's label -> when it is not labelled
+pass	The label program -> sets the computer's label
+pass	The list program -> fails on a file
+pass	The list program -> fails on a non-existent directory
+pass	The list program -> lists files
+pass	The mkdir program -> can be completed
+pass	The mkdir program -> creates a directory
+pass	The mkdir program -> creates many directories
+pass	The monitor program -> changes the text scale with the scale command
+pass	The monitor program -> displays correct error messages
+pass	The monitor program -> displays its usage when given no arguments
+pass	The motd program -> displays MOTD
+pass	The motd program -> displays date-specific MOTD (1 Jan)
+pass	The motd program -> displays date-specific MOTD (24 Dec)
+pass	The motd program -> displays date-specific MOTD (28 Apr)
+pass	The motd program -> displays date-specific MOTD (31 Oct)
+pass	The move program -> displays the usage with no arguments
+pass	The move program -> fails when moving a file multiple times
+pass	The move program -> fails when moving a file which doesn't exist
+pass	The move program -> fails when moving from read-only locations
+pass	The move program -> fails when moving mounts
+pass	The move program -> fails when moving to read-only locations
+pass	The move program -> fails when overwriting an existing file
+pass	The move program -> move a file
+pass	The move program -> moves a file to a directory
+pass	The multishell program -> multishell.getTitle -> validates arguments
+pass	The multishell program -> multishell.launch -> validates arguments
+pass	The multishell program -> multishell.setFocus -> validates arguments
+pass	The multishell program -> multishell.setTitle -> validates arguments
+pass	The multishell program -> the main loop -> culls a process after exiting
+pass	The os library -> os.date -> formats as expected
+pass	The os library -> os.date -> produces output consistent with PUC Lua -> %I at 12 AM
+pass	The os library -> os.date -> produces output consistent with PUC Lua -> %r at 12 AM
+pass	The os library -> os.date -> produces output consistent with PUC Lua -> for code '%%'
+pass	The os library -> os.date -> produces output consistent with PUC Lua -> for code '%A'
+pass	The os library -> os.date -> produces output consistent with PUC Lua -> for code '%B'
+pass	The os library -> os.date -> produces output consistent with PUC Lua -> for code '%C'
+pass	The os library -> os.date -> produces output consistent with PUC Lua -> for code '%D'
+pass	The os library -> os.date -> produces output consistent with PUC Lua -> for code '%F'
+pass	The os library -> os.date -> produces output consistent with PUC Lua -> for code '%G'
+pass	The os library -> os.date -> produces output consistent with PUC Lua -> for code '%H'
+pass	The os library -> os.date -> produces output consistent with PUC Lua -> for code '%I'
+pass	The os library -> os.date -> produces output consistent with PUC Lua -> for code '%I' #2
+pass	The os library -> os.date -> produces output consistent with PUC Lua -> for code '%M'
+pass	The os library -> os.date -> produces output consistent with PUC Lua -> for code '%R'
+pass	The os library -> os.date -> produces output consistent with PUC Lua -> for code '%S'
+pass	The os library -> os.date -> produces output consistent with PUC Lua -> for code '%T'
+pass	The os library -> os.date -> produces output consistent with PUC Lua -> for code '%U'
+pass	The os library -> os.date -> produces output consistent with PUC Lua -> for code '%V'
+pass	The os library -> os.date -> produces output consistent with PUC Lua -> for code '%W'
+pass	The os library -> os.date -> produces output consistent with PUC Lua -> for code '%X'
+pass	The os library -> os.date -> produces output consistent with PUC Lua -> for code '%Y'
+pass	The os library -> os.date -> produces output consistent with PUC Lua -> for code '%a'
+pass	The os library -> os.date -> produces output consistent with PUC Lua -> for code '%b'
+pass	The os library -> os.date -> produces output consistent with PUC Lua -> for code '%c'
+pass	The os library -> os.date -> produces output consistent with PUC Lua -> for code '%d'
+pass	The os library -> os.date -> produces output consistent with PUC Lua -> for code '%e'
+pass	The os library -> os.date -> produces output consistent with PUC Lua -> for code '%g'
+pass	The os library -> os.date -> produces output consistent with PUC Lua -> for code '%h'
+pass	The os library -> os.date -> produces output consistent with PUC Lua -> for code '%j'
+pass	The os library -> os.date -> produces output consistent with PUC Lua -> for code '%m'
+pass	The os library -> os.date -> produces output consistent with PUC Lua -> for code '%n'
+pass	The os library -> os.date -> produces output consistent with PUC Lua -> for code '%p'
+pass	The os library -> os.date -> produces output consistent with PUC Lua -> for code '%r'
+pass	The os library -> os.date -> produces output consistent with PUC Lua -> for code '%t'
+pass	The os library -> os.date -> produces output consistent with PUC Lua -> for code '%u'
+pass	The os library -> os.date -> produces output consistent with PUC Lua -> for code '%w'
+pass	The os library -> os.date -> produces output consistent with PUC Lua -> for code '%x'
+pass	The os library -> os.date -> produces output consistent with PUC Lua -> for code '%y'
+pass	The os library -> os.date -> produces output consistent with PUC Lua -> zones are numbers
+pass	The os library -> os.date -> produces output consistent with PUC Lua -> zones id is made of letters
+pass	The os library -> os.date and os.time -> dst field is guessed
+pass	The os library -> os.date and os.time -> has 365 days in a year
+pass	The os library -> os.date and os.time -> os.date uses local timezone
+pass	The os library -> os.date and os.time -> round trips correctly
+pass	The os library -> os.day -> fails on other times
+pass	The os library -> os.day -> supports in-game time
+pass	The os library -> os.day -> supports local and utc time
+pass	The os library -> os.epoch -> fails on other times
+pass	The os library -> os.epoch -> supports in-game time
+pass	The os library -> os.epoch -> supports local and utc time
+pass	The os library -> os.loadAPI -> validates arguments
+pass	The os library -> os.queueEvent -> clones objects
+pass	The os library -> os.queueEvent -> does not preserve references in separate args
+pass	The os library -> os.queueEvent -> handles recursive tables
+pass	The os library -> os.queueEvent -> preserves references in tables
+pass	The os library -> os.time -> fails on other times
+pass	The os library -> os.time -> maps directly to seconds
+pass	The os library -> os.time -> supports in-game time
+pass	The os library -> os.time -> supports local and utc time
+pass	The os library -> os.time -> uses correct date table default for hour
+pass	The os library -> os.time -> uses correct date table default for min
+pass	The os library -> os.time -> uses correct date table default for sec
+pass	The os library -> os.unloadAPI -> validates arguments
+pass	The paint program -> displays its usage when given no arguments
+pass	The paintutils library -> paintutils.drawBox -> draws a box with custom colour
+pass	The paintutils library -> paintutils.drawBox -> draws a box with term colour
+pass	The paintutils library -> paintutils.drawBox -> draws a box without overwriting existing content
+pass	The paintutils library -> paintutils.drawBox -> validates arguments
+pass	The paintutils library -> paintutils.drawFilledBox -> draws a filled box with custom colour
+pass	The paintutils library -> paintutils.drawFilledBox -> draws a filled box with term colour
+pass	The paintutils library -> paintutils.drawFilledBox -> validates arguments
+pass	The paintutils library -> paintutils.drawImage -> validates arguments
+pass	The paintutils library -> paintutils.drawLine -> draws a line going across with custom colour
+pass	The paintutils library -> paintutils.drawLine -> draws a line going diagonally from bottom left
+pass	The paintutils library -> paintutils.drawLine -> draws a line going diagonally with term colour
+pass	The paintutils library -> paintutils.drawLine -> validates arguments
+pass	The paintutils library -> paintutils.drawPixel -> validates arguments
+pass	The paintutils library -> paintutils.loadImage -> validates arguments
+pass	The paintutils library -> paintutils.parseImage -> validates arguments
+pass	The parallel library -> exceptions -> throws an exception when within a try
+pass	The parallel library -> exceptions -> throws an exception when within a try (nested)
+pass	The parallel library -> exceptions -> throws the raw error when within a pcall
+pass	The parallel library -> exceptions -> throws the raw error when within a pcall (nested)
+pass	The parallel library -> parallel.waitForAll -> accepts an arbitrary number of functions
+pass	The parallel library -> parallel.waitForAll -> can spawn new functions
+pass	The parallel library -> parallel.waitForAll -> cannot spawn outside of parallel
+pass	The parallel library -> parallel.waitForAll -> completes all functions before exiting
+pass	The parallel library -> parallel.waitForAll -> passes errors to the caller
+pass	The parallel library -> parallel.waitForAll -> returns immediately with no arguments
+pass	The parallel library -> parallel.waitForAll -> runs functions in parallel
+pass	The parallel library -> parallel.waitForAll -> validates arguments
+pass	The parallel library -> parallel.waitForAny -> accepts an arbitrary number of functions
+pass	The parallel library -> parallel.waitForAny -> passes errors to the caller
+pass	The parallel library -> parallel.waitForAny -> returns immediately with no arguments
+pass	The parallel library -> parallel.waitForAny -> returns the number of the function that exited first
+pass	The parallel library -> parallel.waitForAny -> runs functions in parallel
+pass	The parallel library -> parallel.waitForAny -> validates arguments
+pass	The pastebin program -> can be completed
+pass	The pastebin program -> displays its usage when given no arguments
+pass	The pastebin program -> downloads one file
+pass	The pastebin program -> runs a program from the internet
+pass	The pastebin program -> upload a not existing program to pastebin
+pass	The pastebin program -> upload a program to pastebin
+pass	The peripheral library -> peripheral.call -> has the correct error location
+pass	The peripheral library -> peripheral.call -> validates arguments
+pass	The peripheral library -> peripheral.find -> finds a local peripheral
+pass	The peripheral library -> peripheral.find -> validates arguments
+pass	The peripheral library -> peripheral.getMethods -> validates arguments
+pass	The peripheral library -> peripheral.getName -> can get the name of a fake peripheral
+pass	The peripheral library -> peripheral.getName -> can get the name of a wrapped peripheral
+pass	The peripheral library -> peripheral.getName -> validates arguments
+pass	The peripheral library -> peripheral.getType -> can get the type of a local peripheral
+pass	The peripheral library -> peripheral.getType -> can get the type of a remote peripheral
+pass	The peripheral library -> peripheral.getType -> can get the type of a wrapped peripheral
+pass	The peripheral library -> peripheral.getType -> can return multiple types
+pass	The peripheral library -> peripheral.getType -> returns nil when no peripheral is present
+pass	The peripheral library -> peripheral.getType -> validates arguments
+pass	The peripheral library -> peripheral.hasType -> can check the type of a wrapped peripheral (fake)
+pass	The peripheral library -> peripheral.hasType -> can check the type of a wrapped peripheral (true)
+pass	The peripheral library -> peripheral.hasType -> can check type of a peripheral by side
+pass	The peripheral library -> peripheral.hasType -> can check type of a remote peripheral
+pass	The peripheral library -> peripheral.hasType -> returns nil when no peripherals are present
+pass	The peripheral library -> peripheral.hasType -> validates arguments
+pass	The peripheral library -> peripheral.isPresent -> asserts the presence of local peripherals
+pass	The peripheral library -> peripheral.isPresent -> asserts the presence of remote peripherals
+pass	The peripheral library -> peripheral.isPresent -> validates arguments
+pass	The peripheral library -> peripheral.wrap -> validates arguments
+pass	The peripheral library -> peripheral.wrap -> wraps a local peripheral
+pass	The peripheral library -> peripheral.wrap -> wraps a remote peripheral
+pass	The peripherals program -> says when there are no peripherals
+pass	The pocket equip program -> can equip an upgrade
+pass	The pocket equip program -> errors when not a pocket computer
+pass	The pocket equip program -> handles when an upgrade cannot be equipped
+pass	The pocket unequip program -> errors when not a pocket computer
+pass	The pocket unequip program -> handles when an upgrade cannot be equipped
+pass	The pocket unequip program -> unequips an upgrade
+pass	The programs program -> list programs
+pass	The reboot program -> sleeps and then reboots
+pass	The rednet library -> on fake computers -> handles lookups between computers with massive IDs
+pass	The rednet library -> on fake computers -> ignores duplicate messages
+pass	The rednet library -> on fake computers -> opens and closes channels
+pass	The rednet library -> on fake computers -> repeats messages between computers
+pass	The rednet library -> on fake computers -> repeats messages between computers with massive ids
+pass	The rednet library -> on fake computers -> sends and receives rednet messages
+pass	The rednet library -> on fake computers -> timeouts -> can time out messages
+pass	The rednet library -> on fake computers -> timeouts -> cancels the pending timer
+pass	The rednet library -> rednet.broadcast -> validates arguments
+pass	The rednet library -> rednet.close -> requires a modem to be present
+pass	The rednet library -> rednet.close -> validates arguments
+pass	The rednet library -> rednet.host -> validates arguments
+pass	The rednet library -> rednet.isOpen -> validates arguments
+pass	The rednet library -> rednet.lookup -> gets a locally hosted protocol
+pass	The rednet library -> rednet.lookup -> validates arguments
+pass	The rednet library -> rednet.open -> requires a modem to be present
+pass	The rednet library -> rednet.open -> validates arguments
+pass	The rednet library -> rednet.receive -> validates arguments
+pass	The rednet library -> rednet.send -> queues an event on the current computer
+pass	The rednet library -> rednet.send -> validates arguments
+pass	The rednet library -> rednet.unhost -> validates arguments
+pass	The redstone library -> redstone.getAnalogueInput -> requires a specific side
+pass	The redstone library -> redstone.getAnalogueOutput -> requires a specific side
+pass	The redstone library -> redstone.getBundledInput -> requires a specific side
+pass	The redstone library -> redstone.getBundledOutput -> requires a specific side
+pass	The redstone library -> redstone.getInput -> requires a specific side
+pass	The redstone library -> redstone.getOutput -> gets the output strength correctly
+pass	The redstone library -> redstone.getOutput -> requires a specific side
+pass	The redstone library -> redstone.setAnalogueOutput -> checks the strength parameter
+pass	The redstone library -> redstone.setAnalogueOutput -> requires a specific side
+pass	The redstone library -> redstone.setBundledOutput -> checks the mask parameter
+pass	The redstone library -> redstone.setBundledOutput -> requires a specific side
+pass	The redstone library -> redstone.setOutput -> requires a specific side
+pass	The redstone library -> redstone.setOutput -> sets the output strength correctly
+pass	The redstone library -> redstone.testBundledInput -> checks the mask parameter
+pass	The redstone library -> redstone.testBundledInput -> requires a specific side
+pass	The redstone program -> displays its usage when given no arguments
+pass	The refuel program -> displays its usage when given too many argument
+pass	The refuel program -> errors when not a turtle
+pass	The refuel program -> refuels the turtle
+pass	The refuel program -> reports when the fuel level is unlimited
+pass	The refuel program -> reports when the fuel limit is reached
+pass	The refuel program -> requires a numeric argument
+pass	The rename program -> can rename a file
+pass	The rename program -> displays the usage when given no arguments
+pass	The rename program -> fails when overwriting an existing file
+pass	The rename program -> fails when renaming a file which doesn't exist
+pass	The rename program -> fails when renaming from read-only locations
+pass	The rename program -> fails when renaming mounts
+pass	The rename program -> fails when renaming to read-only locations
+pass	The rm program -> deletes a glob
+pass	The rm program -> deletes many files
+pass	The rm program -> deletes one file
+pass	The rm program -> displays the usage with no arguments
+pass	The rm program -> errors when a glob fails to match
+pass	The rm program -> errors when trying to delete a read-only file
+pass	The rm program -> errors when trying to delete the root mount
+pass	The set program -> checks the type of a setting
+pass	The set program -> displays a changed setting with description
+pass	The set program -> displays a single setting
+pass	The set program -> displays a single setting with description
+pass	The set program -> displays all settings
+pass	The set program -> set a setting
+pass	The settings library -> settings.clear -> clearing does not touch defaults
+pass	The settings library -> settings.clear -> clearing fires an event
+pass	The settings library -> settings.clear -> clearing resets all values
+pass	The settings library -> settings.define -> ensures valid type names
+pass	The settings library -> settings.get -> returns the default
+pass	The settings library -> settings.get -> validates arguments
+pass	The settings library -> settings.getDetails -> validates arguments
+pass	The settings library -> settings.getDetails -> works on defined and set values
+pass	The settings library -> settings.getDetails -> works on defined but unset values
+pass	The settings library -> settings.getDetails -> works on undefined and unset values
+pass	The settings library -> settings.getDetails -> works on undefined but set values
+pass	The settings library -> settings.load -> defaults to .settings
+pass	The settings library -> settings.load -> loads defined settings
+pass	The settings library -> settings.load -> loads undefined settings
+pass	The settings library -> settings.load -> skips defined settings with incorrect types
+pass	The settings library -> settings.load -> skips non-table files
+pass	The settings library -> settings.load -> skips unserializable values (functions)
+pass	The settings library -> settings.load -> skips unserializable values (recursive tables)
+pass	The settings library -> settings.load -> validates arguments
+pass	The settings library -> settings.save -> defaults to .settings
+pass	The settings library -> settings.save -> validates arguments
+pass	The settings library -> settings.set -> checks the type of the value
+pass	The settings library -> settings.set -> prevents storing unserialisable types
+pass	The settings library -> settings.set -> setting changes the value
+pass	The settings library -> settings.set -> setting fires an event
+pass	The settings library -> settings.set -> validates arguments
+pass	The settings library -> settings.undefine -> clears defined settings
+pass	The settings library -> settings.unset -> unsetting does not touch defaults
+pass	The settings library -> settings.unset -> unsetting fires an event
+pass	The settings library -> settings.unset -> unsetting resets the value
+pass	The settings library -> settings.unset -> validates arguments
+pass	The shell -> file uploads -> suspends the read prompt
+pass	The shell -> hashbangs -> allows running a shell with arguments
+pass	The shell -> hashbangs -> handles shell resolving of path arguments correctly
+pass	The shell -> hashbangs -> has basic support
+pass	The shell -> hashbangs -> returns error for infinite recursion
+pass	The shell -> hashbangs -> returns error for using the shell
+pass	The shell -> hashbangs -> supports arguments
+pass	The shell -> hashbangs -> supports recursion
+pass	The shell -> require -> validates arguments
+pass	The shell -> shell.clearAlias -> validates arguments
+pass	The shell -> shell.complete -> validates arguments
+pass	The shell -> shell.execute -> parses in arguments verbatim
+pass	The shell -> shell.resolve -> validates arguments
+pass	The shell -> shell.resolveProgram -> finds files on the shell path
+pass	The shell -> shell.resolveProgram -> finds programs even with a trailing slash
+pass	The shell -> shell.resolveProgram -> validates arguments
+pass	The shell -> shell.run -> tokenises the arguments
+pass	The shell -> shell.run -> validates arguments
+pass	The shell -> shell.setAlias -> validates arguments
+pass	The shell -> shell.setCompletionFunction -> validates arguments
+pass	The shell -> shell.setDir -> not existing directory
+pass	The shell -> shell.setDir -> validates arguments
+pass	The shell -> shell.setPath -> validates arguments
+pass	The shell -> shell.switchTab -> validates arguments
+pass	The shutdown program -> run the program
+pass	The term library -> term.redirect -> prevents redirecting to term
+pass	The term library -> term.redirect -> validates arguments
+pass	The textutils library -> textutils.complete -> validates arguments
+pass	The textutils library -> textutils.empty_json_array -> is immutable
+pass	The textutils library -> textutils.formatTime -> correctly formats 12 o'clock
+pass	The textutils library -> textutils.formatTime -> validates arguments
+pass	The textutils library -> textutils.pagedPrint -> validates arguments
+pass	The textutils library -> textutils.pagedTabulate -> validates arguments
+pass	The textutils library -> textutils.serialise -> can allow repeated tables
+pass	The textutils library -> textutils.serialise -> can emit in a compact form
+pass	The textutils library -> textutils.serialise -> fails on recursive/repeated tables
+pass	The textutils library -> textutils.serialise -> ignores metatables
+pass	The textutils library -> textutils.serialise -> serialises basic tables
+pass	The textutils library -> textutils.serialiseJSON -> can allow repeated tables
+pass	The textutils library -> textutils.serialiseJSON -> fails on recursive/repeated tables
+pass	The textutils library -> textutils.serialiseJSON -> serializes NBT style
+pass	The textutils library -> textutils.serialiseJSON -> serializes Unicode strings
+pass	The textutils library -> textutils.serialiseJSON -> serializes arrays until the last index with content
+pass	The textutils library -> textutils.serialiseJSON -> serializes empty arrays
+pass	The textutils library -> textutils.serialiseJSON -> serializes null
+pass	The textutils library -> textutils.serialiseJSON -> serializes strings
+pass	The textutils library -> textutils.serialiseJSON -> validates arguments
+pass	The textutils library -> textutils.slowWrite -> validates arguments
+pass	The textutils library -> textutils.slowWrite -> wraps text correctly
+pass	The textutils library -> textutils.tabulate -> validates arguments
+pass	The textutils library -> textutils.unserialise -> validates arguments
+pass	The textutils library -> textutils.unserializeJSON -> parses -> a list of primitives
+pass	The textutils library -> textutils.unserializeJSON -> parses -> an empty array when parse_empty_array is false
+pass	The textutils library -> textutils.unserializeJSON -> parses -> an empty array when parse_empty_array is true
+pass	The textutils library -> textutils.unserializeJSON -> parses -> basic objects
+pass	The textutils library -> textutils.unserializeJSON -> parses -> null when parse_null is false
+pass	The textutils library -> textutils.unserializeJSON -> parses -> null when parse_null is true
+pass	The textutils library -> textutils.unserializeJSON -> parses using NBT-style syntax -> booleans
+pass	The textutils library -> textutils.unserializeJSON -> parses using NBT-style syntax -> lists
+pass	The textutils library -> textutils.unserializeJSON -> parses using NBT-style syntax -> numbers -> in binary
+pass	The textutils library -> textutils.unserializeJSON -> parses using NBT-style syntax -> numbers -> in hexadecimal
+pass	The textutils library -> textutils.unserializeJSON -> parses using NBT-style syntax -> numbers -> reject leading zero
+pass	The textutils library -> textutils.unserializeJSON -> parses using NBT-style syntax -> numbers -> with exponentals
+pass	The textutils library -> textutils.unserializeJSON -> parses using NBT-style syntax -> numbers -> with fractions
+pass	The textutils library -> textutils.unserializeJSON -> parses using NBT-style syntax -> numbers -> with signed suffixes
+pass	The textutils library -> textutils.unserializeJSON -> parses using NBT-style syntax -> numbers -> with suffixes
+pass	The textutils library -> textutils.unserializeJSON -> parses using NBT-style syntax -> numbers -> with underscores
+pass	The textutils library -> textutils.unserializeJSON -> parses using NBT-style syntax -> objects
+pass	The textutils library -> textutils.unserializeJSON -> parses using NBT-style syntax -> strings -> empty quoted strings
+pass	The textutils library -> textutils.unserializeJSON -> parses using NBT-style syntax -> strings -> quoted strings
+pass	The textutils library -> textutils.unserializeJSON -> parses using NBT-style syntax -> strings -> unicode escapes
+pass	The textutils library -> textutils.unserializeJSON -> parses using NBT-style syntax -> strings -> unquoted strings
+pass	The textutils library -> textutils.unserializeJSON -> parses using NBT-style syntax -> typed arrays
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> i_number_double_huge_neg_exp
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> i_number_huge_exp
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> i_number_neg_int_huge_exp
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> i_number_pos_double_huge_exp
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> i_number_real_neg_overflow
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> i_number_real_pos_overflow
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> i_number_real_underflow
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> i_number_too_big_neg_int
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> i_number_too_big_pos_int
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> i_number_very_big_negative_int
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> i_object_key_lone_2nd_surrogate
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> i_string_1st_surrogate_but_2nd_missing
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> i_string_1st_valid_surrogate_2nd_invalid
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> i_string_UTF-16LE_with_BOM
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> i_string_UTF-8_invalid_sequence
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> i_string_UTF8_surrogate_U+D800
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> i_string_incomplete_surrogate_and_escape_valid
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> i_string_incomplete_surrogate_pair
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> i_string_incomplete_surrogates_escape_valid
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> i_string_invalid_lonely_surrogate
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> i_string_invalid_surrogate
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> i_string_invalid_utf-8
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> i_string_inverted_surrogates_U+1D11E
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> i_string_iso_latin_1
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> i_string_lone_second_surrogate
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> i_string_lone_utf8_continuation_byte
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> i_string_not_in_unicode_range
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> i_string_overlong_sequence_2_bytes
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> i_string_overlong_sequence_6_bytes
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> i_string_overlong_sequence_6_bytes_null
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> i_string_truncated-utf-8
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> i_string_utf16BE_no_BOM
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> i_string_utf16LE_no_BOM
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> i_structure_500_nested_arrays
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> i_structure_UTF-8_BOM_empty_object
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_array_1_true_without_comma
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_array_a_invalid_utf8
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_array_colon_instead_of_comma
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_array_comma_after_close
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_array_comma_and_number
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_array_double_comma
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_array_double_extra_comma
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_array_extra_close
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_array_extra_comma
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_array_incomplete
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_array_incomplete_invalid_value
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_array_inner_array_no_comma
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_array_invalid_utf8
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_array_items_separated_by_semicolon
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_array_just_comma
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_array_just_minus
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_array_missing_value
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_array_newlines_unclosed
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_array_number_and_comma
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_array_number_and_several_commas
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_array_spaces_vertical_tab_formfeed
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_array_star_inside
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_array_unclosed
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_array_unclosed_trailing_comma
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_array_unclosed_with_new_lines
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_array_unclosed_with_object_inside
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_incomplete_false
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_incomplete_null
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_incomplete_true
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_multidigit_number_then_00
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_number_++
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_number_+1
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_number_+Inf
+pending	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_number_-01
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_number_-1.0.
+pending	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_number_-2.
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_number_-NaN
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_number_.-1
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_number_.2e-3
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_number_0.1.2
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_number_0.3e
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_number_0.3e+
+pending	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_number_0.e1
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_number_0_capital_E
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_number_0_capital_E+
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_number_0e
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_number_0e+
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_number_1.0e
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_number_1.0e+
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_number_1.0e-
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_number_1_000
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_number_1eE2
+pending	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_number_2.e+3
+pending	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_number_2.e-3
+pending	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_number_2.e3
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_number_9.e+
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_number_Inf
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_number_NaN
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_number_U+FF11_fullwidth_digit_one
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_number_expression
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_number_hex_1_digit
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_number_hex_2_digits
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_number_infinity
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_number_invalid+-
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_number_invalid-negative-real
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_number_invalid-utf-8-in-bigger-int
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_number_invalid-utf-8-in-exponent
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_number_invalid-utf-8-in-int
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_number_minus_infinity
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_number_minus_sign_with_trailing_garbage
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_number_minus_space_1
+pending	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_number_neg_int_starting_with_zero
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_number_neg_real_without_int_part
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_number_neg_with_garbage_at_end
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_number_real_garbage_after_e
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_number_real_with_invalid_utf8_after_e
+pending	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_number_real_without_fractional_part
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_number_starting_with_dot
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_number_with_alpha
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_number_with_alpha_char
+pending	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_number_with_leading_zero
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_object_bad_value
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_object_bracket_key
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_object_comma_instead_of_colon
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_object_double_colon
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_object_emoji
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_object_garbage_at_end
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_object_key_with_single_quotes
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_object_lone_continuation_byte_in_key_and_trailing_comma
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_object_missing_colon
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_object_missing_key
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_object_missing_semicolon
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_object_missing_value
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_object_no-colon
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_object_non_string_key
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_object_non_string_key_but_huge_number_instead
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_object_repeated_null_null
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_object_several_trailing_commas
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_object_single_quote
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_object_trailing_comma
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_object_trailing_comment
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_object_trailing_comment_open
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_object_trailing_comment_slash_open
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_object_trailing_comment_slash_open_incomplete
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_object_two_commas_in_a_row
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_object_unquoted_key
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_object_unterminated-value
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_object_with_single_string
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_object_with_trailing_garbage
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_single_space
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_string_1_surrogate_then_escape
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_string_1_surrogate_then_escape_u
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_string_1_surrogate_then_escape_u1
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_string_1_surrogate_then_escape_u1x
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_string_accentuated_char_no_quotes
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_string_backslash_00
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_string_escape_x
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_string_escaped_backslash_bad
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_string_escaped_ctrl_char_tab
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_string_escaped_emoji
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_string_incomplete_escape
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_string_incomplete_escaped_character
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_string_incomplete_surrogate
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_string_incomplete_surrogate_escape_invalid
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_string_invalid-utf-8-in-escape
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_string_invalid_backslash_esc
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_string_invalid_unicode_escape
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_string_invalid_utf8_after_escape
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_string_leading_uescaped_thinspace
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_string_no_quotes_with_bad_escape
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_string_single_doublequote
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_string_single_quote
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_string_single_string_no_double_quotes
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_string_start_escape_unclosed
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_string_unescaped_crtl_char
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_string_unescaped_newline
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_string_unescaped_tab
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_string_unicode_CapitalU
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_string_with_trailing_garbage
+pending	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_structure_100000_opening_arrays
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_structure_U+2060_word_joined
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_structure_UTF8_BOM_no_data
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_structure_angle_bracket_.
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_structure_angle_bracket_null
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_structure_array_trailing_garbage
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_structure_array_with_extra_array_close
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_structure_array_with_unclosed_string
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_structure_ascii-unicode-identifier
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_structure_capitalized_True
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_structure_close_unopened_array
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_structure_comma_instead_of_closing_brace
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_structure_double_array
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_structure_end_array
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_structure_incomplete_UTF8_BOM
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_structure_lone-invalid-utf-8
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_structure_lone-open-bracket
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_structure_no_data
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_structure_null-byte-outside-string
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_structure_number_with_trailing_garbage
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_structure_object_followed_by_closing_object
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_structure_object_unclosed_no_value
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_structure_object_with_comment
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_structure_object_with_trailing_garbage
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_structure_open_array_apostrophe
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_structure_open_array_comma
+pending	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_structure_open_array_object
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_structure_open_array_open_object
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_structure_open_array_open_string
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_structure_open_array_string
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_structure_open_object
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_structure_open_object_close_array
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_structure_open_object_comma
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_structure_open_object_open_array
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_structure_open_object_open_string
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_structure_open_object_string_with_apostrophes
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_structure_open_open
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_structure_single_eacute
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_structure_single_star
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_structure_trailing_#
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_structure_uescaped_LF_before_string
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_structure_unclosed_array
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_structure_unclosed_array_partial_null
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_structure_unclosed_array_unfinished_false
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_structure_unclosed_array_unfinished_true
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_structure_unclosed_object
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_structure_unicode-identifier
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_structure_whitespace_U+2060_word_joiner
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_structure_whitespace_formfeed
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> y_array_arraysWithSpaces
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> y_array_empty
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> y_array_empty-string
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> y_array_ending_with_newline
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> y_array_false
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> y_array_heterogeneous
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> y_array_null
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> y_array_with_1_and_newline
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> y_array_with_leading_space
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> y_array_with_several_null
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> y_array_with_trailing_space
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> y_number
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> y_number_0e+1
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> y_number_0e1
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> y_number_after_space
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> y_number_double_close_to_zero
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> y_number_int_with_exp
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> y_number_minus_zero
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> y_number_negative_int
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> y_number_negative_one
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> y_number_negative_zero
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> y_number_real_capital_e
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> y_number_real_capital_e_neg_exp
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> y_number_real_capital_e_pos_exp
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> y_number_real_exponent
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> y_number_real_fraction_exponent
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> y_number_real_neg_exp
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> y_number_real_pos_exponent
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> y_number_simple_int
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> y_number_simple_real
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> y_object
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> y_object_basic
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> y_object_duplicated_key
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> y_object_duplicated_key_and_value
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> y_object_empty
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> y_object_empty_key
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> y_object_escaped_null_in_key
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> y_object_extreme_numbers
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> y_object_long_strings
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> y_object_simple
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> y_object_string_unicode
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> y_object_with_newlines
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> y_string_1_2_3_bytes_UTF-8_sequences
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> y_string_accepted_surrogate_pair
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> y_string_accepted_surrogate_pairs
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> y_string_allowed_escapes
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> y_string_backslash_and_u_escaped_zero
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> y_string_backslash_doublequotes
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> y_string_comments
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> y_string_double_escape_a
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> y_string_double_escape_n
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> y_string_escaped_control_character
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> y_string_escaped_noncharacter
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> y_string_in_array
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> y_string_in_array_with_leading_space
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> y_string_last_surrogates_1_and_2
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> y_string_nbsp_uescaped
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> y_string_nonCharacterInUTF-8_U+10FFFF
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> y_string_nonCharacterInUTF-8_U+FFFF
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> y_string_null_escape
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> y_string_one-byte-utf-8
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> y_string_pi
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> y_string_reservedCharacterInUTF-8_U+1BFFF
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> y_string_simple_ascii
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> y_string_space
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> y_string_surrogates_U+1D11E_MUSICAL_SYMBOL_G_CLEF
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> y_string_three-byte-utf-8
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> y_string_two-byte-utf-8
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> y_string_u+2028_line_sep
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> y_string_u+2029_par_sep
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> y_string_uEscape
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> y_string_uescaped_newline
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> y_string_unescaped_char_delete
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> y_string_unicode
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> y_string_unicodeEscapedBackslash
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> y_string_unicode_2
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> y_string_unicode_U+10FFFE_nonchar
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> y_string_unicode_U+1FFFE_nonchar
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> y_string_unicode_U+200B_ZERO_WIDTH_SPACE
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> y_string_unicode_U+2064_invisible_plus
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> y_string_unicode_U+FDD0_nonchar
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> y_string_unicode_U+FFFE_nonchar
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> y_string_unicode_escaped_double_quote
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> y_string_utf8
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> y_string_with_del_character
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> y_structure_lonely_false
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> y_structure_lonely_int
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> y_structure_lonely_negative_real
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> y_structure_lonely_null
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> y_structure_lonely_string
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> y_structure_lonely_true
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> y_structure_string_empty
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> y_structure_trailing_newline
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> y_structure_true_in_array
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> y_structure_whitespace_array
+pass	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> y_tab_whitespace
+pass	The textutils library -> textutils.urlEncode -> encodes newlines
+pass	The textutils library -> textutils.urlEncode -> escapes spaces
+pass	The textutils library -> textutils.urlEncode -> escapes special characters
+pass	The textutils library -> textutils.urlEncode -> leaves normal characters as-is
+pass	The textutils library -> textutils.urlEncode -> validates arguments
+pass	The time program -> displays time
+pass	The turtle equip program -> displays its usage when given no arguments
+pass	The turtle equip program -> equip nothing
+pass	The turtle equip program -> equips a new upgrade -> on the left
+pass	The turtle equip program -> equips a new upgrade -> on the right
+pass	The turtle equip program -> errors when not a turtle
+pass	The turtle equip program -> handles when an upgrade cannot be equipped
+pass	The turtle equip program -> swaps existing upgrades
+pass	The turtle unequip program -> displays its usage when given no arguments
+pass	The turtle unequip program -> errors when not a turtle
+pass	The turtle unequip program -> fails when the turtle is full
+pass	The turtle unequip program -> says when nothing was unequipped
+pass	The turtle unequip program -> unequips a upgrade
+pass	The type program -> displays the output for a directory
+pass	The type program -> displays the output for a file
+pass	The type program -> displays the output for a not existing path
+pass	The type program -> displays the usage with no arguments
+pass	The vector library -> vector.add -> returns the correct value
+pass	The vector library -> vector.add -> validates arguments
+pass	The vector library -> vector.div -> returns the correct value
+pass	The vector library -> vector.div -> validates arguments
+pass	The vector library -> vector.length -> returns the correct value
+pass	The vector library -> vector.length -> validates arguments
+pass	The vector library -> vector.mul -> returns the correct value
+pass	The vector library -> vector.mul -> validates arguments
+pass	The vector library -> vector.sub -> returns the correct value
+pass	The vector library -> vector.sub -> validates arguments
+pass	The vector library -> vector.unm -> returns the correct value
+pass	The vector library -> vector.unm -> validates arguments
+pass	The wget program -> can be completed
+pass	The wget program -> cannot save to rom
+pass	The wget program -> displays its usage when given no arguments
+pass	The wget program -> downloads empty files
+pass	The wget program -> downloads one file
+pass	The wget program -> downloads one file with given filename
+pass	The wget program -> runs a program from the internet
+pass	The window library -> Window.blit -> validates arguments
+pass	The window library -> Window.getLine -> provides a line's contents
+pass	The window library -> Window.getLine -> validates arguments
+pass	The window library -> Window.getPaletteColour -> validates arguments
+pass	The window library -> Window.isVisible -> gets window visibility
+pass	The window library -> Window.reposition -> can change the buffer
+pass	The window library -> Window.reposition -> validates arguments
+pass	The window library -> Window.scroll -> validates arguments
+pass	The window library -> Window.setBackgroundColour -> validates arguments
+pass	The window library -> Window.setCursorBlink -> validates arguments
+pass	The window library -> Window.setCursorPos -> validates arguments
+pass	The window library -> Window.setPaletteColour -> validates arguments
+pass	The window library -> Window.setTextColour -> accepts valid colours
+pass	The window library -> Window.setTextColour -> supports invalid combined colours
+pass	The window library -> Window.setTextColour -> validates arguments
+pass	The window library -> Window.setVisible -> validates arguments
+pass	The window library -> window.create -> validates arguments
+pass	cc.audio.dfpwm -> decode -> decodes some test data
+pass	cc.audio.dfpwm -> encode -> encodes some data
+pass	cc.base64 -> decode -> decodes as expected
+pass	cc.base64 -> decode -> decodes using alternative alphabet
+pass	cc.base64 -> decode -> validates arguments
+pass	cc.base64 -> decode -> validates the input string
+pass	cc.base64 -> encode -> encodes as expected
+pass	cc.base64 -> encode -> encodes using alternative alphabet
+pass	cc.base64 -> encode -> validates arguments
+pass	cc.base64 -> random strings roundtrip
+pass	cc.completion -> choice -> adds text if needed
+pass	cc.completion -> choice -> provides a filtered list of choices
+pass	cc.completion -> choice -> provides all choices
+pass	cc.completion -> command -> provides a choice of command names
+pass	cc.completion -> peripheral -> provides a choice of peripherals
+pass	cc.completion -> setting -> provides a choice of setting names
+pass	cc.completion -> side -> provides a choice of sides
+pass	cc.expect -> expect -> checks a single type
+pass	cc.expect -> expect -> checks multiple types
+pass	cc.expect -> expect -> includes the function name
+pass	cc.expect -> expect -> supports custom type names
+pass	cc.expect -> field -> checks a single type
+pass	cc.expect -> field -> checks multiple types
+pass	cc.expect -> range -> fills in min and max if they are nil
+pass	cc.expect -> range -> works with full args
+pass	cc.image.nft -> draw -> draws an image
+pass	cc.image.nft -> draw -> draws an image to a custom redirect
+pass	cc.image.nft -> draw -> validates arguments
+pass	cc.image.nft -> load -> fails on missing files
+pass	cc.image.nft -> load -> loads from a file
+pass	cc.image.nft -> load -> validates arguments
+pass	cc.image.nft -> parse -> handles background and foreground colours
+pass	cc.image.nft -> parse -> handles empty lines
+pass	cc.image.nft -> parse -> parses a string with no colours
+pass	cc.image.nft -> parse -> parses an empty string
+pass	cc.image.nft -> parse -> parses multi-line files
+pass	cc.image.nft -> parse -> validates arguments
+pass	cc.internal.error_hints -> gives hints for 'attempt to OP (a nil value)' errors -> suggests alternative globals
+pass	cc.internal.error_hints -> gives hints for 'attempt to OP (a nil value)' errors -> suggests alternative locals
+pass	cc.internal.error_hints -> gives hints for 'attempt to OP (a nil value)' errors -> suggests alternative table keys
+pass	cc.internal.error_hints -> gives hints for 'attempt to OP (a nil value)' errors -> suggests multiple table keys
+pass	cc.internal.event -> discard_char -> discards char events
+pass	cc.internal.event -> discard_char -> handles an empty event queue
+pass	cc.internal.syntax -> can parse all of CC's Lua files -> rom/apis/colors.lua
+pass	cc.internal.syntax -> can parse all of CC's Lua files -> rom/apis/colours.lua
+pass	cc.internal.syntax -> can parse all of CC's Lua files -> rom/apis/command/commands.lua
+pass	cc.internal.syntax -> can parse all of CC's Lua files -> rom/apis/disk.lua
+pass	cc.internal.syntax -> can parse all of CC's Lua files -> rom/apis/fs.lua
+pass	cc.internal.syntax -> can parse all of CC's Lua files -> rom/apis/gps.lua
+pass	cc.internal.syntax -> can parse all of CC's Lua files -> rom/apis/help.lua
+pass	cc.internal.syntax -> can parse all of CC's Lua files -> rom/apis/http/http.lua
+pass	cc.internal.syntax -> can parse all of CC's Lua files -> rom/apis/io.lua
+pass	cc.internal.syntax -> can parse all of CC's Lua files -> rom/apis/keys.lua
+pass	cc.internal.syntax -> can parse all of CC's Lua files -> rom/apis/paintutils.lua
+pass	cc.internal.syntax -> can parse all of CC's Lua files -> rom/apis/parallel.lua
+pass	cc.internal.syntax -> can parse all of CC's Lua files -> rom/apis/peripheral.lua
+pass	cc.internal.syntax -> can parse all of CC's Lua files -> rom/apis/rednet.lua
+pass	cc.internal.syntax -> can parse all of CC's Lua files -> rom/apis/settings.lua
+pass	cc.internal.syntax -> can parse all of CC's Lua files -> rom/apis/term.lua
+pass	cc.internal.syntax -> can parse all of CC's Lua files -> rom/apis/textutils.lua
+pass	cc.internal.syntax -> can parse all of CC's Lua files -> rom/apis/turtle/turtle.lua
+pass	cc.internal.syntax -> can parse all of CC's Lua files -> rom/apis/vector.lua
+pass	cc.internal.syntax -> can parse all of CC's Lua files -> rom/apis/window.lua
+pass	cc.internal.syntax -> can parse all of CC's Lua files -> rom/modules/main/cc/audio/dfpwm.lua
+pass	cc.internal.syntax -> can parse all of CC's Lua files -> rom/modules/main/cc/base64.lua
+pass	cc.internal.syntax -> can parse all of CC's Lua files -> rom/modules/main/cc/completion.lua
+pass	cc.internal.syntax -> can parse all of CC's Lua files -> rom/modules/main/cc/expect.lua
+pass	cc.internal.syntax -> can parse all of CC's Lua files -> rom/modules/main/cc/image/nft.lua
+pass	cc.internal.syntax -> can parse all of CC's Lua files -> rom/modules/main/cc/internal/edit_runner.lua
+pass	cc.internal.syntax -> can parse all of CC's Lua files -> rom/modules/main/cc/internal/error_hints.lua
+pass	cc.internal.syntax -> can parse all of CC's Lua files -> rom/modules/main/cc/internal/error_printer.lua
+pass	cc.internal.syntax -> can parse all of CC's Lua files -> rom/modules/main/cc/internal/event.lua
+pass	cc.internal.syntax -> can parse all of CC's Lua files -> rom/modules/main/cc/internal/exception.lua
+pass	cc.internal.syntax -> can parse all of CC's Lua files -> rom/modules/main/cc/internal/import.lua
+pass	cc.internal.syntax -> can parse all of CC's Lua files -> rom/modules/main/cc/internal/json.lua
+pass	cc.internal.syntax -> can parse all of CC's Lua files -> rom/modules/main/cc/internal/menu.lua
+pass	cc.internal.syntax -> can parse all of CC's Lua files -> rom/modules/main/cc/internal/snbt.lua
+pass	cc.internal.syntax -> can parse all of CC's Lua files -> rom/modules/main/cc/internal/syntax/errors.lua
+pass	cc.internal.syntax -> can parse all of CC's Lua files -> rom/modules/main/cc/internal/syntax/init.lua
+pass	cc.internal.syntax -> can parse all of CC's Lua files -> rom/modules/main/cc/internal/syntax/lexer.lua
+pass	cc.internal.syntax -> can parse all of CC's Lua files -> rom/modules/main/cc/internal/syntax/parser.lua
+pass	cc.internal.syntax -> can parse all of CC's Lua files -> rom/modules/main/cc/internal/tiny_require.lua
+pass	cc.internal.syntax -> can parse all of CC's Lua files -> rom/modules/main/cc/pretty.lua
+pass	cc.internal.syntax -> can parse all of CC's Lua files -> rom/modules/main/cc/require.lua
+pass	cc.internal.syntax -> can parse all of CC's Lua files -> rom/modules/main/cc/shell/completion.lua
+pass	cc.internal.syntax -> can parse all of CC's Lua files -> rom/modules/main/cc/strings.lua
+pass	cc.internal.syntax -> can parse all of CC's Lua files -> rom/programs/about.lua
+pass	cc.internal.syntax -> can parse all of CC's Lua files -> rom/programs/advanced/bg.lua
+pass	cc.internal.syntax -> can parse all of CC's Lua files -> rom/programs/advanced/fg.lua
+pass	cc.internal.syntax -> can parse all of CC's Lua files -> rom/programs/advanced/multishell.lua
+pass	cc.internal.syntax -> can parse all of CC's Lua files -> rom/programs/alias.lua
+pass	cc.internal.syntax -> can parse all of CC's Lua files -> rom/programs/apis.lua
+pass	cc.internal.syntax -> can parse all of CC's Lua files -> rom/programs/cd.lua
+pass	cc.internal.syntax -> can parse all of CC's Lua files -> rom/programs/clear.lua
+pass	cc.internal.syntax -> can parse all of CC's Lua files -> rom/programs/command/commands.lua
+pass	cc.internal.syntax -> can parse all of CC's Lua files -> rom/programs/command/exec.lua
+pass	cc.internal.syntax -> can parse all of CC's Lua files -> rom/programs/copy.lua
+pass	cc.internal.syntax -> can parse all of CC's Lua files -> rom/programs/delete.lua
+pass	cc.internal.syntax -> can parse all of CC's Lua files -> rom/programs/drive.lua
+pass	cc.internal.syntax -> can parse all of CC's Lua files -> rom/programs/edit.lua
+pass	cc.internal.syntax -> can parse all of CC's Lua files -> rom/programs/eject.lua
+pass	cc.internal.syntax -> can parse all of CC's Lua files -> rom/programs/exit.lua
+pass	cc.internal.syntax -> can parse all of CC's Lua files -> rom/programs/fun/advanced/paint.lua
+pass	cc.internal.syntax -> can parse all of CC's Lua files -> rom/programs/fun/advanced/redirection.lua
+pass	cc.internal.syntax -> can parse all of CC's Lua files -> rom/programs/fun/adventure.lua
+pass	cc.internal.syntax -> can parse all of CC's Lua files -> rom/programs/fun/dj.lua
+pass	cc.internal.syntax -> can parse all of CC's Lua files -> rom/programs/fun/hello.lua
+pass	cc.internal.syntax -> can parse all of CC's Lua files -> rom/programs/fun/speaker.lua
+pass	cc.internal.syntax -> can parse all of CC's Lua files -> rom/programs/fun/worm.lua
+pass	cc.internal.syntax -> can parse all of CC's Lua files -> rom/programs/gps.lua
+pass	cc.internal.syntax -> can parse all of CC's Lua files -> rom/programs/help.lua
+pass	cc.internal.syntax -> can parse all of CC's Lua files -> rom/programs/http/pastebin.lua
+pass	cc.internal.syntax -> can parse all of CC's Lua files -> rom/programs/http/wget.lua
+pass	cc.internal.syntax -> can parse all of CC's Lua files -> rom/programs/id.lua
+pass	cc.internal.syntax -> can parse all of CC's Lua files -> rom/programs/import.lua
+pass	cc.internal.syntax -> can parse all of CC's Lua files -> rom/programs/label.lua
+pass	cc.internal.syntax -> can parse all of CC's Lua files -> rom/programs/list.lua
+pass	cc.internal.syntax -> can parse all of CC's Lua files -> rom/programs/lua.lua
+pass	cc.internal.syntax -> can parse all of CC's Lua files -> rom/programs/mkdir.lua
+pass	cc.internal.syntax -> can parse all of CC's Lua files -> rom/programs/monitor.lua
+pass	cc.internal.syntax -> can parse all of CC's Lua files -> rom/programs/motd.lua
+pass	cc.internal.syntax -> can parse all of CC's Lua files -> rom/programs/move.lua
+pass	cc.internal.syntax -> can parse all of CC's Lua files -> rom/programs/peripherals.lua
+pass	cc.internal.syntax -> can parse all of CC's Lua files -> rom/programs/pocket/equip.lua
+pass	cc.internal.syntax -> can parse all of CC's Lua files -> rom/programs/pocket/falling.lua
+pass	cc.internal.syntax -> can parse all of CC's Lua files -> rom/programs/pocket/unequip.lua
+pass	cc.internal.syntax -> can parse all of CC's Lua files -> rom/programs/programs.lua
+pass	cc.internal.syntax -> can parse all of CC's Lua files -> rom/programs/reboot.lua
+pass	cc.internal.syntax -> can parse all of CC's Lua files -> rom/programs/rednet/chat.lua
+pass	cc.internal.syntax -> can parse all of CC's Lua files -> rom/programs/rednet/repeat.lua
+pass	cc.internal.syntax -> can parse all of CC's Lua files -> rom/programs/redstone.lua
+pass	cc.internal.syntax -> can parse all of CC's Lua files -> rom/programs/rename.lua
+pass	cc.internal.syntax -> can parse all of CC's Lua files -> rom/programs/set.lua
+pass	cc.internal.syntax -> can parse all of CC's Lua files -> rom/programs/shell.lua
+pass	cc.internal.syntax -> can parse all of CC's Lua files -> rom/programs/shutdown.lua
+pass	cc.internal.syntax -> can parse all of CC's Lua files -> rom/programs/time.lua
+pass	cc.internal.syntax -> can parse all of CC's Lua files -> rom/programs/turtle/craft.lua
+pass	cc.internal.syntax -> can parse all of CC's Lua files -> rom/programs/turtle/dance.lua
+pass	cc.internal.syntax -> can parse all of CC's Lua files -> rom/programs/turtle/equip.lua
+pass	cc.internal.syntax -> can parse all of CC's Lua files -> rom/programs/turtle/excavate.lua
+pass	cc.internal.syntax -> can parse all of CC's Lua files -> rom/programs/turtle/go.lua
+pass	cc.internal.syntax -> can parse all of CC's Lua files -> rom/programs/turtle/refuel.lua
+pass	cc.internal.syntax -> can parse all of CC's Lua files -> rom/programs/turtle/tunnel.lua
+pass	cc.internal.syntax -> can parse all of CC's Lua files -> rom/programs/turtle/turn.lua
+pass	cc.internal.syntax -> can parse all of CC's Lua files -> rom/programs/turtle/unequip.lua
+pass	cc.internal.syntax -> can parse all of CC's Lua files -> rom/programs/type.lua
+pass	cc.internal.syntax -> can parse all of CC's Lua files -> rom/startup.lua
+pass	cc.internal.syntax -> can parse all of CC's Lua files -> startup.lua
+pass	cc.internal.syntax -> can parse all of CC's Lua files -> test-rom/data/dump-args.lua
+pass	cc.internal.syntax -> can parse all of CC's Lua files -> test-rom/data/json-parsing/skip.lua
+pass	cc.internal.syntax -> can parse all of CC's Lua files -> test-rom/data/resolve-args.lua
+pass	cc.internal.syntax -> can parse all of CC's Lua files -> test-rom/mcfly.lua
+pass	cc.internal.syntax -> can parse all of CC's Lua files -> test-rom/spec/apis/colors_spec.lua
+pass	cc.internal.syntax -> can parse all of CC's Lua files -> test-rom/spec/apis/fs_spec.lua
+pass	cc.internal.syntax -> can parse all of CC's Lua files -> test-rom/spec/apis/gps_spec.lua
+pass	cc.internal.syntax -> can parse all of CC's Lua files -> test-rom/spec/apis/help_spec.lua
+pass	cc.internal.syntax -> can parse all of CC's Lua files -> test-rom/spec/apis/http_spec.lua
+pass	cc.internal.syntax -> can parse all of CC's Lua files -> test-rom/spec/apis/io_spec.lua
+pass	cc.internal.syntax -> can parse all of CC's Lua files -> test-rom/spec/apis/keys_spec.lua
+pass	cc.internal.syntax -> can parse all of CC's Lua files -> test-rom/spec/apis/os_spec.lua
+pass	cc.internal.syntax -> can parse all of CC's Lua files -> test-rom/spec/apis/paintutils_spec.lua
+pass	cc.internal.syntax -> can parse all of CC's Lua files -> test-rom/spec/apis/parallel_spec.lua
+pass	cc.internal.syntax -> can parse all of CC's Lua files -> test-rom/spec/apis/peripheral_spec.lua
+pass	cc.internal.syntax -> can parse all of CC's Lua files -> test-rom/spec/apis/rednet_spec.lua
+pass	cc.internal.syntax -> can parse all of CC's Lua files -> test-rom/spec/apis/redstone_spec.lua
+pass	cc.internal.syntax -> can parse all of CC's Lua files -> test-rom/spec/apis/settings_spec.lua
+pass	cc.internal.syntax -> can parse all of CC's Lua files -> test-rom/spec/apis/term_spec.lua
+pass	cc.internal.syntax -> can parse all of CC's Lua files -> test-rom/spec/apis/textutils_spec.lua
+pass	cc.internal.syntax -> can parse all of CC's Lua files -> test-rom/spec/apis/vector_spec.lua
+pass	cc.internal.syntax -> can parse all of CC's Lua files -> test-rom/spec/apis/window_spec.lua
+pass	cc.internal.syntax -> can parse all of CC's Lua files -> test-rom/spec/base_spec.lua
+pass	cc.internal.syntax -> can parse all of CC's Lua files -> test-rom/spec/lua/call_spec.lua
+pass	cc.internal.syntax -> can parse all of CC's Lua files -> test-rom/spec/lua/coroutine_spec.lua
+pass	cc.internal.syntax -> can parse all of CC's Lua files -> test-rom/spec/lua/timeout_spec.lua
+pass	cc.internal.syntax -> can parse all of CC's Lua files -> test-rom/spec/lua/vm_spec.lua
+pass	cc.internal.syntax -> can parse all of CC's Lua files -> test-rom/spec/modules/cc/audio/dfpwm_spec.lua
+pass	cc.internal.syntax -> can parse all of CC's Lua files -> test-rom/spec/modules/cc/base64_spec.lua
+pass	cc.internal.syntax -> can parse all of CC's Lua files -> test-rom/spec/modules/cc/completion_spec.lua
+pass	cc.internal.syntax -> can parse all of CC's Lua files -> test-rom/spec/modules/cc/expect_spec.lua
+pass	cc.internal.syntax -> can parse all of CC's Lua files -> test-rom/spec/modules/cc/image/nft_spec.lua
+pass	cc.internal.syntax -> can parse all of CC's Lua files -> test-rom/spec/modules/cc/internal/error_hints_spec.lua
+pass	cc.internal.syntax -> can parse all of CC's Lua files -> test-rom/spec/modules/cc/internal/event_spec.lua
+pass	cc.internal.syntax -> can parse all of CC's Lua files -> test-rom/spec/modules/cc/internal/syntax/init_spec.lua
+pass	cc.internal.syntax -> can parse all of CC's Lua files -> test-rom/spec/modules/cc/internal/syntax/syntax_helpers.lua
+pass	cc.internal.syntax -> can parse all of CC's Lua files -> test-rom/spec/modules/cc/pretty_spec.lua
+pass	cc.internal.syntax -> can parse all of CC's Lua files -> test-rom/spec/modules/cc/shell/completion_spec.lua
+pass	cc.internal.syntax -> can parse all of CC's Lua files -> test-rom/spec/modules/cc/shell/require_spec.lua
+pass	cc.internal.syntax -> can parse all of CC's Lua files -> test-rom/spec/modules/cc/strings_spec.lua
+pass	cc.internal.syntax -> can parse all of CC's Lua files -> test-rom/spec/programs/advanced/bg_spec.lua
+pass	cc.internal.syntax -> can parse all of CC's Lua files -> test-rom/spec/programs/advanced/fg_spec.lua
+pass	cc.internal.syntax -> can parse all of CC's Lua files -> test-rom/spec/programs/advanced/multishell_spec.lua
+pass	cc.internal.syntax -> can parse all of CC's Lua files -> test-rom/spec/programs/alias_spec.lua
+pass	cc.internal.syntax -> can parse all of CC's Lua files -> test-rom/spec/programs/cd_spec.lua
+pass	cc.internal.syntax -> can parse all of CC's Lua files -> test-rom/spec/programs/clear_spec.lua
+pass	cc.internal.syntax -> can parse all of CC's Lua files -> test-rom/spec/programs/command/commands_spec.lua
+pass	cc.internal.syntax -> can parse all of CC's Lua files -> test-rom/spec/programs/command/exec_spec.lua
+pass	cc.internal.syntax -> can parse all of CC's Lua files -> test-rom/spec/programs/copy_spec.lua
+pass	cc.internal.syntax -> can parse all of CC's Lua files -> test-rom/spec/programs/delete_spec.lua
+pass	cc.internal.syntax -> can parse all of CC's Lua files -> test-rom/spec/programs/drive_spec.lua
+pass	cc.internal.syntax -> can parse all of CC's Lua files -> test-rom/spec/programs/edit_spec.lua
+pass	cc.internal.syntax -> can parse all of CC's Lua files -> test-rom/spec/programs/eject_spec.lua
+pass	cc.internal.syntax -> can parse all of CC's Lua files -> test-rom/spec/programs/exit_spec.lua
+pass	cc.internal.syntax -> can parse all of CC's Lua files -> test-rom/spec/programs/fun/advanced/paint_spec.lua
+pass	cc.internal.syntax -> can parse all of CC's Lua files -> test-rom/spec/programs/fun/dj_spec.lua
+pass	cc.internal.syntax -> can parse all of CC's Lua files -> test-rom/spec/programs/fun/hello_spec.lua
+pass	cc.internal.syntax -> can parse all of CC's Lua files -> test-rom/spec/programs/gps_spec.lua
+pass	cc.internal.syntax -> can parse all of CC's Lua files -> test-rom/spec/programs/help_spec.lua
+pass	cc.internal.syntax -> can parse all of CC's Lua files -> test-rom/spec/programs/http/pastebin_spec.lua
+pass	cc.internal.syntax -> can parse all of CC's Lua files -> test-rom/spec/programs/http/wget_spec.lua
+pass	cc.internal.syntax -> can parse all of CC's Lua files -> test-rom/spec/programs/id_spec.lua
+pass	cc.internal.syntax -> can parse all of CC's Lua files -> test-rom/spec/programs/import_spec.lua
+pass	cc.internal.syntax -> can parse all of CC's Lua files -> test-rom/spec/programs/label_spec.lua
+pass	cc.internal.syntax -> can parse all of CC's Lua files -> test-rom/spec/programs/list_spec.lua
+pass	cc.internal.syntax -> can parse all of CC's Lua files -> test-rom/spec/programs/mkdir_spec.lua
+pass	cc.internal.syntax -> can parse all of CC's Lua files -> test-rom/spec/programs/monitor_spec.lua
+pass	cc.internal.syntax -> can parse all of CC's Lua files -> test-rom/spec/programs/motd_spec.lua
+pass	cc.internal.syntax -> can parse all of CC's Lua files -> test-rom/spec/programs/move_spec.lua
+pass	cc.internal.syntax -> can parse all of CC's Lua files -> test-rom/spec/programs/peripherals_spec.lua
+pass	cc.internal.syntax -> can parse all of CC's Lua files -> test-rom/spec/programs/pocket/equip_spec.lua
+pass	cc.internal.syntax -> can parse all of CC's Lua files -> test-rom/spec/programs/pocket/unequip_spec.lua
+pass	cc.internal.syntax -> can parse all of CC's Lua files -> test-rom/spec/programs/programs_spec.lua
+pass	cc.internal.syntax -> can parse all of CC's Lua files -> test-rom/spec/programs/reboot_spec.lua
+pass	cc.internal.syntax -> can parse all of CC's Lua files -> test-rom/spec/programs/redstone_spec.lua
+pass	cc.internal.syntax -> can parse all of CC's Lua files -> test-rom/spec/programs/rename_spec.lua
+pass	cc.internal.syntax -> can parse all of CC's Lua files -> test-rom/spec/programs/set_spec.lua
+pass	cc.internal.syntax -> can parse all of CC's Lua files -> test-rom/spec/programs/shell_spec.lua
+pass	cc.internal.syntax -> can parse all of CC's Lua files -> test-rom/spec/programs/shutdown_spec.lua
+pass	cc.internal.syntax -> can parse all of CC's Lua files -> test-rom/spec/programs/time_spec.lua
+pass	cc.internal.syntax -> can parse all of CC's Lua files -> test-rom/spec/programs/turtle/craft_spec.lua
+pass	cc.internal.syntax -> can parse all of CC's Lua files -> test-rom/spec/programs/turtle/equip_spec.lua
+pass	cc.internal.syntax -> can parse all of CC's Lua files -> test-rom/spec/programs/turtle/refuel_spec.lua
+pass	cc.internal.syntax -> can parse all of CC's Lua files -> test-rom/spec/programs/turtle/unequip_spec.lua
+pass	cc.internal.syntax -> can parse all of CC's Lua files -> test-rom/spec/programs/type_spec.lua
+pass	cc.internal.syntax -> can parse all of CC's Lua files -> test-rom/spec/support/debug_ext.lua
+pass	cc.internal.syntax -> can parse all of CC's Lua files -> test-rom/spec/support/fake_computer.lua
+pass	cc.internal.syntax -> can parse all of CC's Lua files -> test-rom/spec/test_helpers.lua
+pass	cc.internal.syntax -> the REPL input parser -> returns true when accepted by both parsers
+pass	cc.internal.syntax -> the REPL input parser -> returns true when accepted by one parser
+pass	cc.internal.syntax -> the lexer -> Comments -> Multi-line comments -> test #1
+pass	cc.internal.syntax -> the lexer -> Comments -> Multi-line comments -> test #2
+pass	cc.internal.syntax -> the lexer -> Comments -> Multi-line comments -> test #3
+pass	cc.internal.syntax -> the lexer -> Comments -> Multi-line comments -> test #4
+pass	cc.internal.syntax -> the lexer -> Comments -> Single-line comments -> test #1
+pass	cc.internal.syntax -> the lexer -> Comments -> Single-line comments -> test #2
+pass	cc.internal.syntax -> the lexer -> Numbers -> test #1
+pass	cc.internal.syntax -> the lexer -> Numbers -> test #2
+pass	cc.internal.syntax -> the lexer -> Strings -> Multi-line/long strings -> test #1
+pass	cc.internal.syntax -> the lexer -> Strings -> Multi-line/long strings -> test #2
+pass	cc.internal.syntax -> the lexer -> Strings -> Multi-line/long strings -> test #3
+pass	cc.internal.syntax -> the lexer -> Strings -> test #1
+pass	cc.internal.syntax -> the lexer -> Strings -> test #2
+pass	cc.internal.syntax -> the lexer -> Strings -> test #3
+pass	cc.internal.syntax -> the lexer -> Strings -> test #4
+pass	cc.internal.syntax -> the lexer -> Unknown tokens -> test #1
+pass	cc.internal.syntax -> the lexer -> Unknown tokens -> test #2
+pass	cc.internal.syntax -> the parser -> Expressions -> Invalid equals -> test #1
+pass	cc.internal.syntax -> the parser -> Expressions -> Invalid equals -> test #2
+pass	cc.internal.syntax -> the parser -> Expressions -> Invalid equals -> test #3
+pass	cc.internal.syntax -> the parser -> Expressions -> Invalid equals -> test #4
+pass	cc.internal.syntax -> the parser -> Expressions -> Missing commas in tables -> test #1
+pass	cc.internal.syntax -> the parser -> Expressions -> Missing commas in tables -> test #2
+pass	cc.internal.syntax -> the parser -> Expressions -> Missing commas in tables -> test #3
+pass	cc.internal.syntax -> the parser -> Expressions -> Missing commas in tables -> test #4
+pass	cc.internal.syntax -> the parser -> Expressions -> Missing commas in tables -> test #5
+pass	cc.internal.syntax -> the parser -> Expressions -> Unclosed parenthesis -> test #1
+pass	cc.internal.syntax -> the parser -> Expressions -> Unclosed parenthesis -> test #2
+pass	cc.internal.syntax -> the parser -> Expressions -> Unclosed parenthesis -> test #3
+pass	cc.internal.syntax -> the parser -> Function calls -> Additional commas -> test #1
+pass	cc.internal.syntax -> the parser -> Function calls -> Additional commas -> test #2
+pass	cc.internal.syntax -> the parser -> Function calls -> Additional commas -> test #3
+pass	cc.internal.syntax -> the parser -> Statements -> Expecting `end` -> test #1
+pass	cc.internal.syntax -> the parser -> Statements -> Expecting `end` -> test #2
+pass	cc.internal.syntax -> the parser -> Statements -> Expecting `end` -> test #3
+pass	cc.internal.syntax -> the parser -> Statements -> Expecting `end` -> test #4
+pass	cc.internal.syntax -> the parser -> Statements -> Expecting `end` -> test #5
+pass	cc.internal.syntax -> the parser -> Statements -> Expecting `end` -> test #6
+pass	cc.internal.syntax -> the parser -> Statements -> Expecting `end` -> test #7
+pass	cc.internal.syntax -> the parser -> Statements -> Expecting `end` -> test #8
+pass	cc.internal.syntax -> the parser -> Statements -> Expecting `end` -> test #9
+pass	cc.internal.syntax -> the parser -> Statements -> If statements -> test #1
+pass	cc.internal.syntax -> the parser -> Statements -> If statements -> test #2
+pass	cc.internal.syntax -> the parser -> Statements -> Local functions with table identifiers -> test #1
+pass	cc.internal.syntax -> the parser -> Statements -> Missing function arguments -> test #1
+pass	cc.internal.syntax -> the parser -> Statements -> Missing function arguments -> test #2
+pass	cc.internal.syntax -> the parser -> Statements -> Standalone identifiers -> test #1
+pass	cc.internal.syntax -> the parser -> Statements -> Standalone identifiers -> test #2
+pass	cc.internal.syntax -> the parser -> Statements -> Standalone identifiers -> test #3
+pass	cc.internal.syntax -> the parser -> Statements -> Standalone identifiers -> test #4
+pass	cc.internal.syntax -> the parser -> Statements -> Standalone identifiers -> test #5
+pass	cc.internal.syntax -> the parser -> Statements -> Unexpected `end` -> test #1
+pass	cc.internal.syntax -> the parser -> Statements -> Unexpected `end` -> test #2
+pass	cc.internal.syntax -> the parser -> Statements -> `goto` and labels -> test #1
+pass	cc.internal.syntax -> the parser -> Statements -> `goto` and labels -> test #2
+pass	cc.internal.syntax -> the parser -> Statements -> `goto` and labels -> test #3
+pass	cc.internal.syntax -> the parser (all states) -> test #1
+pass	cc.internal.syntax -> the parser (all states) -> test #10
+pass	cc.internal.syntax -> the parser (all states) -> test #100
+pass	cc.internal.syntax -> the parser (all states) -> test #101
+pass	cc.internal.syntax -> the parser (all states) -> test #102
+pass	cc.internal.syntax -> the parser (all states) -> test #103
+pass	cc.internal.syntax -> the parser (all states) -> test #104
+pass	cc.internal.syntax -> the parser (all states) -> test #11
+pass	cc.internal.syntax -> the parser (all states) -> test #12
+pass	cc.internal.syntax -> the parser (all states) -> test #13
+pass	cc.internal.syntax -> the parser (all states) -> test #14
+pass	cc.internal.syntax -> the parser (all states) -> test #15
+pass	cc.internal.syntax -> the parser (all states) -> test #16
+pass	cc.internal.syntax -> the parser (all states) -> test #17
+pass	cc.internal.syntax -> the parser (all states) -> test #18
+pass	cc.internal.syntax -> the parser (all states) -> test #19
+pass	cc.internal.syntax -> the parser (all states) -> test #2
+pass	cc.internal.syntax -> the parser (all states) -> test #20
+pass	cc.internal.syntax -> the parser (all states) -> test #21
+pass	cc.internal.syntax -> the parser (all states) -> test #22
+pass	cc.internal.syntax -> the parser (all states) -> test #23
+pass	cc.internal.syntax -> the parser (all states) -> test #24
+pass	cc.internal.syntax -> the parser (all states) -> test #25
+pass	cc.internal.syntax -> the parser (all states) -> test #26
+pass	cc.internal.syntax -> the parser (all states) -> test #27
+pass	cc.internal.syntax -> the parser (all states) -> test #28
+pass	cc.internal.syntax -> the parser (all states) -> test #29
+pass	cc.internal.syntax -> the parser (all states) -> test #3
+pass	cc.internal.syntax -> the parser (all states) -> test #30
+pass	cc.internal.syntax -> the parser (all states) -> test #31
+pass	cc.internal.syntax -> the parser (all states) -> test #32
+pass	cc.internal.syntax -> the parser (all states) -> test #33
+pass	cc.internal.syntax -> the parser (all states) -> test #34
+pass	cc.internal.syntax -> the parser (all states) -> test #35
+pass	cc.internal.syntax -> the parser (all states) -> test #36
+pass	cc.internal.syntax -> the parser (all states) -> test #37
+pass	cc.internal.syntax -> the parser (all states) -> test #38
+pass	cc.internal.syntax -> the parser (all states) -> test #39
+pass	cc.internal.syntax -> the parser (all states) -> test #4
+pass	cc.internal.syntax -> the parser (all states) -> test #40
+pass	cc.internal.syntax -> the parser (all states) -> test #41
+pass	cc.internal.syntax -> the parser (all states) -> test #42
+pass	cc.internal.syntax -> the parser (all states) -> test #43
+pass	cc.internal.syntax -> the parser (all states) -> test #44
+pass	cc.internal.syntax -> the parser (all states) -> test #45
+pass	cc.internal.syntax -> the parser (all states) -> test #46
+pass	cc.internal.syntax -> the parser (all states) -> test #47
+pass	cc.internal.syntax -> the parser (all states) -> test #48
+pass	cc.internal.syntax -> the parser (all states) -> test #49
+pass	cc.internal.syntax -> the parser (all states) -> test #5
+pass	cc.internal.syntax -> the parser (all states) -> test #50
+pass	cc.internal.syntax -> the parser (all states) -> test #51
+pass	cc.internal.syntax -> the parser (all states) -> test #52
+pass	cc.internal.syntax -> the parser (all states) -> test #53
+pass	cc.internal.syntax -> the parser (all states) -> test #54
+pass	cc.internal.syntax -> the parser (all states) -> test #55
+pass	cc.internal.syntax -> the parser (all states) -> test #56
+pass	cc.internal.syntax -> the parser (all states) -> test #57
+pass	cc.internal.syntax -> the parser (all states) -> test #58
+pass	cc.internal.syntax -> the parser (all states) -> test #59
+pass	cc.internal.syntax -> the parser (all states) -> test #6
+pass	cc.internal.syntax -> the parser (all states) -> test #60
+pass	cc.internal.syntax -> the parser (all states) -> test #61
+pass	cc.internal.syntax -> the parser (all states) -> test #62
+pass	cc.internal.syntax -> the parser (all states) -> test #63
+pass	cc.internal.syntax -> the parser (all states) -> test #64
+pass	cc.internal.syntax -> the parser (all states) -> test #65
+pass	cc.internal.syntax -> the parser (all states) -> test #66
+pass	cc.internal.syntax -> the parser (all states) -> test #67
+pass	cc.internal.syntax -> the parser (all states) -> test #68
+pass	cc.internal.syntax -> the parser (all states) -> test #69
+pass	cc.internal.syntax -> the parser (all states) -> test #7
+pass	cc.internal.syntax -> the parser (all states) -> test #70
+pass	cc.internal.syntax -> the parser (all states) -> test #71
+pass	cc.internal.syntax -> the parser (all states) -> test #72
+pass	cc.internal.syntax -> the parser (all states) -> test #73
+pass	cc.internal.syntax -> the parser (all states) -> test #74
+pass	cc.internal.syntax -> the parser (all states) -> test #75
+pass	cc.internal.syntax -> the parser (all states) -> test #76
+pass	cc.internal.syntax -> the parser (all states) -> test #77
+pass	cc.internal.syntax -> the parser (all states) -> test #78
+pass	cc.internal.syntax -> the parser (all states) -> test #79
+pass	cc.internal.syntax -> the parser (all states) -> test #8
+pass	cc.internal.syntax -> the parser (all states) -> test #80
+pass	cc.internal.syntax -> the parser (all states) -> test #81
+pass	cc.internal.syntax -> the parser (all states) -> test #82
+pass	cc.internal.syntax -> the parser (all states) -> test #83
+pass	cc.internal.syntax -> the parser (all states) -> test #84
+pass	cc.internal.syntax -> the parser (all states) -> test #85
+pass	cc.internal.syntax -> the parser (all states) -> test #86
+pass	cc.internal.syntax -> the parser (all states) -> test #87
+pass	cc.internal.syntax -> the parser (all states) -> test #88
+pass	cc.internal.syntax -> the parser (all states) -> test #89
+pass	cc.internal.syntax -> the parser (all states) -> test #9
+pass	cc.internal.syntax -> the parser (all states) -> test #90
+pass	cc.internal.syntax -> the parser (all states) -> test #91
+pass	cc.internal.syntax -> the parser (all states) -> test #92
+pass	cc.internal.syntax -> the parser (all states) -> test #93
+pass	cc.internal.syntax -> the parser (all states) -> test #94
+pass	cc.internal.syntax -> the parser (all states) -> test #95
+pass	cc.internal.syntax -> the parser (all states) -> test #96
+pass	cc.internal.syntax -> the parser (all states) -> test #97
+pass	cc.internal.syntax -> the parser (all states) -> test #98
+pass	cc.internal.syntax -> the parser (all states) -> test #99
+pass	cc.pretty -> concat -> acts as the identity with 1 argument
+pass	cc.pretty -> concat -> can be used as an operator
+pass	cc.pretty -> concat -> coerces strings
+pass	cc.pretty -> concat -> returns empty with 0 arguments
+pass	cc.pretty -> concat -> validates arguments
+pass	cc.pretty -> group -> does nothing for flat strings
+pass	cc.pretty -> group -> is idempotent
+pass	cc.pretty -> pretty -> functions -> shows function arguments
+pass	cc.pretty -> pretty -> functions -> shows functions
+pass	cc.pretty -> pretty -> functions -> shows the function source
+pass	cc.pretty -> pretty -> shows numbers
+pass	cc.pretty -> pretty -> shows strings
+pass	cc.pretty -> pretty -> tables -> displays empty tables
+pass	cc.pretty -> pretty -> tables -> displays list-like tables
+pass	cc.pretty -> pretty -> tables -> displays mixed tables
+pass	cc.pretty -> pretty -> tables -> escapes keys
+pass	cc.pretty -> pretty -> tables -> groups tables
+pass	cc.pretty -> pretty -> tables -> handles sparse tables
+pass	cc.pretty -> pretty -> tables -> sorts keys
+pass	cc.pretty -> render -> displays a flattened group
+pass	cc.pretty -> render -> displays a multiline string
+pass	cc.pretty -> render -> displays a nested string
+pass	cc.pretty -> render -> displays an expanded group
+pass	cc.pretty -> render -> displays the empty document
+pass	cc.pretty -> render -> does not wrap a long string
+pass	cc.pretty -> render -> group removes nest
+pass	cc.pretty -> text -> is constant for a newline
+pass	cc.pretty -> text -> is constant for a space
+pass	cc.pretty -> text -> is constant for the empty string
+pass	cc.pretty -> text -> preserves empty lines
+pass	cc.pretty -> text -> produces text documents
+pass	cc.pretty -> text -> splits lines
+pass	cc.pretty -> text -> validates arguments
+pass	cc.pretty -> write -> displays a flattened group
+pass	cc.pretty -> write -> displays a multiline string
+pass	cc.pretty -> write -> displays a nested string
+pass	cc.pretty -> write -> displays an expanded group
+pass	cc.pretty -> write -> displays the empty document
+pass	cc.pretty -> write -> group removes nest
+pass	cc.pretty -> write -> wraps a long string
+pass	cc.require -> require -> errors on recursive modules
+pass	cc.require -> require -> returns a constant value
+pass	cc.require -> require -> returns an error on not-found modules
+pass	cc.require -> require -> returns true instead of nil
+pass	cc.require -> require -> supplies the current module name
+pass	cc.require -> the file loader -> fails on syntax errors
+pass	cc.require -> the file loader -> works on absolute paths
+pass	cc.require -> the file loader -> works on relative paths
+pass	cc.shell.completion -> build -> completes multiple arguments
+pass	cc.shell.completion -> build -> supports variadic completions
+pass	cc.shell.completion -> dirOrFile -> adds a space
+pass	cc.shell.completion -> dirOrFile -> completes both
+pass	cc.shell.completion -> program -> completes programs
+pass	cc.shell.completion -> programWithArgs -> completes program arguments
+pass	cc.shell.completion -> programWithArgs -> completes program name
+pass	cc.strings -> ensure_width -> pads lines
+pass	cc.strings -> ensure_width -> truncates lines
+pass	cc.strings -> ensure_width -> validates arguments
+pass	cc.strings -> split -> accepts a limit
+pass	cc.strings -> split -> cannot split with an empty separator
+pass	cc.strings -> split -> splits on literal strings
+pass	cc.strings -> split -> splits on patterns
+pass	cc.strings -> split -> splits with empty segments
+pass	cc.strings -> wrap -> validates arguments
+pass	cc.strings -> wrap -> wraps lines

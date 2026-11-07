@@ -1,0 +1,15 @@
+cobalt-0.9.9	stock	sha2: is_LuaJIT	pure_lua_SHA sha2.lua:120	false
+cobalt-0.9.9	stock	sha2: bit library	sha2.lua:120-146	vanilla branch; _G.bit32
+cobalt-0.9.9	stock	MessagePack: header probe	lua-MessagePack src/MessagePack.lua:5-17	string.dump path (CC: errors)
+cobalt-0.9.9	stock	Teal/inspect: version num	inspect.lua:1 (Teal _tl_compat)	5.2 (<5.3: try compat53)
+cobalt-0.9.9	stock	compat53: lua_version	compat53/module.lua:2,7,420	"5.2" <5.3=true ==5.1=false
+cobalt-0.9.9	stock	Penlight: lua51 / jit	pl/compat.lua:14,18	lua51=false jit=false
+cobalt-0.9.9	stock	lbase64: extract impl	lbase64 base64.lua:28-34	bit32.extract
+cobalt-0.9.9	stock	AUKit: sinc window/chunk	aukit.lua:131,1011	10 / 32768
+cobalt-0.9.9	stock	CraftOS-PC bios: 5.1 layer	craftos2-rom bios.lua:14,37	5.2 path
+cobalt-0.9.9	stock	CraftOS-PC bios: jit.off	craftos2-rom bios.lua:23	no call
+cobalt-0.9.9	stock	CraftOS-PC motd: version	craftos2-rom motd.lua:13	nil
+cobalt-0.9.9	stock	Basalt: CraftOS-PC check	Basalt/main.lua:458	false
+cobalt-0.9.9	stock	AUKit: CCPC 2.6.4 check	aukit.lua:2000	false
+cobalt-0.9.9	stock	rxi json bench: VM name	json.lua bench/util/bench.lua:43	Lua 5.2
+cobalt-0.9.9	stock	VM: tostring(assert)	(VM)	function: <hex>

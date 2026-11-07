@@ -1,0 +1,43 @@
+# runtime error line attribution, multi-line field chains (difftest/lineinfo*.lua)
+== lineinfo1.lua:
+   | local a = nil
+   | local x = a.b
+   |   .c
+   ref-3c4f9fe2  lineinfo1.lua:2: attempt to index local 'a' (a nil value)
+   head-gated    lineinfo1.lua:2: attempt to index local 'a' (a nil value)
+   head-nogate   lineinfo1.lua:3: attempt to index local 'a' (a nil value)
+== lineinfo2.lua:
+   | local a = {}
+   | local x = a
+   |   .b
+   |   .c
+   ref-3c4f9fe2  lineinfo2.lua:4: attempt to index field 'b' (a nil value)
+   head-gated    lineinfo2.lua:4: attempt to index field 'b' (a nil value)
+   head-nogate   lineinfo2.lua:4: attempt to index field 'b' (a nil value)
+== lineinfo3.lua:
+   | setmetatable(_G, {__index = function(t, k) error("undefined global " .. k, 2) end})
+   | local x = undefinedthing
+   |   .field
+   ref-3c4f9fe2  lineinfo3.lua:2: undefined global undefinedthing
+   head-gated    lineinfo3.lua:2: undefined global undefinedthing
+   head-nogate   lineinfo3.lua:3: undefined global undefinedthing
+== lineinfo4.lua:
+   | function nosuch
+   | .f() end
+   ref-3c4f9fe2  lineinfo4.lua:1: attempt to index global 'nosuch' (a nil value)
+   head-gated    lineinfo4.lua:1: attempt to index global 'nosuch' (a nil value)
+   head-nogate   lineinfo4.lua:1: attempt to index global 'nosuch' (a nil value)
+
+# jit.* tool modules on each build (run from <build>/src so ./jit/*.lua is found)
+   ref-3c4f9fe2  -bl  -- BYTECODE -- jtest.lua:0-3 0001    KSHORT   0   1 
+
+   ref-3c4f9fe2  -jv  .\jit\v.lua:164: vmevent API disabled 
+
+   head-gated    -bl  error loading module 'jit.bcsave' from file '.\jit\bcsave.lua': 	.\jit\bcsave.lua:115: 'end' expected (to close 'function' at line 112) near '?' 
+
+   head-gated    -jv  error loading module 'jit.v' from file '.\jit\v.lua': 	.\jit\v.lua:110: 'then' expected near '!' 
+
+   head-nogate   -bl  -- BYTECODE -- jtest.lua:0-3 0001    KSHORT   0   1 
+
+   head-nogate   -jv  .\jit\v.lua:164: vmevent API disabled 
+

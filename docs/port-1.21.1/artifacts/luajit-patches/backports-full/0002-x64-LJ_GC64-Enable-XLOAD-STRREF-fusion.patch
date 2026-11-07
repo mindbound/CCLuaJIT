@@ -1,0 +1,29 @@
+From cc6443996fa174edecc75e92bcb4df34cfaacf9c Mon Sep 17 00:00:00 2001
+From: Mike Pall <mike>
+Date: Sat, 1 Aug 2026 11:36:13 +0200
+Subject: [PATCH 02/26] x64/LJ_GC64: Enable XLOAD/STRREF fusion.
+
+(cherry picked from commit afa81a57382ce7e747b493220e79573f23205ab0)
+---
+ src/lj_asm_x86.h | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
+
+diff --git a/src/lj_asm_x86.h b/src/lj_asm_x86.h
+index 3c024092..66914834 100644
+--- a/src/lj_asm_x86.h
++++ b/src/lj_asm_x86.h
+@@ -344,13 +344,12 @@ static void asm_fusexref(ASMState *as, IRRef ref, RegSet allow)
+       as->mrm.base = RID_DISPATCH;
+       return;
+     }
+-  } if (0) {
+ #else
+     as->mrm.ofs = ir->i;
+     as->mrm.base = RID_NONE;
++#endif
+   } else if (ir->o == IR_STRREF) {
+     asm_fusestrref(as, ir, allow);
+-#endif
+   } else {
+     as->mrm.ofs = 0;
+     if (canfuse(as, ir) && ir->o == IR_ADD && ra_noreg(ir->r)) {

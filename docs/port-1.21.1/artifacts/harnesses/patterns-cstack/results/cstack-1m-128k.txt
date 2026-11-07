@@ -1,0 +1,188 @@
+CASE lua_recursion (stack 1024 KB, guard on)
+  run 1: error  depth=21833  1 ms: [string "local function f(n) D = D + 1 return 1 + f(n ..."]:1: stack overflow
+  run 2: error  depth=21833  1 ms: [string "local function f(n) D = D + 1 return 1 + f(n ..."]:1: stack overflow
+  state usable: 2893 a2b3 (lua stack top 0)
+  RESULT COMPLETED (no crash)
+CASE pcall_recursion (stack 1024 KB, guard on)
+  run 1: ok     depth=32744  1 ms: true
+  run 2: ok     depth=32744  1 ms: true
+  state usable: 2893 a2b3 (lua stack top 0)
+  RESULT COMPLETED (no crash)
+CASE index_fn_recursion_vm (stack 1024 KB, guard on)
+  run 1: error  depth=9357   1 ms: [string "local t t = setmetatable({}, {__index = funct..."]:1: stack overflow
+  run 2: error  depth=9356   1 ms: [string "local t t = setmetatable({}, {__index = funct..."]:1: stack overflow
+  state usable: 2893 a2b3 (lua stack top 0)
+  RESULT COMPLETED (no crash)
+CASE tostring_tailcall (stack 1024 KB, guard on)
+  run 1: error  depth=1000001 0 ms: 1e6 tail calls, no stack growth
+  run 2: error  depth=1000001 0 ms: 1e6 tail calls, no stack growth
+  state usable: 2893 a2b3 (lua stack top 0)
+  RESULT COMPLETED (no crash)
+CASE gsub_callback (stack 1024 KB, guard on)
+  run 1: error  depth=675    1 ms: C stack overflow
+  run 2: error  depth=675    1 ms: C stack overflow
+  state usable: 2893 a2b3 (lua stack top 0)
+  RESULT COMPLETED (no crash)
+CASE gsub_table_index (stack 1024 KB, guard on)
+  run 1: error  depth=643    2 ms: C stack overflow
+  run 2: error  depth=643    1 ms: C stack overflow
+  state usable: 2893 a2b3 (lua stack top 0)
+  RESULT COMPLETED (no crash)
+CASE sort_comparator (stack 1024 KB, guard on)
+  run 1: error  depth=3013   42 ms: C stack overflow
+  run 2: error  depth=3013   41 ms: C stack overflow
+  state usable: 2893 a2b3 (lua stack top 0)
+  RESULT COMPLETED (no crash)
+CASE sort_lt_metamethod (stack 1024 KB, guard on)
+  run 1: error  depth=3014   33 ms: C stack overflow
+  run 2: error  depth=3014   33 ms: C stack overflow
+  state usable: 2893 a2b3 (lua stack top 0)
+  RESULT COMPLETED (no crash)
+CASE tostring_mm_paren (stack 1024 KB, guard on)
+  run 1: error  depth=21831  1 ms: [string "local t t = setmetatable({}, {__tostring = fu..."]:1: stack overflow
+  run 2: error  depth=21831  1 ms: [string "local t t = setmetatable({}, {__tostring = fu..."]:1: stack overflow
+  state usable: 2893 a2b3 (lua stack top 0)
+  RESULT COMPLETED (no crash)
+CASE format_s_tostring (stack 1024 KB, guard on)
+  run 1: error  depth=2863   7 ms: C stack overflow
+  run 2: error  depth=2863   6 ms: C stack overflow
+  state usable: 2893 a2b3 (lua stack top 0)
+  RESULT COMPLETED (no crash)
+CASE table_foreach (stack 1024 KB, guard on)
+  run 1: error  depth=5954   1 ms: [builtin:foreach]:0: stack overflow
+  run 2: error  depth=5953   1 ms: [builtin:foreach]:0: stack overflow
+  state usable: 2893 a2b3 (lua stack top 0)
+  RESULT COMPLETED (no crash)
+CASE load_reader (stack 1024 KB, guard on)
+  run 1: ok     depth=1191   1 ms: C stack overflow
+  run 2: ok     depth=1191   0 ms: C stack overflow
+  state usable: 2893 a2b3 (lua stack top 0)
+  RESULT COMPLETED (no crash)
+CASE xpcall_handler (stack 1024 KB, guard on)
+  run 1: ok     depth=1      0 ms: false
+  run 2: ok     depth=1      0 ms: false
+  state usable: 2893 a2b3 (lua stack top 0)
+  RESULT COMPLETED (no crash)
+CASE error_in_handler_deep (stack 1024 KB, guard on)
+  run 1: ok     depth=674    1 ms: handled: C stack overflow
+  run 2: ok     depth=674    1 ms: handled: C stack overflow
+  state usable: 2893 a2b3 (lua stack top 0)
+  RESULT COMPLETED (no crash)
+CASE coroutine_wrap_nesting (stack 1024 KB, guard on)
+  run 1: error  depth=11439  11 ms: C stack overflow
+  run 2: error  depth=11439  9 ms: C stack overflow
+  state usable: 2893 a2b3 (lua stack top 0)
+  RESULT COMPLETED (no crash)
+CASE coroutine_resume_nesting (stack 1024 KB, guard on)
+  run 1: error  depth=11452  10 ms: C stack overflow
+  run 2: error  depth=11452  10 ms: C stack overflow
+  state usable: 2893 a2b3 (lua stack top 0)
+  RESULT COMPLETED (no crash)
+CASE coroutine_precreated_chain (stack 1024 KB, guard on)
+  run 1: error  depth=11448  84 ms: C stack overflow
+  run 2: error  depth=11448  87 ms: C stack overflow
+  state usable: 2893 a2b3 (lua stack top 0)
+  RESULT COMPLETED (no crash)
+CASE host_lua_call (stack 1024 KB, guard on)
+  run 1: error  depth=7157   35 ms: C stack overflow
+  run 2: error  depth=7157   35 ms: C stack overflow
+  state usable: 2893 a2b3 (lua stack top 0)
+  RESULT COMPLETED (no crash)
+CASE host_lua_pcall (stack 1024 KB, guard on)
+  run 1: error  depth=3814   3 ms: C stack overflow
+  run 2: error  depth=3814   3 ms: C stack overflow
+  state usable: 2893 a2b3 (lua stack top 0)
+  RESULT COMPLETED (no crash)
+CASE host_lua_cpcall (stack 1024 KB, guard on)
+  run 1: error  depth=2727   3 ms: C stack overflow
+  run 2: error  depth=2727   3 ms: C stack overflow
+  state usable: 2893 a2b3 (lua stack top 0)
+  RESULT COMPLETED (no crash)
+CASE host_lua_gettable (stack 1024 KB, guard on)
+  run 1: error  depth=4770   20 ms: C stack overflow
+  run 2: error  depth=4770   19 ms: C stack overflow
+  state usable: 2893 a2b3 (lua stack top 0)
+  RESULT COMPLETED (no crash)
+CASE host_lua_settable (stack 1024 KB, guard on)
+  run 1: error  depth=4387   70 ms: stack overflow
+  run 2: error  depth=4387   70 ms: stack overflow
+  state usable: 2893 a2b3 (lua stack top 0)
+  RESULT COMPLETED (no crash)
+CASE host_lua_equal (stack 1024 KB, guard on)
+  run 1: error  depth=4774   18 ms: C stack overflow
+  run 2: error  depth=4774   18 ms: C stack overflow
+  state usable: 2893 a2b3 (lua stack top 0)
+  RESULT COMPLETED (no crash)
+CASE host_lua_lessthan (stack 1024 KB, guard on)
+  run 1: error  depth=4771   18 ms: C stack overflow
+  run 2: error  depth=4771   18 ms: C stack overflow
+  state usable: 2893 a2b3 (lua stack top 0)
+  RESULT COMPLETED (no crash)
+CASE host_lua_concat (stack 1024 KB, guard on)
+  run 1: error  depth=4765   17 ms: C stack overflow
+  run 2: error  depth=4765   16 ms: C stack overflow
+  state usable: 2893 a2b3 (lua stack top 0)
+  RESULT COMPLETED (no crash)
+CASE host_callmeta (stack 1024 KB, guard on)
+  run 1: error  depth=4404   15 ms: C stack overflow
+  run 2: error  depth=4404   14 ms: C stack overflow
+  state usable: 2893 a2b3 (lua stack top 0)
+  RESULT COMPLETED (no crash)
+CASE host_lua_resume_nesting (stack 1024 KB, guard on)
+  run 1: error  depth=5721   6 ms: C stack overflow
+  run 2: error  depth=5721   5 ms: C stack overflow
+  state usable: 2893 a2b3 (lua stack top 0)
+  RESULT COMPLETED (no crash)
+CASE host_resume_stays_resumable (stack 1024 KB, guard on)
+  run 1: ok     depth=7150   2 ms: C stack overflow / later: true got again suspended
+  run 2: ok     depth=7150   1 ms: C stack overflow / later: true got again suspended
+  state usable: 2893 a2b3 (lua stack top 0)
+  RESULT COMPLETED (no crash)
+CASE stock_resume_stays_resumable (stack 1024 KB, guard on)
+  run 1: ok     depth=11449  4 ms: C stack overflow / later: true got again suspended
+  run 2: ok     depth=11449  4 ms: C stack overflow / later: true got again suspended
+  state usable: 2893 a2b3 (lua stack top 0)
+  RESULT COMPLETED (no crash)
+CASE parser_at_depth (stack 1024 KB, guard on)
+  run 1: error  depth=628    3 ms: [string "return ((((((((((((((((((((((((((((((((((((((..."]:1: C stack overflow
+  run 2: error  depth=628    2 ms: [string "return ((((((((((((((((((((((((((((((((((((((..."]:1: C stack overflow
+  state usable: 2893 a2b3 (lua stack top 0)
+  RESULT COMPLETED (no crash)
+CASE mixed_chain (stack 1024 KB, guard on)
+  run 1: error  depth=1573   1 ms: C stack overflow
+  run 2: error  depth=1573   1 ms: C stack overflow
+  state usable: 2893 a2b3 (lua stack top 0)
+  RESULT COMPLETED (no crash)
+
+SUMMARY (cstack-final.exe 1024 128)
+  lua_recursion                error  depth=21833  1 ms: [string "local function f(n) D = D + 1 return 1 + f(n ..."]:1: stack overflow
+  pcall_recursion              ok     depth=32744  1 ms: true
+  index_fn_recursion_vm        error  depth=9357   1 ms: [string "local t t = setmetatable({}, {__index = funct..."]:1: stack overflow
+  tostring_tailcall            error  depth=1000001 0 ms: 1e6 tail calls, no stack growth
+  gsub_callback                error  depth=675    1 ms: C stack overflow
+  gsub_table_index             error  depth=643    2 ms: C stack overflow
+  sort_comparator              error  depth=3013   42 ms: C stack overflow
+  sort_lt_metamethod           error  depth=3014   33 ms: C stack overflow
+  tostring_mm_paren            error  depth=21831  1 ms: [string "local t t = setmetatable({}, {__tostring = fu..."]:1: stack overflow
+  format_s_tostring            error  depth=2863   7 ms: C stack overflow
+  table_foreach                error  depth=5954   1 ms: [builtin:foreach]:0: stack overflow
+  load_reader                  ok     depth=1191   1 ms: C stack overflow
+  xpcall_handler               ok     depth=1      0 ms: false
+  error_in_handler_deep        ok     depth=674    1 ms: handled: C stack overflow
+  coroutine_wrap_nesting       error  depth=11439  11 ms: C stack overflow
+  coroutine_resume_nesting     error  depth=11452  10 ms: C stack overflow
+  coroutine_precreated_chain   error  depth=11448  84 ms: C stack overflow
+  host_lua_call                error  depth=7157   35 ms: C stack overflow
+  host_lua_pcall               error  depth=3814   3 ms: C stack overflow
+  host_lua_cpcall              error  depth=2727   3 ms: C stack overflow
+  host_lua_gettable            error  depth=4770   20 ms: C stack overflow
+  host_lua_settable            error  depth=4387   70 ms: stack overflow
+  host_lua_equal               error  depth=4774   18 ms: C stack overflow
+  host_lua_lessthan            error  depth=4771   18 ms: C stack overflow
+  host_lua_concat              error  depth=4765   17 ms: C stack overflow
+  host_callmeta                error  depth=4404   15 ms: C stack overflow
+  host_lua_resume_nesting      error  depth=5721   6 ms: C stack overflow
+  host_resume_stays_resumable  ok     depth=7150   2 ms: C stack overflow / later: true got again suspended
+  stock_resume_stays_resumable ok     depth=11449  4 ms: C stack overflow / later: true got again suspended
+  parser_at_depth              error  depth=628    3 ms: [string "return ((((((((((((((((((((((((((((((((((((((..."]:1: C stack overflow
+  mixed_chain                  error  depth=1573   1 ms: C stack overflow

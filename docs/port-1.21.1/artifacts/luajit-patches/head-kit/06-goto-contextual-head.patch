@@ -1,0 +1,35 @@
+diff --git a/src/lj_parse.c b/src/lj_parse.c
+index 039d0ee6..9e040164 100644
+--- a/src/lj_parse.c
++++ b/src/lj_parse.c
+@@ -28,6 +28,12 @@
+ #include "lj_vm.h"
+ #include "lj_vmevent.h"
+ 
++/* CC: `goto` stays a contextual keyword (as in Cobalt/CC:Tweaked) even with LUAJIT_ENABLE_LUA52COMPAT,
++** so programs using goto as a function/field name keep compiling. */
++#ifndef LJ_GOTO_RESERVED
++#define LJ_GOTO_RESERVED	0
++#endif
++
+ /* -- Parser structures and definitions ----------------------------------- */
+ 
+ /* Expression kinds. */
+@@ -1106,7 +1112,7 @@ static void lex_match(LexState *ls, LexToken what, LexToken who, BCLine line)
+ static LJ_AINLINE int lex_isname(LexToken tok)
+ {
+   return (tok == TK_name ||
+-	  (!LJ_52 && tok == TK_goto) ||
++	  (!LJ_GOTO_RESERVED && tok == TK_goto) ||
+ 	  tok == TK_continue ||
+ 	  tok == TK_const);
+ }
+@@ -3065,7 +3071,7 @@ static int parse_stmt(LexState *ls)
+     parse_label(ls);
+     break;
+   case TK_goto:
+-    if (LJ_52 || lex_isname(lj_lex_lookahead(ls))) {  /* 5.1 soft keyword. */
++    if (LJ_GOTO_RESERVED || lex_isname(lj_lex_lookahead(ls))) {  /* 5.1 soft keyword. */
+       lj_lex_next(ls);
+       parse_goto(ls);
+       break;

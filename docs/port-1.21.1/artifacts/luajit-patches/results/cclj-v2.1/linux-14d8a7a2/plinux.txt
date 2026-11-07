@@ -1,0 +1,10 @@
+case 0: status=2 fired=1 latency=2.9 us msg=interrupted (yieldable=0)
+  usable afterwards: hell0 w0rld
+case 1: status=2 fired=1 latency=16.2 us msg=interrupted (yieldable=0)
+  usable afterwards: hell0 w0rld
+case 2: status=2 fired=1 latency=3.3 us msg=[string "for m in string.gmatch(string.rep('a', 40), s..."]:1: interrupted (yieldable=0)
+  usable afterwards: hell0 w0rld
+case 3: status=0 fired=1 latency=2.3 us msg=pcall caught: interrupted (yieldable=0)
+  usable afterwards: hell0 w0rld
+case 4: status=2 fired=1 latency=3.1 us msg=interrupted (yieldable=0)
+  usable afterwards: hell0 w0rld

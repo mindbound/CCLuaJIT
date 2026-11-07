@@ -1,0 +1,60 @@
+--- a/src/lj_parse.c	2026-11-07 13:21:04.303551800 +0200
++++ b/src/lj_parse.c	2026-11-07 13:21:04.324395200 +0200
+@@ -28,6 +28,12 @@
+ #include "lj_vm.h"
+ #include "lj_vmevent.h"
+ 
++/* CC: `goto` stays a contextual keyword (as in Cobalt/CC:Tweaked) even with LUAJIT_ENABLE_LUA52COMPAT,
++** so programs using goto as a function/field name keep compiling. */
++#ifndef LJ_GOTO_RESERVED
++#define LJ_GOTO_RESERVED	0
++#endif
++
+ /* -- Parser structures and definitions ----------------------------------- */
+ 
+ /* Expression kinds. */
+@@ -1033,7 +1039,7 @@
+ static GCstr *lex_str(LexState *ls)
+ {
+   GCstr *s;
+-  if (ls->tok != TK_name && (LJ_52 || ls->tok != TK_goto))
++  if (ls->tok != TK_name && (LJ_GOTO_RESERVED || ls->tok != TK_goto))
+     err_token(ls, TK_name);
+   s = strV(&ls->tokval);
+   lj_lex_next(ls);
+@@ -1742,7 +1748,7 @@
+       if (!expr_isk(&key)) expr_index(fs, e, &key);
+       if (expr_isnumk(&key) && expr_numiszero(&key)) needarr = 1; else nhash++;
+       lex_check(ls, '=');
+-    } else if ((ls->tok == TK_name || (!LJ_52 && ls->tok == TK_goto)) &&
++    } else if ((ls->tok == TK_name || (!LJ_GOTO_RESERVED && ls->tok == TK_goto)) &&
+ 	       lj_lex_lookahead(ls) == '=') {
+       expr_str(ls, &key);
+       lex_check(ls, '=');
+@@ -1838,7 +1844,7 @@
+     var_new_lit(ls, nparams++, "self");
+   if (ls->tok != ')') {
+     do {
+-      if (ls->tok == TK_name || (!LJ_52 && ls->tok == TK_goto)) {
++      if (ls->tok == TK_name || (!LJ_GOTO_RESERVED && ls->tok == TK_goto)) {
+ 	var_new(ls, nparams++, lex_str(ls));
+       } else if (ls->tok == TK_dots) {
+ 	lj_lex_next(ls);
+@@ -1963,7 +1969,7 @@
+     expr(ls, v);
+     lex_match(ls, ')', '(', line);
+     expr_discharge(ls->fs, v);
+-  } else if (ls->tok == TK_name || (!LJ_52 && ls->tok == TK_goto)) {
++  } else if (ls->tok == TK_name || (!LJ_GOTO_RESERVED && ls->tok == TK_goto)) {
+     var_lookup(ls, v);
+   } else {
+     err_syntax(ls, LJ_ERR_XSYMBOL);
+@@ -2691,7 +2697,7 @@
+     parse_label(ls);
+     break;
+   case TK_goto:
+-    if (LJ_52 || lj_lex_lookahead(ls) == TK_name) {
++    if (LJ_GOTO_RESERVED || lj_lex_lookahead(ls) == TK_name) {
+       lj_lex_next(ls);
+       parse_goto(ls);
+       break;

@@ -1,0 +1,4 @@
+[A] busy loop start
+[B] timer lateness over 60 sleeps: worst 14 ms, mean 12 ms
+[A] busy loop done (3 s CPU, no yield)
+mode=never-PAUSE closed=true

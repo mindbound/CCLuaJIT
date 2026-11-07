@@ -1,0 +1,27 @@
+hand    cases=302    A ok/err/throw=(105, 197, 0) B ok/err/throw=(105, 197, 0) differences=0
+rom     cases=105    A ok/err/throw=(105, 0, 0) B ok/err/throw=(105, 0, 0) differences=0
+  rom string.dump files: A=105 B=105 byte-identical=105
+soup    cases=60000  A ok/err/throw=(3069, 56931, 0) B ok/err/throw=(3069, 56931, 0) differences=0
+gram    cases=25000  A ok/err/throw=(8842, 16158, 0) B ok/err/throw=(8842, 16158, 0) differences=0
+rommut  cases=3150   A ok/err/throw=(953, 2197, 0) B ok/err/throw=(953, 2197, 0) differences=0
+nlsplit cases=25315  A ok/err/throw=(8830, 16485, 0) B ok/err/throw=(8830, 16485, 0) differences=0
+new.* cases: 112; ungated HEAD accepts 95; ungated HEAD rejects 17:
+  new.sar_malformed  ungated: ERR	new.sar_malformed:1: unexpected symbol near '~'
+  new.ternary_method  ungated: ERR	new.ternary_method:1: function arguments expected near '<eof>'
+  new.ternary_missing_colon  ungated: ERR	new.ternary_missing_colon:1: ':' expected near '<eof>'
+  new.c_pow_unsupported  ungated: ERR	new.c_pow_unsupported:1: '=' expected near '^'
+  new.c_space  ungated: ERR	new.c_space:1: '=' expected near '+'
+  new.continue_outside  ungated: ERR	new.continue_outside:1: no loop to continue
+  new.const_assign  ungated: ERR	new.const_assign:2: attempt to assign to const variable 'x'
+  new.const_redecl  ungated: ERR	new.const_redecl:2: attempt to re-declare const variable 'x'
+  new.linedir_first  ungated: ERR	foo.lua:10: unexpected symbol near '='
+  new.linedir_first_num  ungated: ERR	new.linedir_first_num:5: unexpected symbol near '='
+  new.linedir_mid  ungated: ERR	new.linedir_mid:100: unexpected symbol near '='
+  new.linedir_mid_name  ungated: ERR	bar:7: unexpected symbol near '='
+  new.linedir_mid_eqname  ungated: ERR	baz:7: unexpected symbol near '='
+  new.linedir_malformed  ungated: ERR	new.linedir_malformed:2: malformed line number directive near 'j'
+  new.linedir_len_number  ungated: ERR	new.linedir_len_number:2: malformed line number directive near ')'
+  new.linedir_huge  ungated: ERR	new.linedir_huge:2: malformed line number directive
+  new.linedir_tab  ungated: ERR	new.linedir_tab:3: unexpected symbol near '='
+new.* cases accepted by A: 2 ['new.linedir_len_number', 'new.linedir_runtime_line']
+TOTAL DIFFERENCES: 0

@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1,
+  "id": "ccluajit",
+  "version": "${version}",
+  "name": "CCLuaJIT",
+  "description": "Changes CC: Tweaked to use LuaJIT instead of Cobalt.",
+  "authors": ["vereena0x13", "mindbound"],
+  "contact": { "sources": "https://github.com/mindbound/CCLuaJIT" },
+  "license": "MIT",
+  "icon": "assets/ccluajit/icon.png",
+  "environment": "*",
+  "entrypoints": { "main": ["gay.vereena.cclj.fabric.CCLuaJITFabric"] },
+  "depends": {
+    "fabricloader": ">=0.15.10",
+    "minecraft": "~1.21.1",
+    "java": ">=21",
+    "computercraft": ">=1.121.0"
+  }
+}

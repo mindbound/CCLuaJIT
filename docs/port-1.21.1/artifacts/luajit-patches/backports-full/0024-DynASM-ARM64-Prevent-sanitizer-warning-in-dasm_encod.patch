@@ -1,0 +1,26 @@
+From df84687d11476ca3eb68a5d52290d32be81b8766 Mon Sep 17 00:00:00 2001
+From: Mike Pall <mike>
+Date: Thu, 29 Oct 2026 12:57:15 +0100
+Subject: [PATCH 24/26] DynASM/ARM64: Prevent sanitizer warning in
+ dasm_encode().
+
+Thanks to Jorg Adam Sowa. #1538
+
+(cherry picked from commit 8ca762976ebc85ad9bde3e15f147a7e326e0dd01)
+---
+ dynasm/dasm_arm64.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/dynasm/dasm_arm64.h b/dynasm/dasm_arm64.h
+index be2514e3..d70fd0b0 100644
+--- a/dynasm/dasm_arm64.h
++++ b/dynasm/dasm_arm64.h
+@@ -472,7 +472,7 @@ int dasm_encode(Dst_DECL, void *buffer)
+ 	  }
+ 	  break;
+ 	case DASM_REL_A: {
+-	  ptrdiff_t na = (((ptrdiff_t)(*b++) << 32) | (unsigned int)n);
++	  ptrdiff_t na = (ptrdiff_t)(((unsigned long long)(unsigned int)(*b++) << 32) | (unsigned int)n);
+ 	  if ((ins & 0x3000) == 0x3000) {  /* ADRP */
+ 	    ins &= ~0x1000;
+ 	    na = (na >> 12) - (((ptrdiff_t)cp - 4) >> 12);

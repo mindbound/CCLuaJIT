@@ -1,0 +1,49 @@
+H1	10	_HOST language:lua
+H2	3	_HOST CraftOS-PC language:lua
+H3	3	_HOST match language:lua
+H4	3	_HOST find language:lua
+H5	2	_HOST sub language:lua
+H6	2	_HOST Accelerated language:lua
+H7	2	_HOST ccemux language:lua
+H8	2	_HOST Minecraft language:lua
+V1	10	_VERSION pullEvent language:lua
+V2	3	_VERSION "Lua 5.1" pullEvent language:lua
+V3	3	_VERSION "Lua 5.2" pullEvent language:lua
+V4	3	_VERSION "Lua 5.3" pullEvent language:lua
+V5	3	_VERSION tonumber pullEvent language:lua
+V6	3	_VERSION textutils language:lua
+V7	3	_VERSION peripheral language:lua
+V8	3	_VERSION term language:lua setCursorPos
+J1	10	jit pullEvent language:lua
+J2	3	jit textutils language:lua
+J3	3	jit peripheral language:lua
+J4	3	jit setCursorPos language:lua
+J5	3	"jit.version" pullEvent language:lua
+J6	3	rawget _G jit language:lua pullEvent
+J7	3	jit _HOST language:lua
+J8	3	jit bit32 pullEvent language:lua
+A1	1	_VERSION "Lua 5.1" language:lua
+A2	1	"jit.version" language:lua
+A3	1	"jit.version_num" language:lua
+A4	1	_VERSION language:lua
+A5	1	jit language:lua
+S1	3	is_LuaJIT_21 language:lua
+S2	3	Skriptunoff language:lua
+J9	3	"jit.off" pullEvent language:lua
+J10	3	jit opt start pullEvent language:lua
+J11	3	jit status pullEvent language:lua
+J12	3	jit flush pullEvent language:lua
+B1	3	require bit pullEvent language:lua
+B2	3	"bit.lshift" pullEvent language:lua
+B3	3	"bit.tobit" pullEvent language:lua
+B4	3	"bit.blshift" pullEvent language:lua
+F1	3	ffi pullEvent language:lua
+C1	3	"CraftOS-PC Accelerated" language:lua
+V9	3	_VERSION sub pullEvent language:lua
+V10	3	_VERSION match pullEvent language:lua
+V11	3	_VERSION "Lua 5.1" textutils language:lua
+V12	3	_VERSION "Lua 5.1" peripheral language:lua
+H9	3	_HOST gsub language:lua
+H10	3	_HOST gmatch language:lua
+H11	3	_HOST "ComputerCraft" language:lua
+H12	3	_HOST tonumber language:lua

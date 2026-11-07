@@ -1,0 +1,12 @@
+verify-3c4f9fe2-control while_true: 8.1 8.3 9.4 9.7 9.8 10.2 10.5 11.0 12.1 12.7 
+verify-3c4f9fe2-control pairs_loop: 0.5 2.3 2.3 2.4 2.5 2.7 3.1 3.1 3.2 3.5 
+verify-3c4f9fe2-control gsub_callback: 0.5 0.6 0.8 0.8 0.9 0.9 1.2 1.2 2.0 2.4 
+verify-14d8a7a2 while_true: 6.2 7.1 8.1 8.4 8.9 8.9 9.6 10.4 10.6 11.0 
+verify-14d8a7a2 pairs_loop: 2.6 2.9 2.9 3.0 3.1 3.1 3.1 3.6 4.1 4.6 
+verify-14d8a7a2 gsub_callback: 0.5 0.8 1.2 1.3 1.4 1.6 1.7 1.9 1.9 1.9 
+verify-backports while_true: 6.8 7.9 8.0 8.1 8.1 8.3 8.9 9.1 9.6 11.2 
+verify-backports pairs_loop: 2.2 2.4 2.5 2.5 2.7 2.7 2.8 2.8 3.0 3.5 
+verify-backports gsub_callback: 0.4 0.6 0.9 1.4 1.4 1.5 1.5 1.6 1.7 2.1 
+verify-backports-full while_true: 8.2 9.0 9.1 9.3 9.9 10.3 10.3 10.8 11.8 11.9 
+verify-backports-full pairs_loop: 2.0 2.8 3.0 3.7 3.8 4.0 4.8 5.1 15.4 19.5 
+verify-backports-full gsub_callback: 0.7 0.9 1.0 1.0 1.2 1.3 1.4 1.4 1.4 2.0 

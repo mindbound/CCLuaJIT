@@ -1,0 +1,29 @@
+[lua] version=CraftOS 1.9 host=ComputerCraft 1.121.0 (headless)
+[lua] sleep ok, clock delta>=0.2: true
+[lua] mainAdd(2,3)=5
+[lua] read() got: Steve
+[lua] 8-bit roundtrip ok: true len=8
+[lua] bit32.extract(0xF0,4,4)=15
+[lua] programs run ok
+---- terminal (51x19) after 1.60 s ----
+|CraftOS 1.9                                        |
+|Files beginning with a "." are hidden from "list"  |
+|by default.                                        |
+|CraftOS 1.9	ComputerCraft 1.121.0 (headless)       |
+|name? Steve                                        |
+|apis        autorun     help        modules        |
+|programs                                           |
+|motd.txt    startup.lua                            |
+|>                                                  |
+|                                                   |
+|                                                   |
+|                                                   |
+|                                                   |
+|                                                   |
+|                                                   |
+|                                                   |
+|                                                   |
+|                                                   |
+|                                                   |
+---- exit 0 ----
+context closed cleanly: true
