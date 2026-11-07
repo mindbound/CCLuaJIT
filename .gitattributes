@@ -10,5 +10,10 @@ gradlew  text eol=lf
 # Patches are applied to LF sources (LuaJIT) and must stay byte-exact.
 *.patch  -text
 
+# Vendored CC:T test-rom: keep the upstream bytes exactly. Its golden tests
+# compare whole files (spec/modules/cc/internal/syntax/*.md), so a CRLF
+# checkout would make them fail.
+common/src/test/resources/test-rom/** -text
+
 *.jar    binary
 *.png    binary
