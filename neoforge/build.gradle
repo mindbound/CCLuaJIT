@@ -1,0 +1,39 @@
+plugins {
+    id 'net.neoforged.moddev'
+}
+
+// The tasks below read :common's source sets at configuration time.
+evaluationDependsOn(':common')
+
+neoForge {
+    version = neoforge_version
+    runs {
+        client { client() }
+        server { server() }
+    }
+    mods {
+        ccluajit {
+            sourceSet(sourceSets.main)
+        }
+    }
+}
+
+dependencies {
+    compileOnly project(':common')
+    compileOnly "cc.tweaked:cc-tweaked-${minecraft_version}-core-api:${cct_version}"
+    compileOnly "cc.tweaked:cc-tweaked-${minecraft_version}-core:${cct_version}"
+    compileOnly "cc.tweaked:cc-tweaked-${minecraft_version}-common:${cct_version}"
+    // The CC:T "forge" artifact is the NeoForge mod (META-INF/neoforge.mods.toml, Cobalt inside via jarJar).
+    runtimeOnly "cc.tweaked:cc-tweaked-${minecraft_version}-forge:${cct_version}"
+}
+
+// Compile the common sources and resources straight into this jar (MultiLoader-Template style) instead of
+// jar-in-jar.
+tasks.named('compileJava', JavaCompile) { source(project(':common').sourceSets.main.java) }
+tasks.named('sourcesJar', Jar) { from(project(':common').sourceSets.main.allSource) }
+def props = [mod_version: project.version]
+tasks.named('processResources', ProcessResources) {
+    from(project(':common').sourceSets.main.resources)
+    inputs.properties(props)
+    filesMatching('META-INF/neoforge.mods.toml') { expand(props) }
+}

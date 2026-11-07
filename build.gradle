@@ -1,0 +1,30 @@
+// Shared configuration for both subprojects.
+subprojects {
+    apply plugin: 'java-library'
+
+    group = rootProject.maven_group
+    version = rootProject.mod_version
+    base.archivesName = "${rootProject.mod_id}-${project.name}"
+
+    java {
+        toolchain.languageVersion = JavaLanguageVersion.of(21)
+        withSourcesJar()
+    }
+    tasks.withType(JavaCompile).configureEach {
+        options.release = 21
+        options.encoding = 'UTF-8'
+    }
+    // MIT requires the copyright notice (including the original author's) to travel with every copy.
+    tasks.withType(Jar).configureEach {
+        from(rootProject.file('LICENSE')) { rename { "LICENSE_${rootProject.mod_id}" } }
+    }
+
+    repositories {
+        maven {
+            name = 'SquidDev'
+            url = 'https://maven.squiddev.cc'
+            content { includeGroup('cc.tweaked') }
+        }
+        mavenCentral()
+    }
+}

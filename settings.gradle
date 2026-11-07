@@ -1,0 +1,14 @@
+pluginManagement {
+    repositories {
+        maven { name = 'NeoForged'; url = 'https://maven.neoforged.net/releases' }
+        gradlePluginPortal()
+        mavenCentral()
+    }
+    plugins {
+        // NeoForge only for now (PLAN decision 1). Fabric Loom comes back with the fabric module.
+        id 'net.neoforged.moddev' version '2.0.148'
+    }
+}
+
+rootProject.name = 'ccluajit'
+include 'common', 'neoforge'

@@ -2,3 +2,26 @@
 # contents rather than the directory, so a shared file can be re-included
 # later with a "!/.claude/<file>" line if one is ever needed.
 /.claude/*
+
+# Gradle and ModDevGradle outputs. MDG keeps its files under build/ and puts
+# the runClient/runServer game directory in <module>/run/ (neoforge/run/).
+.gradle/
+build/
+run/
+
+# IDE files. IntelliJ IDEA: .idea/, *.iml, out/. Eclipse and VS Code's Java
+# extension: bin/, .project, .classpath, .settings/. MDG's IDE sync can also
+# write Eclipse *.launch files and .vscode/launch.json.
+.idea/
+*.iml
+out/
+.vscode/
+bin/
+.project
+.classpath
+.settings/
+*.launch
+
+# JVM crash logs (a JNI bug in a manual run outside the Gradle tasks).
+hs_err_pid*.log
+replay_pid*.log

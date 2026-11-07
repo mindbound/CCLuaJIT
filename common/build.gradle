@@ -1,0 +1,136 @@
+// Loader-independent code. CCLuaJIT only talks to CC:T core (no Minecraft classes), so this is a plain Java
+// library: no MDG, no Minecraft jar, no mappings.
+dependencies {
+    compileOnly "cc.tweaked:cc-tweaked-${minecraft_version}-core-api:${cct_version}"
+    compileOnly "cc.tweaked:cc-tweaked-${minecraft_version}-core:${cct_version}"
+    // ServerContext (the one static field we set) is in CC:T "common". It is Mojang-named, but we never touch a
+    // Minecraft type, so javac does not need Minecraft on the classpath.
+    compileOnly "cc.tweaked:cc-tweaked-${minecraft_version}-common:${cct_version}"
+    // Provided by Minecraft at runtime (MC 1.21.1 ships slf4j 2.0.9).
+    compileOnly "org.slf4j:slf4j-api:2.0.9"
+
+    // Headless CC:T runner (WP 0): the real CC:T core (Computer, ComputerThread, MainThread, bios + ROM) without
+    // Minecraft. The core's runtime variant brings Cobalt, Guava, fastutil, Netty, jzlib and slf4j-api.
+    testImplementation "cc.tweaked:cc-tweaked-${minecraft_version}-core-api:${cct_version}"
+    testImplementation "cc.tweaked:cc-tweaked-${minecraft_version}-core:${cct_version}"
+    // Same version as slf4j-api above, so the binding does not upgrade the API on the test classpath.
+    testRuntimeOnly "org.slf4j:slf4j-simple:2.0.9"
+}
+
+// ---- Headless CC:T runner and conformance suite (PLAN.md WP 0) --------------------------------------------------
+// The runners in src/test/java/io/github/mindbound/cclj/headless are plain main programs, not JUnit tests. They boot
+// a real CC:T computer from the test runtime classpath and read bios.lua and the ROM out of the CC:T core jar, which
+// is picked off that classpath by file name. Each task fails the build when its runner exits non-zero.
+//
+//   ./gradlew :common:headlessSmoke    smoke.lua; every check in it is an assert, so any wrong result fails
+//   ./gradlew :common:headlessSuite    CC:T's test-rom; report in build/headless/suite.tsv
+//   ./gradlew :common:fairnessProbe    time-slicing measurement; informational, never fails
+//
+// Project properties:
+//   -Pfactory=cobalt|luajit|<class>   machine factory for headlessSmoke and headlessSuite (default cobalt). 'luajit'
+//                                     is io.github.mindbound.cclj.computer.LuaJITMachine; any other class needs a
+//                                     public (MachineEnvironment, InputStream) constructor.
+//   -Phttp                            headlessSuite: enable CC:T's HTTP API (NettyHttp, needs network). Default: off.
+//   -PexpectedFailures=<file>|none    headlessSuite: override the expected-failures file (path relative to the
+//                                     repository root). By default the task uses
+//                                     src/test/resources/headless/expected-failures-<factory>[-http].txt if it
+//                                     exists (<factory> = the -Pfactory value, or a class's simple name), and
+//                                     expects no failures if it does not.
+//   -PsuiteTimeout=<seconds>          headlessSuite: overall timeout (default 300). A machine that fails at boot
+//                                     is detected after about 2 s regardless.
+//   -Pnopause, -Pthreads=N            fairnessProbe: never return PAUSE; number of computer worker threads.
+//
+// headlessSuite passes when the suite finishes, every fail/error is listed in the expected-failures file, and every
+// listed test does fail or error (CctSuiteRunner's verdict lines say which rule was broken).
+// src/test has no JUnit tests yet (only these main programs). Gradle 9 fails `test` when test sources exist but it
+// discovers no tests, which would break `build`.
+tasks.named('test', Test) {
+    failOnNoDiscoveredTests = false
+}
+
+def cctCoreJarName = "cc-tweaked-${minecraft_version}-core-${cct_version}.jar"
+def cctCoreJar = configurations.testRuntimeClasspath.filter { it.name == cctCoreJarName }
+def headlessDir = layout.buildDirectory.dir('headless')
+
+def factoryArg = providers.gradleProperty('factory').getOrElse('cobalt')
+def factoryClass = factoryArg == 'luajit' ? 'io.github.mindbound.cclj.computer.LuaJITMachine' : factoryArg
+// Expected-failures files are keyed by a short name: 'luajit' for our machine however it is named, otherwise the
+// -Pfactory value or a class's simple name.
+def factoryKey = factoryClass == 'io.github.mindbound.cclj.computer.LuaJITMachine' ? 'luajit'
+    : factoryArg.contains('.') ? factoryArg.substring(factoryArg.lastIndexOf('.') + 1) : factoryArg
+def httpProp = providers.gradleProperty('http').getOrNull()
+def httpEnabled = httpProp != null && httpProp != 'false'
+
+def configureHeadless = { JavaExec task ->
+    task.group = 'verification'
+    task.classpath = sourceSets.test.runtimeClasspath
+    task.jvmArgs('-Xcheck:jni')
+    task.inputs.files(cctCoreJar)
+    // The runners create their computers' root mounts with Files.createTempDirectory. Keep them under build/, one
+    // folder per task, emptied before each run.
+    def tmp = headlessDir.get().dir("tmp/${task.name}").asFile
+    task.systemProperty('java.io.tmpdir', tmp.absolutePath)
+    task.systemProperty('cct.version', cct_version)
+    // Run in build/headless/work/<task>, so a JVM crash log (hs_err_pid*.log, replay_pid*.log) lands under build/.
+    def work = headlessDir.get().dir("work/${task.name}").asFile
+    task.workingDir = work
+    task.doFirst {
+        tmp.deleteDir()
+        tmp.mkdirs()
+        work.mkdirs()
+        def meta = it.javaLauncher.get().metadata
+        it.logger.lifecycle("${it.name}: Java ${meta.javaRuntimeVersion} at ${meta.installationPath}")
+    }
+}
+
+tasks.register('headlessSmoke', JavaExec) {
+    configureHeadless(it)
+    description = 'Boots a headless CC:T computer and runs src/test/resources/headless/smoke.lua (-Pfactory).'
+    mainClass = 'io.github.mindbound.cclj.headless.HeadlessRunner'
+    def smoke = file('src/test/resources/headless/smoke.lua')
+    inputs.file(smoke)
+    // smoke.lua calls read(); --type queues "Steve" + Enter as char/key events.
+    argumentProviders.add({
+        ['--core-jar', cctCoreJar.singleFile.absolutePath, '--factory', factoryClass,
+         '--startup', smoke.absolutePath, '--type', 'Steve']
+    } as CommandLineArgumentProvider)
+}
+
+tasks.register('headlessSuite', JavaExec) {
+    configureHeadless(it)
+    description = 'Runs CC:T\'s Lua test suite (src/test/resources/test-rom) on a headless CC:T computer ' +
+        '(-Pfactory, -Phttp, -PexpectedFailures).'
+    mainClass = 'io.github.mindbound.cclj.headless.CctSuiteRunner'
+    def testRom = file('src/test/resources/test-rom')
+    def report = headlessDir.get().file('suite.tsv').asFile
+    def expectedProp = providers.gradleProperty('expectedFailures').getOrNull()
+    File expected = null
+    if (expectedProp == null) {
+        def candidate = file("src/test/resources/headless/expected-failures-${factoryKey}${httpEnabled ? '-http' : ''}.txt")
+        if (candidate.exists()) expected = candidate
+    } else if (expectedProp != 'none') {
+        expected = rootProject.file(expectedProp)
+        if (!expected.exists()) throw new GradleException("-PexpectedFailures: no such file: ${expected}")
+    }
+    inputs.dir(testRom)
+    if (expected != null) inputs.file(expected)
+    argumentProviders.add({
+        ['--core-jar', cctCoreJar.singleFile.absolutePath, '--test-rom', testRom.absolutePath,
+         '--factory', factoryClass, '--report', report.absolutePath,
+         '--timeout', providers.gradleProperty('suiteTimeout').getOrElse('300')] +
+            (httpEnabled ? ['--http'] : []) +
+            (expected != null ? ['--expected-failures', expected.absolutePath] : [])
+    } as CommandLineArgumentProvider)
+}
+
+tasks.register('fairnessProbe', JavaExec) {
+    configureHeadless(it)
+    description = 'Measures timer lateness while another computer busy-loops, under Cobalt (informational; ' +
+        '-Pnopause, -Pthreads=N).'
+    mainClass = 'io.github.mindbound.cclj.headless.FairnessProbe'
+    def noPause = providers.gradleProperty('nopause').isPresent()
+    systemProperty('threads', providers.gradleProperty('threads').getOrElse('1'))
+    argumentProviders.add({
+        ['--core-jar', cctCoreJar.singleFile.absolutePath] + (noPause ? ['--nopause'] : [])
+    } as CommandLineArgumentProvider)
+}

@@ -1,0 +1,38 @@
+modLoader = "javafml"
+loaderVersion = "[4,)"
+license = "MIT"
+issueTrackerURL = "https://github.com/mindbound/CCLuaJIT/issues"
+
+[[mods]]
+modId = "ccluajit"
+version = "${mod_version}"
+displayName = "CCLuaJIT"
+authors = "mindbound"
+credits = "Original CCLuaJIT by Vereena Inara (vereena0x13)"
+logoFile = "logo.png"
+description = '''An experimental, work-in-progress LuaJIT virtual machine for CC: Tweaked computers.'''
+# Server-side only (DESIGN section 1). NeoForge 21.1 has no displayTest key any more: the mod is optional on clients
+# because it registers no blocks, items or network payloads (to be checked in game: a client without CCLuaJIT joins
+# a server that has it).
+
+[[dependencies.ccluajit]]
+modId = "neoforge"
+type = "required"
+versionRange = "[21.1.265,)"
+ordering = "NONE"
+side = "BOTH"
+
+[[dependencies.ccluajit]]
+modId = "minecraft"
+type = "required"
+versionRange = "[1.21.1,1.21.2)"
+ordering = "NONE"
+side = "BOTH"
+
+# No upper bound on purpose (PLAN decision 11). A runtime CC:T contract probe with Cobalt fallback comes later.
+[[dependencies.ccluajit]]
+modId = "computercraft"
+type = "required"
+versionRange = "[1.121.0,)"
+ordering = "AFTER"
+side = "BOTH"
