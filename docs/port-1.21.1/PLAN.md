@@ -11,7 +11,7 @@
 |---|---|
 | **Does the mod work?** | **No, on any branch, in any useful sense.** The 1.20.1 branch is a stub: the Java machine returns `null`, and the natives are `System.load`ed from absolute paths on the original author's machine (`/run/media/vereena/ldata/...`). Its C++ does not compile, and the jar it builds contains no native code. The last "working" branch (1.14.4, Forge) ran LuaJIT **with the JIT compiler switched off**. From reading its code, it deadlocks on every main-thread peripheral task. Its native code also has at least 7 reproduced JVM-killing triggers, several of them reachable from ordinary player code (for example, a cyclic or ~5,000-deep table passed to any API). |
 | **Can LuaJIT deliver real performance?** | **Yes, for CPU-bound Lua: about 8x faster than CC:T's Cobalt.** That is the geometric mean over 10 CC-style benchmarks (range 2.3x–29x), measured against Cobalt running inside CC:T 1.121.0's real machine, with correct unsigned `bit32`. With the JIT off it is 3.7x. **This needs `bit32` written in C:** with the current pure-Lua shim, SHA-256 is only ~1.5x Cobalt. Players notice the speed-up only in CPU-heavy programs (crypto, compression, rendering, emulators, path-finding, big sorts and serialisation). Event-driven, turtle and peripheral programs are bound by the 50 ms game tick and won't feel a difference. |
-| **How much work is the 1.21.1 port?** | The **Minecraft/loader side is small**. CC:T's machine API is unchanged from 1.20.1 to 1.21.1, and 1.21.1 build scaffolds already compile. The **real work is a new Lua machine and JNI bridge** that is safe enough to run untrusted player code inside a server, plus the tooling to prove that. Effort, including 20% contingency: **≈ 45–70 person-days for an experienced C/JNI/LuaJIT developer** and **≈ 50–90 for you** (strong C; new to JNI and modern Java). A **personal-use MVP** (NeoForge, Windows and Linux, single-player or private server) takes ≈ 21–37 person-days for you, without contingency. **At your 6–8 hours a week:** working alone, the MVP takes ≈ 5–11 months and a public-server-grade release ≈ 1–2.3 years. With Claude doing most of the implementation while you review and decide, the MVP takes ≈ 2–7 months (midpoint ~3.5) and the release ≈ 4–16 months (midpoint ~9). That second set assumes your hours are 35–60% of the person-days; calibrate it at gate G1 (§5.5). |
+| **How much work is the 1.21.1 port?** | The **Minecraft/loader side is small**. CC:T's machine API is unchanged from 1.20.1 to 1.21.1, and 1.21.1 build scaffolds already compile. The **real work is a new Lua machine and JNI bridge** that is safe enough to run untrusted player code inside a server, plus the tooling to prove that. Effort, including 20% contingency: **≈ 45–70 person-days for an experienced C/JNI/LuaJIT developer** and **≈ 50–90 for you** (strong C; new to JNI and modern Java). A **personal-use MVP** (NeoForge, Windows and Linux, single-player or private server) takes ≈ 21–37 person-days for you, without contingency. These are rough sizes, not a schedule: since 2026-11-08 no time is tracked ([M1.md](M1.md) D23). |
 | **Is it feasible at all?** | **Yes. Every VM-level blocker now has a fix that was prototyped and tested here:**<br>• JIT loops that ignore the timeout: patch 01, 25/25 loop shapes stopped in under a millisecond.<br>• Uninterruptible pattern matching: patch 07.<br>• C-stack overflows that kill the JVM: patch 08, 31/31 shapes survive.<br>• Bytecode sandbox escape: patch 03.<br>• Transparent pause/time-slicing: C/Lua coroutine wrapper, thousands of pauses with byte-identical results.<br>• Yielding Java callbacks: Lua trampoline.<br>**Still design-only:** the JNI machine itself, the cross-thread `close()`/lock protocol, the curated `debug` library, Java-object lifetime, the memory caps (only the allocator is prototyped), and patches 09–11. **Nothing has run end-to-end inside CC:T yet.** A headless CC:T runner that can host it now exists (WP 0). |
 
 ---
@@ -181,10 +181,9 @@ Full details are in [DESIGN.md](DESIGN.md).
 ## 5. Work plan and estimates
 
 ### 5.1 Work packages
-Estimates are in **person-days of 8 focused hours**, for one person working alone.
+Sizes are in **person-days of 8 focused hours**, for one person working alone. They are rough sizes for comparing work, not a schedule: no time is tracked (§5.5).
 - **"Experienced"** means someone fluent in C, JNI and LuaJIT internals.
 - **"You"** comes from decision 0: about 10 years of systems C (DPDK-class work), little JNI, Java at the Java 8 level, and Minecraft modding experience from 1.7.10. The C-heavy packages (B, C, F, G) sit close to the experienced column, plus time to learn the Lua C API and LuaJIT internals. The JNI and modern Java/Gradle/NeoForge packages (0, A, D, J, K) sit closer to a learner's pace.
-- §5.5 converts these figures to calendar time at 6–8 hours a week, both alone and with Claude doing most of the implementation.
 - The generic "learning" column in v2 assumed no C background; it totalled 70–120 days.
 
 | WP | Content | Experienced | You |
@@ -213,13 +212,13 @@ Why the experienced figure is higher than in v1 (26–43):
 
 ### 5.2 Milestones and stop/go gates
 
-The last two columns are cumulative person-days. §5.5 turns them into calendar time.
+The last two columns are cumulative person-days.
 
 | Milestone | Content | Gate (measurable) | Cumulative, experienced | Cumulative, you |
 |---|---|---|---|---|
 | **M0 – Toolchain and oracle** | WP 0; scaffold builds; the mod loads in a NeoForge dev client and falls back to Cobalt; a client without CCLuaJIT can join a server that has it; patched LuaJIT and `libcclj` build on Windows and Linux; week-1 CI harness job. | **G0:** the Cobalt baseline reproduces headless (1390/1407). On **Windows x64 and Linux x64** (required, decision 4):<br>• the preemption harness passes 25/25;<br>• the C-stack harness completes 31/31;<br>• `NativeProbe` loads the library in a JDK 21 JVM.<br>*Optional, informational only:* the same harness-only jobs on GitHub's linux-arm64 and macOS arm64 runners. They are free and need no hardware, but nobody is committed to fixing what they find yet. macOS needs a `pthread_get_stackaddr_np` port of the stack-bounds code. These jobs run no JVM, so they cannot measure the C-stack margin on 16 KiB / 64 KiB pages; that needs a JVM on such hardware (M4). | 2.5–4 d | 3–6 d |
-| **M1 – Personal MVP** | Built as vertical slices, each headless and testable:<br>**S1** a 3-line bios calls `term.write`, and an error comes back as `MachineResult.error`;<br>**S2** events, filters, `terminate`, `GENERIC_ERROR`;<br>**S3** conversions (Latin-1, `byte[]`/`ByteBuffer`, cycles, depth limits, `IArguments`, `LuaException` levels);<br>**S4** the real ROM boots, and `smoke.lua` passes;<br>**S5** `MethodResult` trampoline, `mainAdd`, `pullEvent` callbacks;<br>**S6** timeouts: hook + interrupt, soft and hard abort, **`close()` deferral and lock order (P4)**, coroutine wrapper (F1), C-stack limit;<br>**S7** suite triage;<br>**S8** in-game: computer, turtle (move, dig, inventory), monitor, disk drive, modem, one generic-inventory peripheral. | **G1** (≈ ⅓ into M1): S1 is clean under `-Xcheck:jni`. This is also the calibration point for §5.5: compare the hours actually spent on M0 + S1 with the estimate. *If S1 has taken more than ~2x its estimate, re-scope before going on; what follows (concurrency, sandbox) is harder.* **G2** (exit): CC:T suite ≥ 1250/1407 under LuaJIT, every other failure tagged; `timeout_spec` "in loops" passes; the P4 test passes. | 18–28 d | 21–37 d |
-| **M2 – Server-safe** | Complete P7 sandbox; P14 handle lifetime; global memory cap; patches 09–11 (including the address fix, patch 10); pause (F2); config, admin command, observability; WP H soak/fuzz/ASan; full CI matrix; licensing done. | **G3, the gate for sharing any build:** zero JVM crashes over N hours of fuzz and crash harnesses; the old JVM-killers pass as specs; `timeout_spec` pattern tests pass; suite clean under `-Xcheck:jni`; all P6/P7/P9/P14/P15 acceptance tests pass; the 24 h soak passes. **G4, pause timebox** (4 person-days): FairnessProbe ≤ 100 ms with `parallel`/`multishell` specs green. *If G4 fails:* ship without pause and document `computer_threads ≥ 2` along with the measured stall table. | 34–51 d | 38–67 d |
+| **M1 – Personal MVP** | Built as vertical slices, each headless and testable:<br>**S1** a 3-line bios calls `term.write`, and an error comes back as `MachineResult.error`;<br>**S2** events, filters, `terminate`, `GENERIC_ERROR`;<br>**S3** conversions (Latin-1, `byte[]`/`ByteBuffer`, cycles, depth limits, `IArguments`, `LuaException` levels);<br>**S4** the real ROM boots, and `smoke.lua` passes;<br>**S5** `MethodResult` trampoline, `mainAdd`, `pullEvent` callbacks;<br>**S6** timeouts: hook + interrupt, soft and hard abort, **`close()` deferral and lock order (P4)**, coroutine wrapper (F1), C-stack limit;<br>**S7** suite triage;<br>**S8** in-game: computer, turtle (move, dig, inventory), monitor, disk drive, modem, one generic-inventory peripheral. | **G1** (≈ ⅓ into M1): S1 is clean under `-Xcheck:jni`. **G2** (exit): CC:T suite ≥ 1250/1407 under LuaJIT, every other failure tagged; `timeout_spec` "in loops" passes; the P4 test passes. | 18–28 d | 21–37 d |
+| **M2 – Server-safe** | Complete P7 sandbox; P14 handle lifetime; global memory cap; patches 09–11 (including the address fix, patch 10); pause (F2); config, admin command, observability; WP H soak/fuzz/ASan; full CI matrix; licensing done. | **G3, the gate for sharing any build:** zero JVM crashes over N hours of fuzz and crash harnesses; the old JVM-killers pass as specs; `timeout_spec` pattern tests pass; suite clean under `-Xcheck:jni`; all P6/P7/P9/P14/P15 acceptance tests pass; the 24 h soak passes. **G4, pause gate:** FairnessProbe ≤ 100 ms with `parallel`/`multishell` specs green. *If G4 fails:* ship without pause and document `computer_threads ≥ 2` along with the measured stall table. | 34–51 d | 38–67 d |
 | **M3 – Release** | NeoForge on Windows and Linux x64; add-on pass; docs; release plumbing; perf regression suite. Release as "experimental", with an off-switch. Other platforms fall back to Cobalt. | The G3 conditions still hold on the release build; the add-on pass is clean. | 37–57 d (+20%: 44–68) | 41–73 d (+20%: 49–87) |
 | **M4 – Later: more platforms and Fabric** (decisions 1 and 4) | Fabric module; linux-arm64; macOS x64/arm64; optionally, port 08's coroutine fast-path check to arm64 (WP B). | **G5, macOS:** the headless suite is green on `macos-15` and `macos-15-intel` with the JIT on, and one manual run with the official launcher shows the JIT speed-up. *If it fails:* macOS defaults to JIT-off or Cobalt. **arm64 Linux:** the preemption and C-stack harnesses plus the headless suite are green on `ubuntu-24.04-arm`. For the C-stack harness, green means 31/31 with the fast-path port, or without it the 27/4 result that `run-harnesses.sh` accepts (§6). **C-stack margin, macOS and arm64:** patch 08's margin is measured in a JDK 21 JVM with JNI upcalls on macOS arm64 (16 KiB pages) and on an aarch64 kernel with 64 KiB pages; a page size that has not been measured is not supported. | +0.5–1 d for Fabric (total 38–58, +20%: 45–70). The arm64/macOS CI is already budgeted in WP G; fixing real platform bugs is not budgeted. | +1–2 d for Fabric (total 42–75, +20%: 50–90). Same caveat. |
 
@@ -285,18 +284,10 @@ You can skip C fundamentals. What is new to you is JNI, Java 9–21, the modern 
 - `pause-prototype/cclj_co.c` (coroutine wrapper, interrupt hook);
 - `headless-runner/`.
 
-### 5.5 Calendar time at 6–8 hours a week
-One person-day is 8 focused hours. At 6–8 hours a week, one person-day of work is about 1–1.3 calendar weeks.
+### 5.5 Working split, and no time tracking
+**No time tracking (2026-11-08, [M1.md](M1.md) D23).** There are no deadlines or release promises, so no hours are logged, nothing is calibrated at G1, and no figure here is a schedule. (Until then this section converted the person-days to calendar time at 6–8 hours a week.)
 
-**Working alone:**
-
-| Target | Person-days | Calendar at 6–8 h/week |
-|---|---|---|
-| M1, personal MVP | 21–37 | ≈ 5–11 months |
-| M2, server-safe | 38–67 | ≈ 9–20 months |
-| M3 + M4 (every work package), +20% contingency | 50–90 | ≈ 1–2.3 years |
-
-**With Claude doing most of the implementation.** The working split would be:
+**Claude does most of the implementation.** The working split:
 
 - **Claude drafts:**
   - Gradle/NeoForge setup and the Java machine;
@@ -304,21 +295,14 @@ One person-day is 8 focused hours. At 6–8 hours a week, one person-day of work
   - CI YAML, docs, and upstream-backport triage.
 
   It also runs the builds, the headless suite, the harnesses and the benchmarks on this machine (Windows, plus Linux under WSL). Long build-and-test sessions can run while you are away.
-- **Your hours go to:**
+- **You do:**
   - design decisions;
   - **line-by-line review of every safety-critical C and JNI change** (protected boundary, sandbox, lock protocol, conversions, allocator);
   - in-game testing;
   - debugging that needs your judgement;
   - whatever needs hardware we don't have here (arm64, macOS).
 
-How much of the person-day figure is still your time is an **assumption, not a measurement**. Careful review of safety-critical native code is real work, and AI-drafted C/JNI that is wrong crashes the server just like hand-written code. A reasonable guess is that your hours come to **35–60%** of the person-day figures.
-
-| Target | Your hours (35–60% of person-days × 8 h) | Calendar at 6–8 h/week | Midpoint |
-|---|---|---|---|
-| M1, personal MVP | ≈ 57–175 h | ≈ 2–7 months | ≈ 108 h, ~3.5 months |
-| M3 + M4 (every work package), +20% contingency | ≈ 141–429 h | ≈ 4–16 months | ≈ 265 h, ~9 months |
-
-**Calibrate at gate G1.** Track your actual hours for M0 and slice S1, then rescale these figures before committing to M2.
+Careful review of safety-critical native code is real work: AI-drafted C/JNI that is wrong crashes the server just like hand-written code.
 
 ---
 
@@ -334,7 +318,7 @@ How much of the person-day figure is still your time is an **assumption, not a m
   - Still open: patch 01 inside a JVM on ARM, and the C-stack margin on 16 KiB / 64 KiB pages. The margin depends on HotSpot's guard zones, so it needs a JVM on such hardware (M4 gate). The harness-only CI jobs cannot measure it, and a 64 KiB-page aarch64 kernel needs a machine of its own.
 - **macOS:** the JIT under the hardened runtime (`MAP_JIT`) is unverified on Apple Silicon with Mojang's bundled Java. CraftOS-PC disables the JIT there. Upstream's `LUAJIT_ENABLE_OSX_HRT` and the macOS fix `716f74a6` are the starting points. The fallback is JIT-off or Cobalt on macOS (G5).
 - **Antivirus and moderation friction.** An unsigned, statically linked DLL containing LuaJIT, extracted into a game folder, closely resembles current LuaJIT-based malware loaders. Mitigations: reproducible builds, published hashes, a VirusTotal scan in CI, a PE version resource, optional OSS code signing (e.g. SignPath Foundation), a clear "contains native code" note on the mod page, and a quarantine hint in the log.
-- **Fairness without pause.** If pause slips, one busy computer delays all others by seconds on CC:T's default single thread. Even with pause, pauses inside non-yieldable C callbacks are deferred (measured up to ~0.5 s without checkpoint wrappers).
+- **Fairness without pause.** If G4 fails and pause is left out, one busy computer delays all others by seconds on CC:T's default single thread. Even with pause, pauses inside non-yieldable C callbacks are deferred (measured up to ~0.5 s without checkpoint wrappers).
 - **Programs diverge slightly from stock CC:T** (P13). Anything a player writes on CCLuaJIT should stay portable, which is why the pin is before the v3.0 syntax.
 
 ---
@@ -342,7 +326,7 @@ How much of the person-day figure is still your time is an **assumption, not a m
 ## 7. Decisions
 The answers recorded on 2026-11-07 are marked **[answered]**. Items still open say what they are waiting for.
 
-0. **[answered] Your profile and time.** About 10 years of systems C (DPDK-class), little JNI, Java at the Java 8 level, and 6–8 hours a week. That gives the "You" column and §5.5. You are the C reviewer yourself. JNI correctness is covered by `-Xcheck:jni`, the ASan build, the crash harnesses and review. Before G3, still get an independent security review of the sandbox (P6/P7, DESIGN §3.5): a fresh pair of eyes, for example a separate review session, plus a public call for testers.
+0. **[answered] Your profile and time.** About 10 years of systems C (DPDK-class), little JNI, Java at the Java 8 level. That gives the "You" column. (About 6–8 hours a week; since 2026-11-08 no schedule is derived from it, [M1.md](M1.md) D23.) You are the C reviewer yourself. JNI correctness is covered by `-Xcheck:jni`, the ASan build, the crash harnesses and review. Before G3, still get an independent security review of the sandbox (P6/P7, DESIGN §3.5): a fresh pair of eyes, for example a separate review session, plus a public call for testers.
 1. **[answered] Loader: NeoForge first** (your modpack is NeoForge-based); Fabric comes after M2, if at all.
 2. **[answered] First audience: personal.** The MVP after M1 is the first target, and nothing goes public before G3.
 3. **[answered] Pause: include it in M2** (default accepted). It is now prototyped and cheap (F2: 1–1.5 person-days experienced, 1–2 for you). If gate G4 fails, ship without it and recommend `computer_threads ≥ 2` (measured worst lateness: 3.7 s with 1 thread, 14 ms with 2, against 76 ms on Cobalt).
@@ -383,7 +367,7 @@ The answers recorded on 2026-11-07 are marked **[answered]**. Items still open s
 
 ## 8. What's in this folder
 - [DESIGN.md](DESIGN.md): the technical design (mod layer, native layer, host core, JNI bridge, observability and config).
-- [M1.md](M1.md): the M1 plan slice by slice, with the S1 specification and the decisions it needs (planning draft, 2026-11-08). Its §5 lists the PLAN and DESIGN changes to apply after G1.
+- [M1.md](M1.md): the M1 plan slice by slice, with the S1 specification and its decisions (decided 2026-11-08). Its §5 lists the PLAN and DESIGN changes to apply after G1.
 - `reports/`: investigation and review reports, with methodology, commands, outputs and `file:line` evidence. Paths inside them point to the original scratch workspace, which is gone after this session; the reusable parts were copied into `artifacts/`.
   - `cct-contract.md`: the CC:T machine contract; §11 is the implementation checklist.
   - `rom-compat.md`: Lua dialect gaps, the shim, and the patches.
