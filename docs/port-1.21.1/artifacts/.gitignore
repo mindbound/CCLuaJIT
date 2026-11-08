@@ -1,0 +1,4 @@
+# CC:T ROM trees extracted by extract_cct_rom.py (CCPL / MPL-2.0 CC:T code; do not commit).
+# Unanchored, so they are ignored wherever they land under this directory.
+cct-rom/
+rom-1.121.0/

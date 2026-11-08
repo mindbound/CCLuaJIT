@@ -1,141 +1,86 @@
--- ROM-equivalent pieces for the tests: os.pullEvent(Raw) from bios.lua and
--- parallel.waitForAny / waitForAll from rom/apis/parallel.lua (CC:T 1.121.0),
--- with the logic copied verbatim. Only `expect` and the cc.internal.exception
--- helpers are replaced by trivial equivalents (try_barrier keeps its shape).
+-- The CC:T 1.121.0 code the tests drive, plus deterministic helpers. The CC:T code is os.pullEventRaw and
+-- os.pullEvent from bios.lua, and parallel.waitForAny / waitForAll from rom/apis/parallel.lua. It is CCPL /
+-- MPL-2.0, so this repository does not contain it: this file reads it at run time from the ROM directory named by
+-- CCT_ROM, which ../../../extract_cct_rom.py fills from the CC:T core jar (see ../../README.md, "Build notes").
+--
+-- parallel.lua runs the way bios.lua's os.loadAPI runs an API: in its own environment that falls back to the global
+-- table. Here that is a CC-like global table: the host's globals, plus os.pullEvent(Raw) from bios.lua and a
+-- loadfile / dofile / fs.exists that read from CCT_ROM. That is enough for parallel.lua's tiny_require to load the
+-- real cc.expect and cc.internal.exception. The host puts no native cc_try_barrier in the registry, so
+-- cc.internal.exception stores its own Lua one there.
 
 local M = {}
 
-function M.pullEventRaw(sFilter)
-    return coroutine.yield(sFilter)
+local HELP = ": see pause-prototype/README.md, \"Build notes\""
+local ROM = os.getenv("CCT_ROM")
+if not ROM or ROM == "" then error("CCT_ROM is not set" .. HELP, 0) end
+ROM = ROM:gsub("[/\\]+$", "")
+
+local function read_rom(path)
+    local f = io.open(ROM .. "/" .. path, "rb")
+    if not f then return nil end
+    local s = f:read("*a")
+    f:close()
+    return s
 end
 
-function M.pullEvent(sFilter)
-    local eventData = table.pack(M.pullEventRaw(sFilter))
-    if eventData[1] == "terminate" then
-        error("Terminated", 0)
-    end
-    return table.unpack(eventData, 1, eventData.n)
+-- The tests are written for CC:T 1.121.0's code. Its changelog names the version in the first line.
+local changelog = read_rom("rom/help/changelog.md")
+if not changelog then error("no CC:T ROM in CCT_ROM (" .. ROM .. ")" .. HELP, 0) end
+if not changelog:find("^# New features in CC: Tweaked 1%.121%.0\r?\n") then
+    error("the ROM in CCT_ROM (" .. ROM .. ") is not CC:T 1.121.0" .. HELP, 0)
 end
 
-local os = { pullEventRaw = M.pullEventRaw, pullEvent = M.pullEvent }
+-- The CC-like global table.
+local cc_G = setmetatable({}, { __index = _G })
+cc_G._G = cc_G
+cc_G.fs = { exists = function(path) return read_rom((path:gsub("^/+", ""))) ~= nil end }
 
--- cc.internal.exception (fallback path of the ROM module)
-local function bounce(...) return ... end
-local exception = {
-    try_barrier = function(parent, f, ...) return bounce(f(...)) end,
-    wrap_error = function(err, thread) return err end,
-}
-local function expect(i, v, t)
-    if type(v) ~= t then error(("bad argument #%d (%s expected, got %s)"):format(i, t, type(v)), 3) end
+-- Like bios.lua's loadfile, this names the chunk "@/" .. path.
+function cc_G.loadfile(path, mode, env)
+    path = path:gsub("^/+", "")
+    local src = read_rom(path)
+    if not src then return nil, "File not found: " .. path .. " in CCT_ROM (" .. ROM .. ")" end
+    return load(src, "@/" .. path, mode, env or cc_G)
 end
 
--- Instrumentation: number of coroutine.resume calls returning, per scheduler.
+function cc_G.dofile(path)
+    local fn, err = cc_G.loadfile(path, nil, cc_G)
+    if not fn then error(err .. HELP, 0) end
+    return fn()
+end
+
+-- os.pullEventRaw and os.pullEvent: each definition is cut out of bios.lua and run in an environment whose `os` is
+-- a fresh table. Newlines in front keep bios.lua's line numbers in error positions.
+local bios = read_rom("bios.lua")
+if not bios then error("no bios.lua in CCT_ROM (" .. ROM .. ")" .. HELP, 0) end
+local bios_env = setmetatable({ os = {} }, { __index = cc_G })
+for _, name in ipairs({ "pullEventRaw", "pullEvent" }) do
+    local first, last = bios:find("\nfunction os%." .. name .. "%(.-\nend\r?\n")
+    if not first then error("bios.lua in CCT_ROM (" .. ROM .. ") has no os." .. name .. HELP, 0) end
+    local _, line = bios:sub(1, first):gsub("\n", "")
+    assert(load(("\n"):rep(line) .. bios:sub(first + 1, last), "@/bios.lua", "t", bios_env))()
+end
+M.pullEventRaw, M.pullEvent = bios_env.os.pullEventRaw, bios_env.os.pullEvent
+cc_G.os = setmetatable({ pullEventRaw = M.pullEventRaw, pullEvent = M.pullEvent }, { __index = os })
+
+-- Instrumentation: the number of coroutine.resume calls inside parallel that returned. parallel.lua finds
+-- `coroutine` in its API environment, so that table counts them and passes everything else through. It looks the
+-- host's coroutine library up on each call, because the pause protocol replaces coroutine.resume.
 M.resumes = 0
-
-function M.waitForAny(...)
-    local barrier_ctx = { co = coroutine.running() }
-
-    local functions = table.pack(...)
-    local threads = {}
-    for i = 1, functions.n do
-        local fn = functions[i]
-        expect(i, fn, "function")
-        threads[i] = {
-            co = coroutine.create(function() return exception.try_barrier(barrier_ctx, fn) end),
-            filter = nil,
-        }
-    end
-
-    local count = functions.n
-    if count < 1 then return 0 end
-
-    local event = { n = 0 }
-    while true do
-        for i = 1, count do
-            local thread = threads[i]
-            if thread.filter == nil or thread.filter == event[1] or event[1] == "terminate" then
-                local ok, param = coroutine.resume(thread.co, table.unpack(event, 1, event.n))
-                M.resumes = M.resumes + 1
-                if not ok then
-                    error(exception.wrap_error(param, thread.co), 0)
-                end
-
-                if coroutine.status(thread.co) == "dead" then return i end
-
-                thread.filter = param
-            end
-        end
-
-        event = table.pack(os.pullEventRaw())
-    end
+local function count(...)
+    M.resumes = M.resumes + 1
+    return ...
 end
-
-function M.waitForAll(...)
-    local barrier_ctx = { co = coroutine.running() }
-
-    local can_spawn, threads, count = false, {}, 0
-
-    local function spawn(fn, ...)
-        expect(1, fn, "function")
-        if not can_spawn then error("Cannot spawn new functions outside of waitForAll", 2) end
-
-        threads[count + 1] = {
-            co = coroutine.create(function(...) return exception.try_barrier(barrier_ctx, fn, ...) end),
-            filter = nil,
-            resume_with = table.pack(...),
-        }
-        count = count + 1
-    end
-
-    local functions = table.pack(...)
-    can_spawn = true
-    for i = 1, functions.n, 1 do
-        local fn = functions[i]
-        expect(i, fn, "function")
-        spawn(fn, spawn)
-    end
-    can_spawn = false
-
-    local event = { n = 0 }
-    while true do
-        local i = 1
-        while i <= count do
-            local thread = threads[i]
-
-            local resume_with
-            if thread.resume_with then
-                resume_with = thread.resume_with
-                thread.resume_with = nil
-            elseif thread.filter == nil or thread.filter == event[1] or event[1] == "terminate" then
-                resume_with = event
-            end
-
-            if resume_with then
-                can_spawn = true
-                local ok, param = coroutine.resume(thread.co, table.unpack(resume_with, 1, resume_with.n))
-                M.resumes = M.resumes + 1
-                can_spawn = false
-
-                if not ok then
-                    error(exception.wrap_error(param, thread.co), 0)
-                end
-
-                if coroutine.status(thread.co) == "dead" then
-                    table.remove(threads, i)
-                    i, count = i - 1, count - 1
-                end
-
-                thread.filter = param
-            end
-
-            i = i + 1
-        end
-
-        if count == 0 then return end
-
-        event = table.pack(os.pullEventRaw())
-    end
-end
+local api_env = setmetatable({
+    coroutine = setmetatable({
+        resume = function(...) return count(coroutine.resume(...)) end,
+    }, { __index = function(_, k) return coroutine[k] end }),
+}, { __index = cc_G })
+local parallel, err = cc_G.loadfile("rom/apis/parallel.lua", nil, api_env)
+if not parallel then error(err .. HELP, 0) end
+parallel()
+M.waitForAny, M.waitForAll = api_env.waitForAny, api_env.waitForAll
 
 -- Deterministic helpers ---------------------------------------------------
 local MOD = 2147483647

@@ -1,6 +1,16 @@
 #!/bin/bash
-# Run inside WSL/Linux after build-linux.sh. Logs: linux/logs/.
+# Run inside WSL/Linux after build-linux.sh. Logs: linux/logs/. Exit code = number of failing runs,
+# or 125 if the CC:T ROM is missing.
+# ../tests/lib/cc.lua reads CC:T's bios.lua and parallel API from the ROM directory in CCT_ROM (see ../README.md).
+# A relative CCT_ROM is taken from the directory the script is started in.
+case "${CCT_ROM:-}" in ''|/*) ;; *) CCT_ROM=$PWD/$CCT_ROM ;; esac
 cd "$(dirname "$0")"
+ARTIFACTS=$(cd ../.. && pwd)
+export CCT_ROM="${CCT_ROM:-$ARTIFACTS/cct-rom}"
+if [ ! -f "$CCT_ROM/rom/apis/parallel.lua" ]; then
+  echo "no CC:T ROM in $CCT_ROM: run python3 -I $ARTIFACTS/extract_cct_rom.py <core jar> $CCT_ROM (see $ARTIFACTS/pause-prototype/README.md)" >&2
+  exit 125
+fi
 mkdir -p logs
 fails=0
 for t in t1_parallel t2_nesting t3_semantics t4_cboundary t5_abort t6_depth t7_bench; do
@@ -22,3 +32,4 @@ NAIVE=1 ./pausehost-linux ../tests/t1_parallel.lua > logs/naive-t1_parallel.log 
 grep -h "BENCH" logs/t7_bench.log
 grep -h "bytes/level" logs/t6_depth.log | sed 's/^ *result: //'
 echo "failing runs: $fails"
+exit $fails

@@ -1,4 +1,4 @@
--- Test 1: ROM parallel.waitForAny/waitForAll (logic copied from the 1.121.0 ROM)
+-- Test 1: ROM parallel.waitForAny/waitForAll (the 1.121.0 ROM's own code, which lib/cc.lua loads at run time)
 -- running 3 CPU-heavy routines + 1 event-waiting routine (+ a rednet-like
 -- routine), like bios.lua: pcall(parallel.waitForAny, shell, rednet.run).
 -- Pass criteria (checked by the host against a run without pauses):

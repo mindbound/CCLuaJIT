@@ -1,5 +1,9 @@
 -- mini_cc.lua: just enough of CC:T 1.121.0's bios for the ROM's cc.require to work (runs on Cobalt and LuaJIT).
--- Needs globals ROOT (host path of the version-survey dir), __readfile(hostpath) -> string|nil, print.
+-- Needs globals ROOT, __readfile(hostpath) -> string|nil, print. ROOT is the survey's scratch workspace
+-- (W in ../../../reports/version-survey.md: harness/, libs/, rom-1.121.0/), not this directory. ROOT/rom-1.121.0
+-- holds bios.lua and rom/ from the CC:T 1.121.0 core jar. They are CCPL / MPL-2.0, so keep ROOT outside this
+-- repository:
+--   python -I <repo>/docs/port-1.21.1/artifacts/extract_cct_rom.py <core jar> <ROOT>/rom-1.121.0
 local ROOT, readfile = assert(ROOT), assert(__readfile)
 local function hostpath(p)
   p = p:gsub("^/+", "")
@@ -14,7 +18,7 @@ function fs.combine(a, b)
 end
 function fs.exists(p) local h = hostpath(p) return h ~= nil and readfile(h) ~= nil end
 function fs.isDir(p) return false end
--- bios.lua: loadfile(filename, mode, env) = load(file.readAll(), "@/" .. fs.combine(filename), mode, env)
+-- Like bios.lua's loadfile, this names the chunk "@/" .. fs.combine(path).
 function loadfile(path, mode, env)
   local h = hostpath(path)
   local src = h and readfile(h)
@@ -26,13 +30,17 @@ function dofile(path) local f = assert(loadfile(path, nil, _G)) return f() end
 local function nop() end
 io = { stdin = {}, stdout = {}, stderr = {}, close = nop, flush = nop, input = nop, lines = nop, open = nop,
   output = nop, read = nop, type = nop, write = nop }
--- bios.lua lines 21-30 (verbatim): inject a stub for the old bit library
-_G.bit = {
-    bnot = bit32.bnot,
-    band = bit32.band,
-    bor = bit32.bor,
-    bxor = bit32.bxor,
-    brshift = bit32.arshift,
-    blshift = bit32.lshift,
-    blogic_rshift = bit32.rshift,
-}
+-- CC's `bit` table over bit32: bios.lua's own `_G.bit = { ... }` statement, cut out of ROOT/rom-1.121.0/bios.lua
+-- and run here. Newlines in front keep bios.lua's line numbers in error positions.
+do
+  local dir = ROOT .. "/rom-1.121.0"
+  local changelog, bios = readfile(dir .. "/rom/help/changelog.md"), readfile(dir .. "/bios.lua")
+  if not changelog or not bios then error("no CC:T ROM in " .. dir .. ": see the header of mini_cc.lua", 0) end
+  if not changelog:find("^# New features in CC: Tweaked 1%.121%.0\r?\n") then
+    error("the ROM in " .. dir .. " is not CC:T 1.121.0", 0)
+  end
+  local first, last = bios:find("\n_G%.bit = %b{}")
+  if not first then error("bios.lua in " .. dir .. " has no _G.bit statement", 0) end
+  local _, line = bios:sub(1, first):gsub("\n", "")
+  assert(load(("\n"):rep(line) .. bios:sub(first + 1, last), "@/bios.lua", "t", _G))()
+end

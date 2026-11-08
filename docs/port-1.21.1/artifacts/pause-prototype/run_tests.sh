@@ -1,7 +1,19 @@
 #!/bin/bash
-# Runs the pause-protocol test suite. Logs go to logs/. Exit code = number of failing runs.
-# Usage: ./run_tests.sh [quick]
+# Runs the pause-protocol test suite. Logs go to logs/. Exit code = number of failing runs,
+# or 125 if the CC:T ROM is missing.
+# Usage: [CCT_ROM=<dir>] ./run_tests.sh [quick]
+# tests/lib/cc.lua reads CC:T's bios.lua and parallel API from the ROM directory in CCT_ROM (see README.md).
+# A relative CCT_ROM is taken from the directory the script is started in.
+case "${CCT_ROM:-}" in ''|/*|?:*) ;; *) CCT_ROM=$PWD/$CCT_ROM ;; esac
 cd "$(dirname "$0")"
+ARTIFACTS=$(cd .. && pwd)
+export CCT_ROM="${CCT_ROM:-$ARTIFACTS/cct-rom}"
+if [ ! -f "$CCT_ROM/rom/apis/parallel.lua" ]; then
+  echo "no CC:T ROM in $CCT_ROM: run python -I $ARTIFACTS/extract_cct_rom.py <core jar> $CCT_ROM (see $PWD/README.md)" >&2
+  exit 125
+fi
+# pausehost.exe is a native Windows program: give it a C:/... path.
+if command -v cygpath >/dev/null; then CCT_ROM=$(cygpath -m "$CCT_ROM"); fi
 mkdir -p logs
 fails=0
 run() {  # run <logname> <env...> -- <exe> <args...>
@@ -42,8 +54,10 @@ done
 grep -h "abort latency" logs/t5_abort-rep*.log logs/t5_abort.log logs/assert-t5_abort.log logs/jitoff-t5_abort.log \
   | awk '{print $3}' | sort -n | awk '{a[NR]=$1} END {print "    hard-abort latency over " NR " runs: min " a[1] " us, median " a[int((NR+1)/2)] " us, max " a[NR] " us"}'
 # Control: the naive scheme (plain hook-yield) must FAIL the scheduler test.
+before=$fails
 run "naive-t1_parallel" NAIVE=1 -- ./pausehost.exe tests/t1_parallel.lua
-fails=$((fails-1))  # The naive control is expected to fail.
+# The naive control is expected to fail: it counts as a failing run only if it passes.
+if [ $fails -eq $before ]; then echo "    -> the naive control passed"; fails=$((fails+1)); else fails=$before; fi
 # Crash demos (separate processes): unlimited nesting overflows a 1 MB stack.
 ./pausehost.exe --native-nest > logs/native-nest.log 2>&1; echo "=== native nesting: exit $? (process crashed; PowerShell shows 0xC00000FD = stack overflow); $(tail -1 logs/native-nest.log)"
 ./pausehost.exe --wrapper-nest > logs/wrapper-nest.log 2>&1; echo "=== wrapper nesting without limits: exit $?; $(tail -1 logs/wrapper-nest.log)"
