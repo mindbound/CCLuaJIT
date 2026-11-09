@@ -97,7 +97,7 @@ bash natives/tests/jni-scan.sh probe.log
 bash natives/tests/jni-scan.sh --self-test
 ```
 
-`jni-warnings.txt` lists the messages of `-Xcheck:jni` that fail a run, one per line. The `jniScan` task that S1 step 4 adds to `common/build.gradle` is to read the same file. `jni-scan.sh <log>...` matches each one as a fixed string, case-sensitive, and prints the number of matching lines and the first 100 of them in each log (a broken native method can print a warning on every JNI call, a million lines). Exit 0: no match. 1: a match. 2: a missing log or pattern file.
+`jni-warnings.txt` lists the messages of `-Xcheck:jni` that fail a run, one per line. The `jniScan` wrapper of the JavaExec tasks in `common/build.gradle` reads the same file (see "Through Gradle" below). `jni-scan.sh <log>...` matches each one as a fixed string, case-sensitive, and prints the number of matching lines and the first 100 of them in each log (a broken native method can print a warning on every JNI call, a million lines). Exit 0: no match. 1: a match. 2: a missing log or pattern file.
 
 | Pattern | JDK 21 prints it to | JVM exit code |
 |---|---|---|
@@ -197,7 +197,21 @@ echo "java exit: $?"
 bash natives/tests/jni-scan.sh "$out/bridge-probe.log"
 ```
 
-The ns per call printed here includes the cost of `-Xcheck:jni`. The figure for G1 (M1.md §3.16, item 8) is measured without it: drop `-Xcheck:jni` from the `java` line.
+The ns per call printed here includes the cost of `-Xcheck:jni`. The figure for G1 (M1.md §3.16, item 8) is measured without it: drop `-Xcheck:jni` from the `java` line, or run `./gradlew :common:bridgeProbe -PcheckJni=false`.
+
+## Through Gradle
+
+The Gradle tasks of `:common` run the same programs with the classes Gradle builds, and take the library from `natives/build/out` (build it first):
+
+```
+./gradlew :common:bridgeProbe                     # Tier 1, -Xcheck:jni -Xmx256m
+./gradlew :common:bridgeProbe -PcheckJni=false    # the same without -Xcheck:jni, for the ns per call of G1
+./gradlew :common:machineSpecs                    # Tier 2: LuaJITMachine, differential against Cobalt
+```
+
+`MachineSpecs` (Tier 2, `common/src/test/java/io/github/mindbound/cclj/headless/MachineSpecs.java`) runs `LuaJITMachine` against the CC:T machine contract (M1.md §3.15): 30 scenarios through a machine environment built by hand (23 of them also on Cobalt, which the results are compared with; 7 test what only LuaJIT does), and three through a real `Computer`. It prints one line per scenario (`ok` or `FAIL`), both machines' results, and a note for each allowed difference from Cobalt; the report goes to `common/build/headless/machineSpecs.tsv`.
+
+Every JavaExec task of `:common` (`nativeProbe`, `bridgeProbe`, `machineSpecs`, `headlessSmoke`, `headlessSuite` and `fairnessProbe`) runs through the `jniScan` wrapper of `common/build.gradle`: stdout and stderr also go, whole lines at a time, to `common/build/headless/logs/<task>.log`, and the task fails when that log holds a line with a pattern of `jni-warnings.txt` (it prints the number and the first 100) or when the JVM exits non-zero.
 
 ## What CI runs
 

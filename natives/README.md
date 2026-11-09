@@ -25,6 +25,7 @@ macOS is not supported yet. Platforms without a library fall back to Cobalt at r
 ```
 bash natives/build-natives.sh windows-x86_64
 ./gradlew :common:nativeProbe                                        # load it through NativeLoader, run the self-test
+./gradlew :common:bridgeProbe :common:machineSpecs                   # Tier 1 and Tier 2 of the machine bridge
 bash natives/tests/run-harnesses.sh natives/build/windows-x86_64/luajit/src
 ./gradlew build                                                      # the mod jar now contains natives/windows-x86_64/cclj.dll
 ```

@@ -5,8 +5,8 @@
 #                                                matching lines and the first SHOW (100) of them in each log
 #        natives/tests/jni-scan.sh --self-test   checks the scanner and the patterns against jni-scan-fixtures/
 #
-# The patterns are in jni-warnings.txt next to this script, one per line (the jniScan task that S1 step 4 adds to
-# common/build.gradle is to read the same file). Each one is matched as a fixed string, case-sensitive, anywhere in
+# The patterns are in jni-warnings.txt next to this script, one per line (the jniScan wrapper of the JavaExec tasks
+# in common/build.gradle reads the same file). Each one is matched as a fixed string, case-sensitive, anywhere in
 # a line: JDK 21 prints these texts exactly so (F13). Empty lines and a CR at a line end (a CRLF checkout) are
 # ignored. A broken native method can print a warning on every JNI call, a million lines: so only the first SHOW
 # matching lines of each log are printed, and the count is taken with grep -c.

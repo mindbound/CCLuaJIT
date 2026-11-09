@@ -17,6 +17,8 @@ import dan200.computercraft.core.lua.ILuaMachine;
 import dan200.computercraft.core.lua.MachineEnvironment;
 import dan200.computercraft.core.metrics.MetricsObserver;
 import dan200.computercraft.core.terminal.Terminal;
+import io.github.mindbound.cclj.computer.LuaJITMachine;
+import io.github.mindbound.cclj.natives.NativeLibrary;
 
 import java.io.File;
 import java.io.IOException;
@@ -191,8 +193,19 @@ public final class HeadlessRunner {
         System.exit(result);
     }
 
-    static ILuaMachine.Factory factoryFor(String name) throws ReflectiveOperationException {
+    /**
+     * The machine factory for a {@code --factory} value: {@code cobalt}, or a class with a public
+     * {@code (MachineEnvironment, InputStream)} constructor. For {@link LuaJITMachine}, it loads the natives first,
+     * below {@code -Dccluajit.nativeDir} (the Gradle tasks set it; default {@code <java.io.tmpdir>/ccluajit-natives}),
+     * so a library that does not load fails here, with its stack trace, and not at the first boot.
+     */
+    static ILuaMachine.Factory factoryFor(String name) throws ReflectiveOperationException, IOException {
         if (name.equals("cobalt")) return CobaltLuaMachine::new;
+        if (name.equals(LuaJITMachine.class.getName())) {
+            String dir = System.getProperty("ccluajit.nativeDir");
+            Path cache = dir != null ? Path.of(dir) : Path.of(System.getProperty("java.io.tmpdir"), "ccluajit-natives");
+            System.out.println("natives: " + NativeLibrary.ensureLoaded(cache));
+        }
         var ctor = Class.forName(name).getConstructor(MachineEnvironment.class, InputStream.class);
         return (env, bios) -> {
             try {

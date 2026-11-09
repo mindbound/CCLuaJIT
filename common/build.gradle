@@ -35,11 +35,13 @@ dependencies {
 // ---- Headless CC:T runner and conformance suite (PLAN.md WP 0) --------------------------------------------------
 // The runners in src/test/java/io/github/mindbound/cclj/headless are plain main programs, not JUnit tests. They boot
 // a real CC:T computer from the test runtime classpath and read bios.lua and the ROM out of the CC:T core jar, which
-// is picked off that classpath by file name. Each task fails the build when its runner exits non-zero.
+// is picked off that classpath by file name. Each task fails the build when its runner exits non-zero, or when the
+// JNI scan (jniScan, below) finds a line of -Xcheck:jni output.
 //
 //   ./gradlew :common:headlessSmoke    smoke.lua; every check in it is an assert, so any wrong result fails
 //   ./gradlew :common:headlessSuite    CC:T's test-rom; report in build/headless/suite.tsv
-//   ./gradlew :common:fairnessProbe    time-slicing measurement; informational, never fails
+//   ./gradlew :common:fairnessProbe    time-slicing measurement; informational (fails only on a JNI scan hit or a
+//                                      non-zero exit of the JVM)
 //
 // Project properties:
 //   -Pfactory=cobalt|luajit|<class>   machine factory for headlessSmoke and headlessSuite (default cobalt). 'luajit'
@@ -77,6 +79,122 @@ def factoryKey = factoryClass == 'io.github.mindbound.cclj.computer.LuaJITMachin
 def httpProp = providers.gradleProperty('http').getOrNull()
 def httpEnabled = httpProp != null && httpProp != 'false'
 
+// ---- JNI scan (docs/port-1.21.1/M1.md section 3.14, fact F13) ---------------------------------------------------
+// -Xcheck:jni reports a misuse of JNI by printing a line, and the JVM then goes on with exit code 0 (only a FATAL
+// ERROR ends it). So every JavaExec task here runs through jniScan: its stdout and stderr also go, whole lines at a
+// time, to build/headless/logs/<task>.log; after the run, the task fails if that log holds a line with one of the
+// patterns in natives/tests/jni-warnings.txt (the file natives/tests/jni-scan.sh reads), or if the JVM exited
+// non-zero. The WARNING and FATAL ERROR lines go to stdout and the MXCSR warning to stderr, so both are scanned.
+def jniPatterns = rootProject.file('natives/tests/jni-warnings.txt')
+
+/** Copies each complete line written to it into a shared file, and passes every byte on to {@code out}. */
+class LineTee extends OutputStream {
+    private final OutputStream out
+    // Shared by the stdout and stderr tees of a task: lines are written under its lock.
+    private final OutputStream file
+    private final ByteArrayOutputStream line = new ByteArrayOutputStream()
+
+    LineTee(OutputStream out, OutputStream file) {
+        this.out = out
+        this.file = file
+    }
+
+    @Override
+    void write(int b) {
+        out.write(b)
+        line.write(b)
+        if (b == 10) endLine()
+    }
+
+    @Override
+    void write(byte[] b, int off, int len) {
+        out.write(b, off, len)
+        int start = off
+        for (int i = off; i < off + len; i++) {
+            if (b[i] == (byte) 10) {
+                line.write(b, start, i + 1 - start)
+                endLine()
+                start = i + 1
+            }
+        }
+        line.write(b, start, off + len - start)
+    }
+
+    @Override
+    void flush() {
+        out.flush()
+    }
+
+    /**
+     * Writes what is left of an unfinished last line (once the process has ended), ended with a newline in the file
+     * only, so that the other stream's unfinished last line cannot join it.
+     */
+    void finish() {
+        if (line.size() > 0) {
+            line.write(10)
+            endLine()
+        }
+    }
+
+    private void endLine() {
+        synchronized (file) {
+            line.writeTo(file)
+        }
+        line.reset()
+    }
+}
+
+def jniScan = { JavaExec task ->
+    def log = headlessDir.get().file("logs/${task.name}.log").asFile
+    task.inputs.file(jniPatterns)
+    // The exit code is checked in doLast, after the scan, so that both are reported.
+    task.ignoreExitValue = true
+    OutputStream logOut = null
+    LineTee outTee = null, errTee = null
+    task.doFirst {
+        log.parentFile.mkdirs()
+        // Unbuffered: LineTee writes whole lines, so the log is complete even when doLast does not run (the JVM
+        // could not start, or the task timed out). On Windows, an NIO stream also lets the file be deleted while a
+        // stream that was never closed is still open.
+        logOut = java.nio.file.Files.newOutputStream(log.toPath())
+        // Unset streams are null here (Gradle then forwards to its log); System.out and System.err inside the
+        // build go to the same place. A tee that throws stops Gradle reading that stream, which blocks the JVM.
+        outTee = new LineTee(task.standardOutput ?: System.out, logOut)
+        errTee = new LineTee(task.errorOutput ?: System.err, logOut)
+        task.standardOutput = outTee
+        task.errorOutput = errTee
+    }
+    task.doLast {
+        outTee.finish()
+        errTee.finish()
+        logOut.close()
+        def patterns = jniPatterns.readLines('UTF-8')
+            .collect { it.endsWith('\r') ? it.substring(0, it.length() - 1) : it }
+            .findAll { !it.isEmpty() }
+        long hits = 0
+        def shown = []
+        log.withReader('ISO-8859-1') { reader ->
+            reader.eachLine { line ->
+                if (patterns.any { line.contains(it) }) {
+                    hits++
+                    if (shown.size() < 100) shown << line
+                }
+            }
+        }
+        int exit = task.executionResult.get().exitValue
+        def problems = []
+        if (hits > 0) {
+            task.logger.error("${task.name}: ${hits} line(s) of -Xcheck:jni output in ${log}" +
+                (hits > shown.size() ? "; the first ${shown.size()}:" : ':'))
+            shown.each { task.logger.error("  ${it}") }
+            problems << "${hits} line(s) of -Xcheck:jni output"
+        }
+        if (exit != 0) problems << "exit code ${exit}"
+        if (!problems.isEmpty()) throw new GradleException("${task.name} failed: ${problems.join(', ')} (log: ${log})")
+        task.logger.lifecycle("${task.name}: JNI scan clean, exit code 0 (log: ${log})")
+    }
+}
+
 def configureHeadless = { JavaExec task ->
     task.group = 'verification'
     task.classpath = sourceSets.test.runtimeClasspath
@@ -88,16 +206,21 @@ def configureHeadless = { JavaExec task ->
     task.systemProperty('java.io.tmpdir', tmp.absolutePath)
     task.systemProperty('cct.version', cct_version)
     task.systemProperty('headless.bootTimeout', providers.gradleProperty('bootTimeout').getOrElse('15'))
+    // LuaJITMachine's natives are extracted here (NativeLibrary.ensureLoaded), emptied before each run.
+    def natives = headlessDir.get().dir("natives/${task.name}").asFile
+    task.systemProperty('ccluajit.nativeDir', natives.absolutePath)
     // Run in build/headless/work/<task>, so a JVM crash log (hs_err_pid*.log, replay_pid*.log) lands under build/.
     def work = headlessDir.get().dir("work/${task.name}").asFile
     task.workingDir = work
     task.doFirst {
         tmp.deleteDir()
         tmp.mkdirs()
+        natives.deleteDir()
         work.mkdirs()
         def meta = it.javaLauncher.get().metadata
         it.logger.lifecycle("${it.name}: Java ${meta.javaRuntimeVersion} at ${meta.installationPath}")
     }
+    jniScan(task)
 }
 
 tasks.register('headlessSmoke', JavaExec) {
@@ -165,6 +288,49 @@ tasks.register('nativeProbe', JavaExec) {
         def meta = it.javaLauncher.get().metadata
         it.logger.lifecycle("${it.name}: Java ${meta.javaRuntimeVersion} at ${meta.installationPath}")
     }
+    jniScan(it)
+}
+
+// ---- Tier 1 and Tier 2 of S1 (docs/port-1.21.1/M1.md section 3.15) ----------------------------------------------
+//   ./gradlew :common:bridgeProbe     BridgeProbe (Tier 1): the natives Java package against the native library,
+//                                     under -Xcheck:jni -Xmx256m, with a fake host. -PcheckJni=false drops
+//                                     -Xcheck:jni, only to measure the time per host call (D1).
+//   ./gradlew :common:machineSpecs    MachineSpecs (Tier 2): LuaJITMachine against the CC:T machine contract,
+//                                     differential against Cobalt; report in build/headless/machineSpecs.tsv.
+// Both need the native library: bash natives/build-natives.sh <platform-id>. Both are scanned (jniScan).
+tasks.register('bridgeProbe', JavaExec) {
+    group = 'verification'
+    description = 'Tier 1: runs BridgeProbe against the native library under -Xcheck:jni (-PcheckJni=false: ' +
+        'without it, for the time per call).'
+    classpath = sourceSets.test.runtimeClasspath
+    mainClass = 'io.github.mindbound.cclj.natives.BridgeProbe'
+    if (providers.gradleProperty('checkJni').getOrElse('true') != 'false') jvmArgs('-Xcheck:jni')
+    // Keep -Xmx256m: the JNI-failure check fills the Java heap, and fails on purpose when the maximum heap is over
+    // 1 GiB. Keep the class path a plain class path (no pathing jar): the library-failure check starts a second JVM
+    // with java.class.path.
+    jvmArgs('-Xmx256m')
+    def probeDir = layout.buildDirectory.dir('bridgeProbe').get()
+    def cache = probeDir.dir('cache').asFile
+    workingDir = probeDir.dir('work').asFile
+    args(cache.absolutePath)
+    doFirst {
+        cache.deleteDir()
+        workingDir.mkdirs()
+        def meta = it.javaLauncher.get().metadata
+        it.logger.lifecycle("${it.name}: Java ${meta.javaRuntimeVersion} at ${meta.installationPath}")
+    }
+    jniScan(it)
+}
+
+tasks.register('machineSpecs', JavaExec) {
+    configureHeadless(it)
+    description = 'Tier 2: runs LuaJITMachine against the CC:T machine contract, differential against Cobalt ' +
+        '(report in build/headless/machineSpecs.tsv).'
+    mainClass = 'io.github.mindbound.cclj.headless.MachineSpecs'
+    // Each scenario has its own 10 s watchdog (75 s for the through-Computer cases); this bounds the whole run.
+    timeout = java.time.Duration.ofMinutes(5)
+    def report = headlessDir.get().file('machineSpecs.tsv').asFile
+    args('--report', report.absolutePath)
 }
 
 tasks.register('fairnessProbe', JavaExec) {

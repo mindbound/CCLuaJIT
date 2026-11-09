@@ -10,7 +10,8 @@ import java.nio.file.Path;
  * the library, with its own copy of every native method. So all code that needs the natives goes through
  * {@link #ensureLoaded}: the first call loads the library and compares {@code NativeMachine.nAbi()} with
  * {@link NativeMachine#ABI}; every later call returns that result. Success and failure are both sticky: a failure is
- * rethrown, the same exception object, on every later call.
+ * rethrown, the same exception object, on every later call. The one exception is a {@link VirtualMachineError} (out
+ * of memory, say), which says nothing about the library: it is thrown and not kept, so the next call tries again.
  * <p>
  * A library from an older build without {@code nAbi} fails with {@link UnsatisfiedLinkError}, like a library whose
  * ABI does not match.
@@ -44,6 +45,8 @@ public final class NativeLibrary {
                 throw new UnsatisfiedLinkError("native ABI " + abi + " of " + p + " does not match the Java ABI "
                     + NativeMachine.ABI + " (a library from another build of CCLuaJIT?)");
             }
+        } catch (VirtualMachineError e) {
+            throw e;   // not sticky: loading the same file again is safe (System.load of a loaded path does nothing)
         } catch (IOException | RuntimeException | Error e) {
             failure = e;
             throw e;
