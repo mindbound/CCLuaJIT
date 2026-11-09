@@ -1,0 +1,44 @@
+host: Ubuntu 26.04.1 LTS, ldd (Ubuntu GLIBC 2.43-2ubuntu2.4) 2.43
+openjdk version "21.0.12.1" 2026-08-18
+OpenJDK Runtime Environment (build 21.0.12.1+1-1-26.04.4-Ubuntu)
+004c09267fd7ee1d3bd00fbf29109857115f8e0315c3912f09b13230e688fc68  natives/build/out/natives/linux-x86_64/libcclj.so
+=== tier1 (11:45:10)
+java exit: 0
+jni-scan: OK, none of the 4 patterns in 1 log(s): <scratch>/g1/logs/ubuntu-tier1.log
+scan exit: 0
+java 21.0.12.1 (OpenJDK 64-Bit Server VM) on Linux amd64, -Xcheck:jni on, max heap 256 MiB
+library build: release
+ns per call: 247.9 (median of 5 runs of 200000 calls of t.echo("hello"), a string in and a string out, decoded and encoded by Wire; -Xcheck:jni on; runs: 248.1 249.7 244.2 247.9 240.9)
+bridgeProbe: 88 checks, 0 failed
+bridgeProbe: OK
+=== tier1 exit: 0
+=== tier1-nocheckjni-1 (11:45:12)
+java exit: 0
+jni-scan: OK, none of the 4 patterns in 1 log(s): <scratch>/g1/logs/ubuntu-tier1-nocheckjni-1.log
+scan exit: 0
+java 21.0.12.1 (OpenJDK 64-Bit Server VM) on Linux amd64, -Xcheck:jni OFF, max heap 256 MiB
+library build: release
+ns per call: 190.8 (median of 5 runs of 200000 calls of t.echo("hello"), a string in and a string out, decoded and encoded by Wire; -Xcheck:jni off; runs: 191.9 193.0 185.9 190.8 186.1)
+bridgeProbe: 88 checks, 0 failed
+bridgeProbe: OK
+=== tier1-nocheckjni-1 exit: 0
+=== tier1-nocheckjni-2 (11:45:14)
+java exit: 0
+jni-scan: OK, none of the 4 patterns in 1 log(s): <scratch>/g1/logs/ubuntu-tier1-nocheckjni-2.log
+scan exit: 0
+java 21.0.12.1 (OpenJDK 64-Bit Server VM) on Linux amd64, -Xcheck:jni OFF, max heap 256 MiB
+library build: release
+ns per call: 194.1 (median of 5 runs of 200000 calls of t.echo("hello"), a string in and a string out, decoded and encoded by Wire; -Xcheck:jni off; runs: 194.1 194.6 193.3 200.4 191.4)
+bridgeProbe: 88 checks, 0 failed
+bridgeProbe: OK
+=== tier1-nocheckjni-2 exit: 0
+=== tier1-nocheckjni-3 (11:45:16)
+java exit: 0
+jni-scan: OK, none of the 4 patterns in 1 log(s): <scratch>/g1/logs/ubuntu-tier1-nocheckjni-3.log
+scan exit: 0
+java 21.0.12.1 (OpenJDK 64-Bit Server VM) on Linux amd64, -Xcheck:jni OFF, max heap 256 MiB
+library build: release
+ns per call: 193.1 (median of 5 runs of 200000 calls of t.echo("hello"), a string in and a string out, decoded and encoded by Wire; -Xcheck:jni off; runs: 193.8 199.0 190.8 193.1 191.1)
+bridgeProbe: 88 checks, 0 failed
+bridgeProbe: OK
+=== tier1-nocheckjni-3 exit: 0

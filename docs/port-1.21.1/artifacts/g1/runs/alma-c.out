@@ -1,0 +1,12 @@
+host: AlmaLinux release 8.10 (Cerulean Leopard)
+openjdk version "21.0.13" 2026-10-20 LTS
+004c09267fd7ee1d3bd00fbf29109857115f8e0315c3912f09b13230e688fc68  natives/build/out/natives/linux-x86_64/libcclj.so
+library: release build
+java exit: 0
+machineSpecs: java 21.0.13 on Linux amd64, CC:T 1.121.0
+natives: /tmp/cclj-g1-specs-alma-release/natives/004c09267fd7ee1d/libcclj.so
+       luajit: error: done (+3 lines) | line 0 '' | 390 ns per call (100,000 calls, one resume)
+machineSpecs: 33 passed (5 with an allowed difference from Cobalt), 0 failed; native machines live 0, leaked 0
+ok lines: 33
+jni-scan: OK, none of the 4 patterns in 1 log(s): <scratch>/g1/logs/specs-alma-release.log
+scan exit: 0

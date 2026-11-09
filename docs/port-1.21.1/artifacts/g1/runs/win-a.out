@@ -1,0 +1,22 @@
+commit: 538150462af597f04b36d8a5a88ba96ab2ee581c; dirty files: 0
+host: MINGW64_NT-10.0-26300, gcc.exe (MinGW-W64 x86_64-msvcrt-posix-seh, built by Brecht Sanders, r1) 16.2.0
+openjdk version "21.0.13" 2026-10-20 LTS
+OpenJDK Runtime Environment Temurin-21.0.13+9 (build 21.0.13+9-LTS)
+=== build-release (11:43:53)
+imports (objdump -p):
+exports:
+== OK: <repo>/natives/build/out/natives/windows-x86_64/cclj.dll (520704 bytes, sha256 44f151d9dfe06271...)
+=== build-release exit: 0
+=== lint (11:44:03)
+== 12 checks, 0 failed
+lint-natives: OK
+=== lint exit: 0
+=== tier0 (11:44:06)
+== compiling without sanitizers
+machine_test: 166 checks, 0 failed
+machine-test: OK (windows-x86_64)
+=== tier0 exit: 0
+=== scan-self-test (11:44:12)
+jni-scan: self-test OK
+=== scan-self-test exit: 0
+44f151d9dfe0627160742a79dbea4531d6cd1378c2b6907653c0fdfa4e944575 *natives/build/out/natives/windows-x86_64/cclj.dll

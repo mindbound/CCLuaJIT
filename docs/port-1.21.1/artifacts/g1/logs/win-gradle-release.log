@@ -1,0 +1,1057 @@
+> Task :common:compileJava UP-TO-DATE
+> Task :common:processResources UP-TO-DATE
+> Task :common:classes UP-TO-DATE
+> Task :common:compileTestJava UP-TO-DATE
+> Task :common:processTestResources UP-TO-DATE
+> Task :common:testClasses UP-TO-DATE
+
+> Task :common:nativeProbe
+nativeProbe: Java 21.0.13+9-LTS at C:\Program Files\Eclipse Adoptium\jdk-21.0.13.9-hotspot
+java 21.0.13 (OpenJDK 64-Bit Server VM) on Windows 11 amd64
+resource /natives/windows-x86_64/cclj.dll: file:/<repo>/common/build/resources/main/natives/windows-x86_64/cclj.dll
+loaded <repo>\common\build\nativeProbe\cache\44f151d9dfe06271\cclj.dll in 53.8 ms
+selfTest() returned in 59.9 ms:
+  cclj.platform=windows-x86_64
+  cclj.luajit_commit=047efd3bcbe3331c3b9cb69bf5b217164d80bd5c
+  state=ok: luaL_newstate and luaL_openlibs
+  luajit=ok: LuaJIT 2.1.1794071144 (Windows x64)
+  jit=ok: on SSE3 SSE4.1 BMI2 fold cse dce fwd dse narrow loop abc sink fuse
+  security=ok: prng=1 strhash=1 strid=1 mcode=1
+  ffi=ok: the ffi library is absent
+  compute=ok: sum(i % 7, i = 1..1e6) = 2999998 (expected 2999998), 1 trace(s) compiled
+  interrupt=ok: luaJIT_interrupt() from a second thread, 50 ms after the loop started, stopped the compiled loop (1 new trace(s)) at iteration 257585881 of 2000000000 with "cclj selftest: interrupted"
+  cstacklimit=ok: lua_pcall inside a red zone set by luaJIT_setcstacklimit() returned "C stack overflow"; with the zone cleared the same call runs
+  bytecode=ok: load -> nil, attempt to load a binary chunk; loadstring -> nil
+  ok=true
+nativeProbe: OK
+nativeProbe: JNI scan clean, exit code 0 (log: <repo>\common\build\headless\logs\nativeProbe.log)
+
+> Task :common:bridgeProbe
+bridgeProbe: Java 21.0.13+9-LTS at C:\Program Files\Eclipse Adoptium\jdk-21.0.13.9-hotspot
+java 21.0.13 (OpenJDK 64-Bit Server VM) on Windows 11 amd64, -Xcheck:jni on, max heap 256 MiB
+resource /natives/windows-x86_64/cclj.dll: file:/<repo>/common/build/resources/main/natives/windows-x86_64/cclj.dll
+library build: release
+loaded <repo>\common\build\bridgeProbe\cache\44f151d9dfe06271\cclj.dll in 44.8 ms
+ok   ABI: nAbi() = 1, NativeMachine.ABI = 1
+ok   NativeLibrary: a second ensureLoaded, with another cache root, returns the first path: returned <repo>\common\build\bridgeProbe\cache\44f151d9dfe06271\cclj.dll
+  child: first call: java.nio.file.NoSuchFileException: <repo>\common\build\bridgeProbe\cache\library-failure\a-file\cache; second call: the same exception object; isLoaded false; usable root created false
+ok   NativeLibrary: a failed load is sticky (second JVM: the same exception again, nothing loaded): child exit 0
+ok   Wire.decodeArgs: nil, true, false, a string: [null, true, false, "x"]
+ok   Wire.decodeArgs: a number is a Double: [-0.5]
+ok   Wire.decodeArgs: no values
+ok   Wire.decodeArgs: 15 malformed arrays throw IllegalStateException: 15 did
+ok   Wire: Latin-1 round trip of bytes 0-255: 00010000000400010000000102030405... (266 bytes)
+ok   Wire.values: a char >= 256 is '?'
+ok   Wire.values: a surrogate pair is two '?'
+ok   Wire.error: a char >= 256 is '?'
+ok   Wire.values(null): no values
+ok   Wire.values: null, Boolean, Number (Integer, Float, Long, BigDecimal), String, byte[] (copied): 000900000000020103000000000000f03f03000000000000044003000000000000084003000000000000e03f0402000000686904030000000180ff
+ok   Wire.values: Map, Collection, Object[] and ByteBuffer throw UnsupportedValue: []
+ok   Wire.values: an unknown type calls onUnknown, then becomes nil: 000400000000000000, onUnknown got 4
+ok   Wire.values: onUnknown may throw: refused Object
+ok   Wire.error: a nil message
+ok   Wire.error: a string, level -1
+ok   Wire.message(null): "(no message)", no traceback: "(no message)", tracebackAt -1
+ok   Wire.message: with a traceback: "bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk", tracebackAt 16
+ok   Wire.message: without a traceback (0xFFFFFFFF), Latin-1: "a\xe9", tracebackAt -1
+ok   Wire.message: empty: "", tracebackAt -1
+ok   Wire.message: malformed arrays throw IllegalStateException: []
+ok   Wire.SpecWriter: two APIs, a module, the MAY_YIELD flag: 0200000001000000040000007465726d000100000005000000777269746500020000000100000061010000006201010000006d02000000010000007801010000... (67 bytes)
+ok   Wire.SpecWriter: a method before any API: java.lang.IllegalStateException: wire: method x outside an API
+ok   Wire.SpecWriter: a 257-byte name: java.lang.IllegalArgumentException: name longer than 256 bytes: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa...
+ok   G1: created: live 1, idle
+ok   G1: status ERROR: status 3
+ok   G1: message: "bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk"
+ok   G1: traceback offset 16: tracebackAt 16
+ok   G1: not closed while running
+ok   G1: term.write("hi") called once: 1 call(s), first ["hi"]
+ok   G1: request bytes 01000000 04 02000000 6869: 0100000004020000006869
+ok   G1: freed at the error: live 0, closed
+ok   G1: resume after the end: java.lang.IllegalStateException: Machine has been closed
+ok   G1: two more close() calls do nothing: live 0
+ok   G1: checkOpen after the end: java.lang.IllegalStateException: Machine has been closed
+ok   yield: status YIELD, no message, machine kept: status 1, idle
+ok   yield: second resume runs on to the error: "after\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:4: in main chunk", 2 host calls
+ok   return: status RETURNED, freed: status 2, ""
+ok   empty bios: RETURNED: status 2
+ok   non-null event: INTERNAL with its reason, freed (S1): status 4, "events are not implemented yet (S2)"
+ok   non-null event: then closed: java.lang.IllegalStateException: Machine has been closed
+ok   event over 16 MiB: INTERNAL with the fallback text of resume(), freed: status 4, "CCLuaJIT: the machine could not be resumed (status 4)"
+ok   close() of an idle machine frees it
+ok   close() of an idle machine frees it: freed: live 0
+ok   load: syntax error: NativeMachineException("bios.lua:1: unexpected symbol near '='"), live 0
+ok   load: binary chunk refused: NativeMachineException("attempt to load a binary chunk"), live 0
+ok   load: corrupt spec: NativeMachineException("CCLuaJIT: corrupt API table description"), live 0
+ok   load: a 257-byte API name: NativeMachineException("CCLuaJIT: corrupt API table description"), live 0
+ok   load: memLimit 0: NativeMachineException("not enough memory"), live 0
+ok   load: a 1-byte cap (below a fresh state) fails to load: NativeMachineException("not enough memory"), live 0
+ok   host error levels 0, 1, 2, -1, 1000 and a nil message: "lvl|bios.lua:1: lvl|bios.lua:2: lvl|lvl|lvl|nil"
+ok   Latin-1: bytes 0-255 from Java to Lua and back: ["\x00\x01\x02\x03\x04\x05\x06\x07\x08\t\n\x0b\x0c\x0d\x0e\x0f\x10\x11\x12\x13\x14\x15\x16\x17\x18\x19\x1a\x1b\x1c\x1d\x1e\x1f !"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~\x7f\x80\x81\x82\x83\x84\x85\x86\x87\x88\x89\x8a\x8b\x8c\x8d\x8e\x8f\x90\x91\x92... (256 chars)", 256.0, 0.0, 255.0, true]
+ok   Latin-1: a char >= 256 and a surrogate pair reach Lua as '?': [4.0, 233.0, 63.0, 63.0, 63.0]
+ok   a 70,000-byte error value is cut to 64 KiB, without a traceback: 65536 chars, tracebackAt -1
+ok   a 60,000-byte error value keeps its traceback after it: 60070 chars, tracebackAt 60000
+ok   a 100 MiB string.rep hits the 64 MiB cap; the machine goes on: "false not enough memory alive"
+note: the RuntimeException and OutOfMemoryError stack traces on stderr are expected: the native side prints them (ExceptionDescribe)
+Exception in thread "bridge-section" java.lang.RuntimeException: BridgeProbe: fake host failure (expected)
+	at io.github.mindbound.cclj.natives.BridgeProbe.lambda$testHostFailures$17(BridgeProbe.java:447)
+	at io.github.mindbound.cclj.natives.BridgeProbe$FakeHost.call(BridgeProbe.java:1255)
+	at io.github.mindbound.cclj.natives.NativeMachine.upcall(NativeMachine.java:197)
+	at io.github.mindbound.cclj.natives.NativeMachine.nResume(Native Method)
+	at io.github.mindbound.cclj.natives.NativeMachine.resume(NativeMachine.java:129)
+	at io.github.mindbound.cclj.natives.BridgeProbe.lambda$testHostFailures$22(BridgeProbe.java:467)
+	at io.github.mindbound.cclj.natives.BridgeProbe.captureErr(BridgeProbe.java:1333)
+	at io.github.mindbound.cclj.natives.BridgeProbe.testHostFailures(BridgeProbe.java:467)
+ok   host throws RuntimeException: uncaught, the fixed level-0 error: "CCLuaJIT: Java exception in host call\nstack traceback:\n\t[C]: in field 'f'\n\tbios.lua:1: in main chunk"
+	at io.github.mindbound.cclj.natives.BridgeProbe.lambda$section$58(BridgeProbe.java:1281)
+	at java.base/java.lang.Thread.run(Thread.java:1583)
+Exception in thread "bridge-section" java.lang.RuntimeException: BridgeProbe: fake host failure (expected)
+	at io.github.mindbound.cclj.natives.BridgeProbe.lambda$testHostFailures$17(BridgeProbe.java:447)
+	at io.github.mindbound.cclj.natives.BridgeProbe$FakeHost.call(BridgeProbe.java:1255)
+	at io.github.mindbound.cclj.natives.NativeMachine.upcall(NativeMachine.java:197)
+	at io.github.mindbound.cclj.natives.NativeMachine.nResume(Native Method)
+	at io.github.mindbound.cclj.natives.NativeMachine.resume(NativeMachine.java:129)
+	at io.github.mindbound.cclj.natives.BridgeProbe.lambda$testHostFailures$23(BridgeProbe.java:472)
+	at io.github.mindbound.cclj.natives.BridgeProbe.captureErr(BridgeProbe.java:1333)
+	at io.github.mindbound.cclj.natives.BridgeProbe.testHostFailures(BridgeProbe.java:471)
+	at io.github.mindbound.cclj.natives.BridgeProbe.lambda$section$58(BridgeProbe.java:1281)
+	at java.base/java.lang.Thread.run(Thread.java:1583)
+ok   host throws RuntimeException: under pcall, the machine goes on: "false|CCLuaJIT: Java exception in host call\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk", after() called 1 time(s)
+ok   host throws RuntimeException: printed to System.err once per call (ExceptionDescribe): 2 of 2 times, 1830 chars on System.err
+Exception in thread "bridge-section" java.lang.OutOfMemoryError: fake
+	at io.github.mindbound.cclj.natives.BridgeProbe.lambda$testHostFailures$18(BridgeProbe.java:450)
+	at io.github.mindbound.cclj.natives.BridgeProbe$FakeHost.call(BridgeProbe.java:1255)
+	at io.github.mindbound.cclj.natives.NativeMachine.upcall(NativeMachine.java:197)
+	at io.github.mindbound.cclj.natives.NativeMachine.nResume(Native Method)
+	at io.github.mindbound.cclj.natives.NativeMachine.resume(NativeMachine.java:129)
+	at io.github.mindbound.cclj.natives.BridgeProbe.lambda$testHostFailures$22(BridgeProbe.java:467)
+	at io.github.mindbound.cclj.natives.BridgeProbe.captureErr(BridgeProbe.java:1333)
+	at io.github.mindbound.cclj.natives.BridgeProbe.testHostFailures(BridgeProbe.java:467)
+	at io.github.mindbound.cclj.natives.BridgeProbe.lambda$section$58(BridgeProbe.java:1281)
+	at java.base/java.lang.Thread.run(Thread.java:1583)
+ok   host throws new OutOfMemoryError("fake"): uncaught, the fixed level-0 error: "CCLuaJIT: Java exception in host call\nstack traceback:\n\t[C]: in field 'f'\n\tbios.lua:1: in main chunk"
+Exception in thread "bridge-section" java.lang.OutOfMemoryError: fake
+	at io.github.mindbound.cclj.natives.BridgeProbe.lambda$testHostFailures$18(BridgeProbe.java:450)
+	at io.github.mindbound.cclj.natives.BridgeProbe$FakeHost.call(BridgeProbe.java:1255)
+	at io.github.mindbound.cclj.natives.NativeMachine.upcall(NativeMachine.java:197)
+	at io.github.mindbound.cclj.natives.NativeMachine.nResume(Native Method)
+	at io.github.mindbound.cclj.natives.NativeMachine.resume(NativeMachine.java:129)
+	at io.github.mindbound.cclj.natives.BridgeProbe.lambda$testHostFailures$23(BridgeProbe.java:472)
+	at io.github.mindbound.cclj.natives.BridgeProbe.captureErr(BridgeProbe.java:1333)
+	at io.github.mindbound.cclj.natives.BridgeProbe.testHostFailures(BridgeProbe.java:471)
+	at io.github.mindbound.cclj.natives.BridgeProbe.lambda$section$58(BridgeProbe.java:1281)
+	at java.base/java.lang.Thread.run(Thread.java:1583)
+ok   host throws new OutOfMemoryError("fake"): under pcall, the machine goes on: "false|CCLuaJIT: Java exception in host call\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk", after() called 1 time(s)
+ok   host throws new OutOfMemoryError("fake"): printed to System.err once per call (ExceptionDescribe): 2 of 2 times, 1756 chars on System.err
+ok   host returns null: uncaught, the fixed level-0 error: "CCLuaJIT: host call returned null\nstack traceback:\n\t[C]: in field 'f'\n\tbios.lua:1: in main chunk"
+ok   host returns null: under pcall, the machine goes on: "false|CCLuaJIT: host call returned null\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk", after() called 1 time(s)
+ok   host returns null: nothing printed to System.err: ""
+ok   host returns 16 MiB + 1 byte: uncaught, the fixed level-0 error: "CCLuaJIT: host reply too large\nstack traceback:\n\t[C]: in field 'f'\n\tbios.lua:1: in main chunk"
+ok   host returns 16 MiB + 1 byte: under pcall, the machine goes on: "false|CCLuaJIT: host reply too large\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk", after() called 1 time(s)
+ok   host returns 16 MiB + 1 byte: nothing printed to System.err: ""
+ok   random replies: 17 fixed and 10,000 seeded random replies, as the Java model predicts: 10017 reported, 2373 values, 1064 errors, 6580 corrupt, 0 mismatches; machine: "done\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk"
+ok   re-entrant resume from the host: IllegalStateException, as a Lua error: "Java Exception Thrown: java.lang.IllegalStateException: Machine is already running"
+ok   close() inside an upcall: deferred to the end of the resume: status 1, closedWhileRunning true, live inside 1, after 0
+ok   close() from another thread while the host blocks: the free is deferred: live 1 (1 expected), closed
+ok   close() while running: a second resume throws: java.lang.IllegalStateException: Machine has been closed
+ok   close() while running: the resume returns, closedWhileRunning, freed by the worker: status 1, closedWhileRunning true, error null, live 0
+ok   close() while running: LIVE == 0 at the end: live 0
+ok   create on thread A, resume on B, close on C: resume status 1, host calls on [bridge-B], live 0
+ok   create on A, resume on B, resume to the error (and the free) on C: status 3, host calls on [bridge-B, bridge-C], live 0
+ok   close() racing resume, 300 rounds: one free each, no leak; some during the resume, some outside it: close() came before the resume 22 times, during it 222 (closedWhileRunning), after it 56
+ok   local references: 100000 upcalls of 4 KiB each way in one resume; heap below baseline + 32 MiB: baseline 4.7 MiB, in the last upcall after System.gc() 4.7 MiB (+0.0 MiB), 100000 calls in 164 ms; machine: "done\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:4: in main chunk"
+ok   ns per call measured: 5 runs of 200000 calls
+ns per call: 331.1 (median of 5 runs of 200000 calls of t.echo("hello"), a string in and a string out, decoded and encoded by Wire; -Xcheck:jni on; runs: 307.7 295.8 332.4 331.1 353.2)
+ok   JNI failure: a request the full Java heap cannot hold gives the fixed level-0 error, uncaught: status 3, "CCLuaJIT: JNI failure in host call\nstack traceback:\n\t[C]: in field 'big'\n\tbios.lua:3: in main chunk"
+ok   JNI failure: under pcall, the machine goes on: status 3, "false|CCLuaJIT: JNI failure in host call\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:5: in main chunk"
+note: for the 128 host exceptions below, ExceptionDescribe writes "Exception in thread ..." to stderr each time (one long line, expected); their text is captured and counted
+ok   local references, null exit: 128 failing upcalls of 448 KiB; heap below baseline + 16 MiB; nothing printed: baseline 21.6 MiB, in the last upcall after System.gc() 21.6 MiB (+0.0 MiB), 128 calls, 0 printed to System.err; machine: "done\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:8: in main chunk"
+Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" 
+ok   local references, exception exit: 128 failing upcalls of 448 KiB; heap below baseline + 16 MiB; each exception printed once: baseline 21.6 MiB, in the last upcall after System.gc() 21.6 MiB (+0.0 MiB), 128 calls, 128 printed to System.err; machine: "done\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:8: in main chunk"
+ok   local references, 16 MiB + 1 byte exit: 128 failing upcalls of 448 KiB; heap below baseline + 16 MiB; nothing printed: baseline 21.6 MiB, in the last upcall after System.gc() 21.6 MiB (+0.0 MiB), 128 calls, 0 printed to System.err; machine: "done\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:8: in main chunk"
+ok   no machine left: live 0, leaked 0
+bridgeProbe: 88 checks, 0 failed
+bridgeProbe: OK
+bridgeProbe: JNI scan clean, exit code 0 (log: <repo>\common\build\headless\logs\bridgeProbe.log)
+
+> Task :common:machineSpecs
+machineSpecs: Java 21.0.13+9-LTS at C:\Program Files\Eclipse Adoptium\jdk-21.0.13.9-hotspot
+machineSpecs: java 21.0.13 on Windows 11 amd64, CC:T 1.121.0
+natives: <repo>\common\build\headless\natives\machineSpecs\44f151d9dfe06271\cclj.dll
+[spec-event] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk
+[spec-event] WARN dan200.computercraft.core.lua.CobaltLuaMachine - Top level coroutine errored: org.squiddev.cobalt.LuaError: bios.lua:3: boom\nstack traceback:\n\tbios.lua:3: in main chunk
+	at org.squiddev.cobalt.lib.BaseLib.error(BaseLib.java:98)
+	at org.squiddev.cobalt.function.TwoArgFunction.call(TwoArgFunction.java:49)
+	at org.squiddev.cobalt.function.Dispatch.callImpl(Dispatch.java:106)
+	at org.squiddev.cobalt.function.Dispatch.call(Dispatch.java:32)
+	at org.squiddev.cobalt.function.LuaInterpreter.nativeCall(LuaInterpreter.java:602)
+	at org.squiddev.cobalt.function.LuaInterpreter.execute(LuaInterpreter.java:412)
+	at org.squiddev.cobalt.function.Dispatch.invokeImpl(Dispatch.java:166)
+	at org.squiddev.cobalt.function.Dispatch.invoke(Dispatch.java:63)
+	at org.squiddev.cobalt.function.Dispatch.invoke(Dispatch.java:58)
+	at org.squiddev.cobalt.LuaThread.loop(LuaThread.java:320)
+	at org.squiddev.cobalt.LuaThread.run(LuaThread.java:301)
+	at org.squiddev.cobalt.LuaThread.run(LuaThread.java:297)
+	at dan200.computercraft.core.lua.CobaltLuaMachine.handleEvent(CobaltLuaMachine.java:131)
+	at io.github.mindbound.cclj.headless.MachineSpecs$Env.event(MachineSpecs.java:193)
+	at io.github.mindbound.cclj.headless.MachineSpecs.lambda$g1$26(MachineSpecs.java:417)
+	at io.github.mindbound.cclj.headless.MachineSpecs.lambda$onThread$35(MachineSpecs.java:855)
+	at java.base/java.lang.Thread.run(Thread.java:1583)
+
+ok   1   g1
+       luajit: error: bios.lua:3: boom (+3 lines); throws: java.lang.IllegalStateException: Machine has been closed | line 0 'hi' | create on spec-create, handleEvent on spec-event, close on spec-close
+       cobalt: error: bios.lua:3: boom (+2 lines); throws: java.lang.IllegalStateException: Machine has been closed | line 0 'hi' | create on spec-create, handleEvent on spec-event, close on spec-close
+[main] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: after\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk
+[main] WARN dan200.computercraft.core.lua.CobaltLuaMachine - Top level coroutine errored: org.squiddev.cobalt.LuaError: after\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk
+	at org.squiddev.cobalt.lib.BaseLib.error(BaseLib.java:98)
+	at org.squiddev.cobalt.function.TwoArgFunction.call(TwoArgFunction.java:54)
+	at org.squiddev.cobalt.function.Dispatch.callImpl(Dispatch.java:129)
+	at org.squiddev.cobalt.function.Dispatch.call(Dispatch.java:42)
+	at org.squiddev.cobalt.function.LuaInterpreter.nativeCall(LuaInterpreter.java:603)
+	at org.squiddev.cobalt.function.LuaInterpreter.execute(LuaInterpreter.java:412)
+	at org.squiddev.cobalt.function.LuaInterpretedFunction.resume(LuaInterpretedFunction.java:155)
+	at org.squiddev.cobalt.debug.DebugState.resume(DebugState.java:452)
+	at org.squiddev.cobalt.LuaThread.loop(LuaThread.java:353)
+	at org.squiddev.cobalt.LuaThread.run(LuaThread.java:301)
+	at org.squiddev.cobalt.LuaThread.run(LuaThread.java:297)
+	at dan200.computercraft.core.lua.CobaltLuaMachine.handleEvent(CobaltLuaMachine.java:131)
+	at io.github.mindbound.cclj.headless.MachineSpecs$Env.event(MachineSpecs.java:193)
+ok   2   yield
+	at io.github.mindbound.cclj.headless.MachineSpecs.run(MachineSpecs.java:232)
+	at io.github.mindbound.cclj.headless.MachineSpecs.lambda$scenarios$7(MachineSpecs.java:306)
+	at io.github.mindbound.cclj.headless.MachineSpecs.runOne(MachineSpecs.java:551)
+	at io.github.mindbound.cclj.headless.MachineSpecs.scenario(MachineSpecs.java:578)
+	at io.github.mindbound.cclj.headless.MachineSpecs.main(MachineSpecs.java:823)
+
+       luajit: OK; error: after (+3 lines) | line 0 'S1 hello'
+       cobalt: OK; error: after (+3 lines) | line 0 'S1 hello'
+ok   3   returns
+       luajit: GENERIC_ERROR | line 0 'x'
+       cobalt: GENERIC_ERROR | line 0 'x'
+[main] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: bios.lua:1: bad argument #1 (number expected, got string)\nstack traceback:\n\t[C]: in field 'setCursorPos'\n\tbios.lua:1: in main chunk
+[main] WARN dan200.computercraft.core.lua.CobaltLuaMachine - Top level coroutine errored: org.squiddev.cobalt.LuaError: bios.lua:1: bad argument #1 (number expected, got string)\nstack traceback:\n\tbios.lua:1: in main chunk
+	at dan200.computercraft.core.lua.ResultInterpreterFunction.wrap(ResultInterpreterFunction.java:98)
+	at dan200.computercraft.core.lua.ResultInterpreterFunction.invoke(ResultInterpreterFunction.java:58)
+ok   4   bad_arg
+	at org.squiddev.cobalt.function.ResumableVarArgFunction.invoke(ResumableVarArgFunction.java:34)
+	at org.squiddev.cobalt.function.VarArgFunction.call(VarArgFunction.java:60)
+	at org.squiddev.cobalt.function.Dispatch.callImpl(Dispatch.java:106)
+	at org.squiddev.cobalt.function.Dispatch.call(Dispatch.java:32)
+	at org.squiddev.cobalt.function.LuaInterpreter.nativeCall(LuaInterpreter.java:602)
+	at org.squiddev.cobalt.function.LuaInterpreter.execute(LuaInterpreter.java:412)
+	at org.squiddev.cobalt.function.Dispatch.invokeImpl(Dispatch.java:166)
+	at org.squiddev.cobalt.function.Dispatch.invoke(Dispatch.java:63)
+	at org.squiddev.cobalt.function.Dispatch.invoke(Dispatch.java:58)
+	at org.squiddev.cobalt.LuaThread.loop(LuaThread.java:320)
+	at org.squiddev.cobalt.LuaThread.run(LuaThread.java:301)
+	at org.squiddev.cobalt.LuaThread.run(LuaThread.java:297)
+	at dan200.computercraft.core.lua.CobaltLuaMachine.handleEvent(CobaltLuaMachine.java:131)
+	at io.github.mindbound.cclj.headless.MachineSpecs$Env.event(MachineSpecs.java:193)
+	at io.github.mindbound.cclj.headless.MachineSpecs.run(MachineSpecs.java:232)
+	at io.github.mindbound.cclj.headless.MachineSpecs.lambda$bios$1(MachineSpecs.java:262)
+	at io.github.mindbound.cclj.headless.MachineSpecs.runOne(MachineSpecs.java:551)
+	at io.github.mindbound.cclj.headless.MachineSpecs.scenario(MachineSpecs.java:578)
+	at io.github.mindbound.cclj.headless.MachineSpecs.main(MachineSpecs.java:823)
+
+       luajit: error: bios.lua:1: bad argument #1 (number expected, got string) (+3 lines) | line 0 ''
+       cobalt: error: bios.lua:1: bad argument #1 (number expected, got string) (+2 lines) | line 0 ''
+[main] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: lvl0\nstack traceback:\n\t[C]: in field 'lvl'\n\tbios.lua:1: in main chunk
+[main] WARN dan200.computercraft.core.lua.CobaltLuaMachine - Top level coroutine errored: org.squiddev.cobalt.LuaError: lvl0\nstack traceback:\n\t[C]: in field 'lvl'\n\tbios.lua:1: in main chunk
+	at dan200.computercraft.core.lua.ResultInterpreterFunction.wrap(ResultInterpreterFunction.java:101)
+	at dan200.computercraft.core.lua.ResultInterpreterFunction.invoke(ResultInterpreterFunction.java:58)
+	at org.squiddev.cobalt.function.ResumableVarArgFunction.invoke(ResumableVarArgFunction.java:34)
+	at org.squiddev.cobalt.function.VarArgFunction.call(VarArgFunction.java:60)
+	at org.squiddev.cobalt.function.Dispatch.callImpl(Dispatch.java:106)
+	at org.squiddev.cobalt.function.Dispatch.call(Dispatch.java:32)
+	at org.squiddev.cobalt.function.LuaInterpreter.nativeCall(LuaInterpreter.java:602)
+	at org.squiddev.cobalt.function.LuaInterpreter.execute(LuaInterpreter.java:412)
+ok   5a  levels: t.lvl(0)
+	at org.squiddev.cobalt.function.Dispatch.invokeImpl(Dispatch.java:166)
+	at org.squiddev.cobalt.function.Dispatch.invoke(Dispatch.java:63)
+	at org.squiddev.cobalt.function.Dispatch.invoke(Dispatch.java:58)
+	at org.squiddev.cobalt.LuaThread.loop(LuaThread.java:320)
+	at org.squiddev.cobalt.LuaThread.run(LuaThread.java:301)
+	at org.squiddev.cobalt.LuaThread.run(LuaThread.java:297)
+	at dan200.computercraft.core.lua.CobaltLuaMachine.handleEvent(CobaltLuaMachine.java:131)
+	at io.github.mindbound.cclj.headless.MachineSpecs$Env.event(MachineSpecs.java:193)
+	at io.github.mindbound.cclj.headless.MachineSpecs.run(MachineSpecs.java:232)
+	at io.github.mindbound.cclj.headless.MachineSpecs.lambda$bios$1(MachineSpecs.java:262)
+	at io.github.mindbound.cclj.headless.MachineSpecs.runOne(MachineSpecs.java:551)
+	at io.github.mindbound.cclj.headless.MachineSpecs.scenario(MachineSpecs.java:578)
+	at io.github.mindbound.cclj.headless.MachineSpecs.main(MachineSpecs.java:823)
+
+       luajit: error: lvl0 (+3 lines) | line 0 ''
+       cobalt: error: lvl0 (+3 lines) | line 0 ''
+[main] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: bios.lua:1: lvl1\nstack traceback:\n\t[C]: in field 'lvl'\n\tbios.lua:1: in main chunk
+[main] WARN dan200.computercraft.core.lua.CobaltLuaMachine - Top level coroutine errored: org.squiddev.cobalt.LuaError: bios.lua:1: lvl1\nstack traceback:\n\tbios.lua:1: in main chunk
+	at dan200.computercraft.core.lua.ResultInterpreterFunction.wrap(ResultInterpreterFunction.java:101)
+	at dan200.computercraft.core.lua.ResultInterpreterFunction.invoke(ResultInterpreterFunction.java:58)
+ok   5b  levels: t.lvl(1)
+	at org.squiddev.cobalt.function.ResumableVarArgFunction.invoke(ResumableVarArgFunction.java:34)
+	at org.squiddev.cobalt.function.VarArgFunction.call(VarArgFunction.java:60)
+	at org.squiddev.cobalt.function.Dispatch.callImpl(Dispatch.java:106)
+	at org.squiddev.cobalt.function.Dispatch.call(Dispatch.java:32)
+	at org.squiddev.cobalt.function.LuaInterpreter.nativeCall(LuaInterpreter.java:602)
+	at org.squiddev.cobalt.function.LuaInterpreter.execute(LuaInterpreter.java:412)
+	at org.squiddev.cobalt.function.Dispatch.invokeImpl(Dispatch.java:166)
+	at org.squiddev.cobalt.function.Dispatch.invoke(Dispatch.java:63)
+	at org.squiddev.cobalt.function.Dispatch.invoke(Dispatch.java:58)
+	at org.squiddev.cobalt.LuaThread.loop(LuaThread.java:320)
+	at org.squiddev.cobalt.LuaThread.run(LuaThread.java:301)
+	at org.squiddev.cobalt.LuaThread.run(LuaThread.java:297)
+	at dan200.computercraft.core.lua.CobaltLuaMachine.handleEvent(CobaltLuaMachine.java:131)
+	at io.github.mindbound.cclj.headless.MachineSpecs$Env.event(MachineSpecs.java:193)
+	at io.github.mindbound.cclj.headless.MachineSpecs.run(MachineSpecs.java:232)
+	at io.github.mindbound.cclj.headless.MachineSpecs.lambda$bios$1(MachineSpecs.java:262)
+	at io.github.mindbound.cclj.headless.MachineSpecs.runOne(MachineSpecs.java:551)
+	at io.github.mindbound.cclj.headless.MachineSpecs.scenario(MachineSpecs.java:578)
+	at io.github.mindbound.cclj.headless.MachineSpecs.main(MachineSpecs.java:823)
+       luajit: error: bios.lua:1: lvl1 (+3 lines) | line 0 ''
+       cobalt: error: bios.lua:1: lvl1 (+2 lines) | line 0 ''
+
+[main] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: bios.lua:2: lvl2\nstack traceback:\n\t[C]: in field 'lvl'\n\tbios.lua:1: in local 'f'\n\tbios.lua:2: in main chunk
+[main] WARN dan200.computercraft.core.lua.CobaltLuaMachine - Top level coroutine errored: org.squiddev.cobalt.LuaError: bios.lua:2: lvl2\nstack traceback:\n\tbios.lua:2: in main chunk
+	at dan200.computercraft.core.lua.ResultInterpreterFunction.wrap(ResultInterpreterFunction.java:101)
+	at dan200.computercraft.core.lua.ResultInterpreterFunction.invoke(ResultInterpreterFunction.java:58)
+	at org.squiddev.cobalt.function.ResumableVarArgFunction.invoke(ResumableVarArgFunction.java:34)
+	at org.squiddev.cobalt.function.VarArgFunction.call(VarArgFunction.java:60)
+	at org.squiddev.cobalt.function.Dispatch.callImpl(Dispatch.java:106)
+	at org.squiddev.cobalt.function.Dispatch.call(Dispatch.java:32)
+	at org.squiddev.cobalt.function.LuaInterpreter.nativeCall(LuaInterpreter.java:602)
+	at org.squiddev.cobalt.function.LuaInterpreter.execute(LuaInterpreter.java:412)
+ok   5c  levels: t.lvl(2)
+	at org.squiddev.cobalt.function.Dispatch.invokeImpl(Dispatch.java:166)
+	at org.squiddev.cobalt.function.Dispatch.invoke(Dispatch.java:63)
+	at org.squiddev.cobalt.function.Dispatch.invoke(Dispatch.java:58)
+	at org.squiddev.cobalt.LuaThread.loop(LuaThread.java:320)
+	at org.squiddev.cobalt.LuaThread.run(LuaThread.java:301)
+	at org.squiddev.cobalt.LuaThread.run(LuaThread.java:297)
+       luajit: error: bios.lua:2: lvl2 (+4 lines) | line 0 ''
+       cobalt: error: bios.lua:2: lvl2 (+2 lines) | line 0 ''
+	at dan200.computercraft.core.lua.CobaltLuaMachine.handleEvent(CobaltLuaMachine.java:131)
+	at io.github.mindbound.cclj.headless.MachineSpecs$Env.event(MachineSpecs.java:193)
+	at io.github.mindbound.cclj.headless.MachineSpecs.run(MachineSpecs.java:232)
+	at io.github.mindbound.cclj.headless.MachineSpecs.lambda$bios$1(MachineSpecs.java:262)
+	at io.github.mindbound.cclj.headless.MachineSpecs.runOne(MachineSpecs.java:551)
+	at io.github.mindbound.cclj.headless.MachineSpecs.scenario(MachineSpecs.java:578)
+	at io.github.mindbound.cclj.headless.MachineSpecs.main(MachineSpecs.java:823)
+
+[main] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: bios.lua:3: lvl3\nstack traceback:\n\t[C]: in field 'lvl'\n\tbios.lua:1: in upvalue 'g'\n\tbios.lua:2: in local 'f'\n\tbios.lua:3: in main chunk
+[main] WARN dan200.computercraft.core.lua.CobaltLuaMachine - Top level coroutine errored: org.squiddev.cobalt.LuaError: bios.lua:3: lvl3\nstack traceback:\n\tbios.lua:3: in main chunk
+	at dan200.computercraft.core.lua.ResultInterpreterFunction.wrap(ResultInterpreterFunction.java:101)
+	at dan200.computercraft.core.lua.ResultInterpreterFunction.invoke(ResultInterpreterFunction.java:58)
+	at org.squiddev.cobalt.function.ResumableVarArgFunction.invoke(ResumableVarArgFunction.java:34)
+	at org.squiddev.cobalt.function.VarArgFunction.call(VarArgFunction.java:60)
+	at org.squiddev.cobalt.function.Dispatch.callImpl(Dispatch.java:106)
+	at org.squiddev.cobalt.function.Dispatch.call(Dispatch.java:32)
+	at org.squiddev.cobalt.function.LuaInterpreter.nativeCall(LuaInterpreter.java:602)
+	at org.squiddev.cobalt.function.LuaInterpreter.execute(LuaInterpreter.java:412)
+	at org.squiddev.cobalt.function.Dispatch.invokeImpl(Dispatch.java:166)
+	at org.squiddev.cobalt.function.Dispatch.invoke(Dispatch.java:63)
+	at org.squiddev.cobalt.function.Dispatch.invoke(Dispatch.java:58)
+	at org.squiddev.cobalt.LuaThread.loop(LuaThread.java:320)
+ok   5d  levels: t.lvl(3)
+	at org.squiddev.cobalt.LuaThread.run(LuaThread.java:301)
+	at org.squiddev.cobalt.LuaThread.run(LuaThread.java:297)
+	at dan200.computercraft.core.lua.CobaltLuaMachine.handleEvent(CobaltLuaMachine.java:131)
+	at io.github.mindbound.cclj.headless.MachineSpecs$Env.event(MachineSpecs.java:193)
+	at io.github.mindbound.cclj.headless.MachineSpecs.run(MachineSpecs.java:232)
+	at io.github.mindbound.cclj.headless.MachineSpecs.lambda$bios$1(MachineSpecs.java:262)
+	at io.github.mindbound.cclj.headless.MachineSpecs.runOne(MachineSpecs.java:551)
+	at io.github.mindbound.cclj.headless.MachineSpecs.scenario(MachineSpecs.java:578)
+	at io.github.mindbound.cclj.headless.MachineSpecs.main(MachineSpecs.java:823)
+
+       luajit: error: bios.lua:3: lvl3 (+5 lines) | line 0 ''
+       cobalt: error: bios.lua:3: lvl3 (+2 lines) | line 0 ''
+[main] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: lvl-1\nstack traceback:\n\t[C]: in field 'lvl'\n\tbios.lua:1: in main chunk
+[main] WARN dan200.computercraft.core.lua.CobaltLuaMachine - Top level coroutine errored: org.squiddev.cobalt.LuaError: lvl-1\nstack traceback:
+	at dan200.computercraft.core.lua.ResultInterpreterFunction.wrap(ResultInterpreterFunction.java:101)
+	at dan200.computercraft.core.lua.ResultInterpreterFunction.invoke(ResultInterpreterFunction.java:58)
+	at org.squiddev.cobalt.function.ResumableVarArgFunction.invoke(ResumableVarArgFunction.java:34)
+	at org.squiddev.cobalt.function.VarArgFunction.call(VarArgFunction.java:60)
+	at org.squiddev.cobalt.function.Dispatch.callImpl(Dispatch.java:106)
+	at org.squiddev.cobalt.function.Dispatch.call(Dispatch.java:32)
+	at org.squiddev.cobalt.function.LuaInterpreter.nativeCall(LuaInterpreter.java:602)
+	at org.squiddev.cobalt.function.LuaInterpreter.execute(LuaInterpreter.java:412)
+	at org.squiddev.cobalt.function.Dispatch.invokeImpl(Dispatch.java:166)
+	at org.squiddev.cobalt.function.Dispatch.invoke(Dispatch.java:63)
+	at org.squiddev.cobalt.function.Dispatch.invoke(Dispatch.java:58)
+	at org.squiddev.cobalt.LuaThread.loop(LuaThread.java:320)
+	at org.squiddev.cobalt.LuaThread.run(LuaThread.java:301)
+	at org.squiddev.cobalt.LuaThread.run(LuaThread.java:297)
+	at dan200.computercraft.core.lua.CobaltLuaMachine.handleEvent(CobaltLuaMachine.java:131)
+	at io.github.mindbound.cclj.headless.MachineSpecs$Env.event(MachineSpecs.java:193)
+	at io.github.mindbound.cclj.headless.MachineSpecs.run(MachineSpecs.java:232)
+	at io.github.mindbound.cclj.headless.MachineSpecs.lambda$bios$1(MachineSpecs.java:262)
+	at io.github.mindbound.cclj.headless.MachineSpecs.runOne(MachineSpecs.java:551)
+	at io.github.mindbound.cclj.headless.MachineSpecs.scenario(MachineSpecs.java:578)
+	at io.github.mindbound.cclj.headless.MachineSpecs.main(MachineSpecs.java:823)
+
+ok   5e  levels: t.lvl(-1)
+       luajit: error: lvl-1 (+3 lines) | line 0 ''
+       cobalt: error: lvl-1 (+1 lines) | line 0 ''
+[main] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: nil\nstack traceback:\n\t[C]: in field 'nullmsg'\n\tbios.lua:1: in main chunk
+[main] WARN dan200.computercraft.core.lua.CobaltLuaMachine - Top level coroutine errored: org.squiddev.cobalt.LuaError: nil\nstack traceback:\n\tbios.lua:1: in main chunk
+ok   5f  levels: t.nullmsg()
+	at dan200.computercraft.core.lua.ResultInterpreterFunction.wrap(ResultInterpreterFunction.java:98)
+	at dan200.computercraft.core.lua.ResultInterpreterFunction.invoke(ResultInterpreterFunction.java:58)
+	at org.squiddev.cobalt.function.ResumableVarArgFunction.invoke(ResumableVarArgFunction.java:34)
+       luajit: error: nil (+3 lines) | line 0 ''
+       cobalt: error: nil (+2 lines) | line 0 ''
+	at org.squiddev.cobalt.function.VarArgFunction.call(VarArgFunction.java:55)
+	at org.squiddev.cobalt.function.Dispatch.callImpl(Dispatch.java:83)
+	at org.squiddev.cobalt.function.Dispatch.call(Dispatch.java:22)
+	at org.squiddev.cobalt.function.LuaInterpreter.nativeCall(LuaInterpreter.java:601)
+	at org.squiddev.cobalt.function.LuaInterpreter.execute(LuaInterpreter.java:412)
+	at org.squiddev.cobalt.function.Dispatch.invokeImpl(Dispatch.java:166)
+	at org.squiddev.cobalt.function.Dispatch.invoke(Dispatch.java:63)
+	at org.squiddev.cobalt.function.Dispatch.invoke(Dispatch.java:58)
+	at org.squiddev.cobalt.LuaThread.loop(LuaThread.java:320)
+	at org.squiddev.cobalt.LuaThread.run(LuaThread.java:301)
+	at org.squiddev.cobalt.LuaThread.run(LuaThread.java:297)
+	at dan200.computercraft.core.lua.CobaltLuaMachine.handleEvent(CobaltLuaMachine.java:131)
+	at io.github.mindbound.cclj.headless.MachineSpecs$Env.event(MachineSpecs.java:193)
+	at io.github.mindbound.cclj.headless.MachineSpecs.run(MachineSpecs.java:232)
+	at io.github.mindbound.cclj.headless.MachineSpecs.lambda$bios$1(MachineSpecs.java:262)
+	at io.github.mindbound.cclj.headless.MachineSpecs.runOne(MachineSpecs.java:551)
+	at io.github.mindbound.cclj.headless.MachineSpecs.scenario(MachineSpecs.java:578)
+	at io.github.mindbound.cclj.headless.MachineSpecs.main(MachineSpecs.java:823)
+
+[main] ERROR io.github.mindbound.cclj.computer.LuaJITMachine - Error calling boom on io.github.mindbound.cclj.headless.SpecAPI@5649fd9b
+java.lang.RuntimeException: kaboom
+	at io.github.mindbound.cclj.headless.SpecAPI.boom(SpecAPI.java:63)
+	at dan200.computercraft.core.asm.LuaMethodSupplier.lambda$static$1(LuaMethodSupplier.java:27)
+	at io.github.mindbound.cclj.computer.LuaJITMachine.call(LuaJITMachine.java:163)
+	at io.github.mindbound.cclj.natives.NativeMachine.upcall(NativeMachine.java:197)
+	at io.github.mindbound.cclj.natives.NativeMachine.nResume(Native Method)
+	at io.github.mindbound.cclj.natives.NativeMachine.resume(NativeMachine.java:129)
+	at io.github.mindbound.cclj.computer.LuaJITMachine.handleEvent(LuaJITMachine.java:117)
+	at io.github.mindbound.cclj.headless.MachineSpecs$Env.event(MachineSpecs.java:193)
+	at io.github.mindbound.cclj.headless.MachineSpecs.run(MachineSpecs.java:232)
+	at io.github.mindbound.cclj.headless.MachineSpecs.lambda$bios$1(MachineSpecs.java:262)
+	at io.github.mindbound.cclj.headless.MachineSpecs.runOne(MachineSpecs.java:551)
+	at io.github.mindbound.cclj.headless.MachineSpecs.scenario(MachineSpecs.java:567)
+	at io.github.mindbound.cclj.headless.MachineSpecs.main(MachineSpecs.java:823)
+[main] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: Java Exception Thrown: java.lang.RuntimeException: kaboom\nstack traceback:\n\t[C]: in field 'boom'\n\tbios.lua:1: in main chunk
+[main] ERROR dan200.computercraft.core.lua.ResultInterpreterFunction -  COMPUTER_ERROR.JAVA Error calling boom on io.github.mindbound.cclj.headless.SpecAPI@7e0b0338
+java.lang.RuntimeException: kaboom
+	at io.github.mindbound.cclj.headless.SpecAPI.boom(SpecAPI.java:63)
+	at dan200.computercraft.core.asm.LuaMethodSupplier.lambda$static$1(LuaMethodSupplier.java:27)
+	at dan200.computercraft.core.lua.ResultInterpreterFunction.invoke(ResultInterpreterFunction.java:56)
+	at org.squiddev.cobalt.function.ResumableVarArgFunction.invoke(ResumableVarArgFunction.java:34)
+	at org.squiddev.cobalt.function.VarArgFunction.call(VarArgFunction.java:55)
+	at org.squiddev.cobalt.function.Dispatch.callImpl(Dispatch.java:83)
+	at org.squiddev.cobalt.function.Dispatch.call(Dispatch.java:22)
+	at org.squiddev.cobalt.function.LuaInterpreter.nativeCall(LuaInterpreter.java:601)
+	at org.squiddev.cobalt.function.LuaInterpreter.execute(LuaInterpreter.java:412)
+	at org.squiddev.cobalt.function.Dispatch.invokeImpl(Dispatch.java:166)
+	at org.squiddev.cobalt.function.Dispatch.invoke(Dispatch.java:63)
+	at org.squiddev.cobalt.function.Dispatch.invoke(Dispatch.java:58)
+	at org.squiddev.cobalt.LuaThread.loop(LuaThread.java:320)
+	at org.squiddev.cobalt.LuaThread.run(LuaThread.java:301)
+	at org.squiddev.cobalt.LuaThread.run(LuaThread.java:297)
+	at dan200.computercraft.core.lua.CobaltLuaMachine.handleEvent(CobaltLuaMachine.java:131)
+	at io.github.mindbound.cclj.headless.MachineSpecs$Env.event(MachineSpecs.java:193)
+	at io.github.mindbound.cclj.headless.MachineSpecs.run(MachineSpecs.java:232)
+	at io.github.mindbound.cclj.headless.MachineSpecs.lambda$bios$1(MachineSpecs.java:262)
+	at io.github.mindbound.cclj.headless.MachineSpecs.runOne(MachineSpecs.java:551)
+	at io.github.mindbound.cclj.headless.MachineSpecs.scenario(MachineSpecs.java:578)
+	at io.github.mindbound.cclj.headless.MachineSpecs.main(MachineSpecs.java:823)
+[main] WARN dan200.computercraft.core.lua.CobaltLuaMachine - Top level coroutine errored: org.squiddev.cobalt.LuaError: Java Exception Thrown: java.lang.RuntimeException: kaboom\nstack traceback:\n\t[C]: in field 'boom'\n\tbios.lua:1: in main chunk
+	at dan200.computercraft.core.lua.ResultInterpreterFunction.invoke(ResultInterpreterFunction.java:61)
+	at org.squiddev.cobalt.function.ResumableVarArgFunction.invoke(ResumableVarArgFunction.java:34)
+	at org.squiddev.cobalt.function.VarArgFunction.call(VarArgFunction.java:55)
+ok   6   java_exception
+	at org.squiddev.cobalt.function.Dispatch.callImpl(Dispatch.java:83)
+	at org.squiddev.cobalt.function.Dispatch.call(Dispatch.java:22)
+	at org.squiddev.cobalt.function.LuaInterpreter.nativeCall(LuaInterpreter.java:601)
+	at org.squiddev.cobalt.function.LuaInterpreter.execute(LuaInterpreter.java:412)
+       luajit: error: Java Exception Thrown: java.lang.RuntimeException: kaboom (+3 lines) | line 0 ''
+       cobalt: error: Java Exception Thrown: java.lang.RuntimeException: kaboom (+3 lines) | line 0 ''
+	at org.squiddev.cobalt.function.Dispatch.invokeImpl(Dispatch.java:166)
+	at org.squiddev.cobalt.function.Dispatch.invoke(Dispatch.java:63)
+	at org.squiddev.cobalt.function.Dispatch.invoke(Dispatch.java:58)
+	at org.squiddev.cobalt.LuaThread.loop(LuaThread.java:320)
+	at org.squiddev.cobalt.LuaThread.run(LuaThread.java:301)
+	at org.squiddev.cobalt.LuaThread.run(LuaThread.java:297)
+	at dan200.computercraft.core.lua.CobaltLuaMachine.handleEvent(CobaltLuaMachine.java:131)
+	at io.github.mindbound.cclj.headless.MachineSpecs$Env.event(MachineSpecs.java:193)
+	at io.github.mindbound.cclj.headless.MachineSpecs.run(MachineSpecs.java:232)
+	at io.github.mindbound.cclj.headless.MachineSpecs.lambda$bios$1(MachineSpecs.java:262)
+	at io.github.mindbound.cclj.headless.MachineSpecs.runOne(MachineSpecs.java:551)
+	at io.github.mindbound.cclj.headless.MachineSpecs.scenario(MachineSpecs.java:578)
+	at io.github.mindbound.cclj.headless.MachineSpecs.main(MachineSpecs.java:823)
+
+[main] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: false|bad argument #1 (number expected, got string)\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk
+[main] WARN dan200.computercraft.core.lua.CobaltLuaMachine - Top level coroutine errored: org.squiddev.cobalt.LuaError: false|bios.lua:1: bad argument #1 (number expected, got string)\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk
+	at org.squiddev.cobalt.lib.BaseLib.error(BaseLib.java:98)
+	at org.squiddev.cobalt.function.TwoArgFunction.call(TwoArgFunction.java:54)
+	at org.squiddev.cobalt.function.Dispatch.callImpl(Dispatch.java:129)
+	at org.squiddev.cobalt.function.Dispatch.call(Dispatch.java:42)
+	at org.squiddev.cobalt.function.LuaInterpreter.nativeCall(LuaInterpreter.java:603)
+	at org.squiddev.cobalt.function.LuaInterpreter.execute(LuaInterpreter.java:412)
+	at org.squiddev.cobalt.function.Dispatch.invokeImpl(Dispatch.java:166)
+	at org.squiddev.cobalt.function.Dispatch.invoke(Dispatch.java:63)
+ok   7   pcall_continue
+	at org.squiddev.cobalt.function.Dispatch.invoke(Dispatch.java:58)
+	at org.squiddev.cobalt.LuaThread.loop(LuaThread.java:320)
+	at org.squiddev.cobalt.LuaThread.run(LuaThread.java:301)
+	at org.squiddev.cobalt.LuaThread.run(LuaThread.java:297)
+	at dan200.computercraft.core.lua.CobaltLuaMachine.handleEvent(CobaltLuaMachine.java:131)
+	at io.github.mindbound.cclj.headless.MachineSpecs$Env.event(MachineSpecs.java:193)
+	at io.github.mindbound.cclj.headless.MachineSpecs.run(MachineSpecs.java:232)
+	at io.github.mindbound.cclj.headless.MachineSpecs.lambda$bios$1(MachineSpecs.java:262)
+	at io.github.mindbound.cclj.headless.MachineSpecs.runOne(MachineSpecs.java:551)
+	at io.github.mindbound.cclj.headless.MachineSpecs.scenario(MachineSpecs.java:578)
+       luajit: error: false|bad argument #1 (number expected, got string) (+3 lines) | line 0 'after'
+       cobalt: error: false|bios.lua:1: bad argument #1 (number expected, got string) (+3 lines) | line 0 'after'
+       note: allowed (F5: luaL_where adds no position for a C function called by pcall; Cobalt adds bios.lua:1: (decided in S3)): result 1: 'false|bad argument #1 (number expected, got string)' vs 'false|bios.lua:1: bad argument #1 (number expected, got string)'
+	at io.github.mindbound.cclj.headless.MachineSpecs.main(MachineSpecs.java:823)
+
+[main] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: 3,4\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk
+[main] WARN dan200.computercraft.core.lua.CobaltLuaMachine - Top level coroutine errored: org.squiddev.cobalt.LuaError: 3,4\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk
+	at org.squiddev.cobalt.lib.BaseLib.error(BaseLib.java:98)
+	at org.squiddev.cobalt.function.TwoArgFunction.call(TwoArgFunction.java:54)
+	at org.squiddev.cobalt.function.Dispatch.callImpl(Dispatch.java:129)
+	at org.squiddev.cobalt.function.Dispatch.call(Dispatch.java:42)
+	at org.squiddev.cobalt.function.LuaInterpreter.nativeCall(LuaInterpreter.java:603)
+	at org.squiddev.cobalt.function.LuaInterpreter.execute(LuaInterpreter.java:412)
+	at org.squiddev.cobalt.function.Dispatch.invokeImpl(Dispatch.java:166)
+	at org.squiddev.cobalt.function.Dispatch.invoke(Dispatch.java:63)
+	at org.squiddev.cobalt.function.Dispatch.invoke(Dispatch.java:58)
+	at org.squiddev.cobalt.LuaThread.loop(LuaThread.java:320)
+	at org.squiddev.cobalt.LuaThread.run(LuaThread.java:301)
+	at org.squiddev.cobalt.LuaThread.run(LuaThread.java:297)
+	at dan200.computercraft.core.lua.CobaltLuaMachine.handleEvent(CobaltLuaMachine.java:131)
+	at io.github.mindbound.cclj.headless.MachineSpecs$Env.event(MachineSpecs.java:193)
+	at io.github.mindbound.cclj.headless.MachineSpecs.run(MachineSpecs.java:232)
+	at io.github.mindbound.cclj.headless.MachineSpecs.lambda$bios$1(MachineSpecs.java:262)
+	at io.github.mindbound.cclj.headless.MachineSpecs.runOne(MachineSpecs.java:551)
+	at io.github.mindbound.cclj.headless.MachineSpecs.scenario(MachineSpecs.java:578)
+	at io.github.mindbound.cclj.headless.MachineSpecs.main(MachineSpecs.java:823)
+
+ok   8   results
+       luajit: error: 3,4 (+3 lines) | line 0 ''
+       cobalt: error: 3,4 (+3 lines) | line 0 ''
+[main] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: 4:233,63,63,63|same\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:4: in main chunk
+[main] WARN dan200.computercraft.core.lua.CobaltLuaMachine - Top level coroutine errored: org.squiddev.cobalt.LuaError: 4:233,63,63,63|same\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:4: in main chunk
+	at org.squiddev.cobalt.lib.BaseLib.error(BaseLib.java:98)
+	at org.squiddev.cobalt.function.TwoArgFunction.call(TwoArgFunction.java:54)
+	at org.squiddev.cobalt.function.Dispatch.callImpl(Dispatch.java:129)
+	at org.squiddev.cobalt.function.Dispatch.call(Dispatch.java:42)
+	at org.squiddev.cobalt.function.LuaInterpreter.nativeCall(LuaInterpreter.java:603)
+	at org.squiddev.cobalt.function.LuaInterpreter.execute(LuaInterpreter.java:412)
+	at org.squiddev.cobalt.function.Dispatch.invokeImpl(Dispatch.java:166)
+	at org.squiddev.cobalt.function.Dispatch.invoke(Dispatch.java:63)
+	at org.squiddev.cobalt.function.Dispatch.invoke(Dispatch.java:58)
+	at org.squiddev.cobalt.LuaThread.loop(LuaThread.java:320)
+	at org.squiddev.cobalt.LuaThread.run(LuaThread.java:301)
+	at org.squiddev.cobalt.LuaThread.run(LuaThread.java:297)
+	at dan200.computercraft.core.lua.CobaltLuaMachine.handleEvent(CobaltLuaMachine.java:131)
+	at io.github.mindbound.cclj.headless.MachineSpecs$Env.event(MachineSpecs.java:193)
+	at io.github.mindbound.cclj.headless.MachineSpecs.run(MachineSpecs.java:232)
+	at io.github.mindbound.cclj.headless.MachineSpecs.lambda$bios$1(MachineSpecs.java:262)
+	at io.github.mindbound.cclj.headless.MachineSpecs.runOne(MachineSpecs.java:551)
+	at io.github.mindbound.cclj.headless.MachineSpecs.scenario(MachineSpecs.java:578)
+	at io.github.mindbound.cclj.headless.MachineSpecs.main(MachineSpecs.java:823)
+
+ok   9   latin1
+       luajit: error: 4:233,63,63,63|same (+3 lines) | line 0 '\u00e9\u0080'
+       cobalt: error: 4:233,63,63,63|same (+3 lines) | line 0 '\u00e9\u0080'
+[main] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: 1|1.5|nil|1.0E100|NaN|0|9.007199254740992E15\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:1: in main chunk
+[main] WARN dan200.computercraft.core.lua.CobaltLuaMachine - Top level coroutine errored: org.squiddev.cobalt.LuaError: 1|1.5|nil|1e+100|nan|0|9007199254740992\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:1: in main chunk
+	at org.squiddev.cobalt.lib.BaseLib.error(BaseLib.java:98)
+	at org.squiddev.cobalt.function.TwoArgFunction.call(TwoArgFunction.java:54)
+	at org.squiddev.cobalt.function.Dispatch.callImpl(Dispatch.java:129)
+	at org.squiddev.cobalt.function.Dispatch.call(Dispatch.java:42)
+ok   10  coerce
+       luajit: error: 1|1.5|nil|1.0E100|NaN|0|9.007199254740992E15 (+3 lines) | line 0 ''
+       cobalt: error: 1|1.5|nil|1e+100|nan|0|9007199254740992 (+3 lines) | line 0 ''
+	at org.squiddev.cobalt.function.LuaInterpreter.nativeCall(LuaInterpreter.java:603)
+	at org.squiddev.cobalt.function.LuaInterpreter.execute(LuaInterpreter.java:412)
+	at org.squiddev.cobalt.function.Dispatch.invokeImpl(Dispatch.java:166)
+	at org.squiddev.cobalt.function.Dispatch.invoke(Dispatch.java:63)
+	at org.squiddev.cobalt.function.Dispatch.invoke(Dispatch.java:58)
+	at org.squiddev.cobalt.LuaThread.loop(LuaThread.java:320)
+	at org.squiddev.cobalt.LuaThread.run(LuaThread.java:301)
+	at org.squiddev.cobalt.LuaThread.run(LuaThread.java:297)
+	at dan200.computercraft.core.lua.CobaltLuaMachine.handleEvent(CobaltLuaMachine.java:131)
+	at io.github.mindbound.cclj.headless.MachineSpecs$Env.event(MachineSpecs.java:193)
+	at io.github.mindbound.cclj.headless.MachineSpecs.run(MachineSpecs.java:232)
+	at io.github.mindbound.cclj.headless.MachineSpecs.lambda$bios$1(MachineSpecs.java:262)
+	at io.github.mindbound.cclj.headless.MachineSpecs.runOne(MachineSpecs.java:551)
+	at io.github.mindbound.cclj.headless.MachineSpecs.scenario(MachineSpecs.java:578)
+	at io.github.mindbound.cclj.headless.MachineSpecs.main(MachineSpecs.java:823)
+
+       note: allowed (F7: ObjectArguments.getStringCoerced uses Double.toString for 1e100, NaN and 2^53; Cobalt formats them as Lua does (S3 replaces IArguments)): result 1: '1|1.5|nil|1.0E100|NaN|0|9.007199254740992E15' vs '1|1.5|nil|1e+100|nan|0|9007199254740992'
+[main] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Method weird returned a value of unknown type io.github.mindbound.cclj.headless.SpecAPI$Weird, which becomes nil (logged once per type)
+[main] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: nil|nil\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk
+[main] WARN dan200.computercraft.core.lua.CobaltLuaMachine -  COMPUTER_ERROR.JAVA Received unknown type 'io.github.mindbound.cclj.headless.SpecAPI$Weird', returning nil.
+ok   11  weird
+       luajit: error: nil|nil (+3 lines) | line 0 '' | 1 WARN line(s) naming SpecAPI$Weird
+[main] WARN dan200.computercraft.core.lua.CobaltLuaMachine -  COMPUTER_ERROR.JAVA Received unknown type 'io.github.mindbound.cclj.headless.SpecAPI$Weird', returning nil.
+[main] WARN dan200.computercraft.core.lua.CobaltLuaMachine - Top level coroutine errored: org.squiddev.cobalt.LuaError: nil|nil\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk
+	at org.squiddev.cobalt.lib.BaseLib.error(BaseLib.java:98)
+	at org.squiddev.cobalt.function.TwoArgFunction.call(TwoArgFunction.java:54)
+	at org.squiddev.cobalt.function.Dispatch.callImpl(Dispatch.java:129)
+	at org.squiddev.cobalt.function.Dispatch.call(Dispatch.java:42)
+	at org.squiddev.cobalt.function.LuaInterpreter.nativeCall(LuaInterpreter.java:603)
+	at org.squiddev.cobalt.function.LuaInterpreter.execute(LuaInterpreter.java:412)
+	at org.squiddev.cobalt.function.Dispatch.invokeImpl(Dispatch.java:166)
+	at org.squiddev.cobalt.function.Dispatch.invoke(Dispatch.java:63)
+	at org.squiddev.cobalt.function.Dispatch.invoke(Dispatch.java:58)
+	at org.squiddev.cobalt.LuaThread.loop(LuaThread.java:320)
+	at org.squiddev.cobalt.LuaThread.run(LuaThread.java:301)
+	at org.squiddev.cobalt.LuaThread.run(LuaThread.java:297)
+	at dan200.computercraft.core.lua.CobaltLuaMachine.handleEvent(CobaltLuaMachine.java:131)
+	at io.github.mindbound.cclj.headless.MachineSpecs$Env.event(MachineSpecs.java:193)
+	at io.github.mindbound.cclj.headless.MachineSpecs.run(MachineSpecs.java:232)
+	at io.github.mindbound.cclj.headless.MachineSpecs.lambda$scenarios$12(MachineSpecs.java:348)
+	at io.github.mindbound.cclj.headless.MachineSpecs.runOne(MachineSpecs.java:551)
+	at io.github.mindbound.cclj.headless.MachineSpecs.scenario(MachineSpecs.java:578)
+	at io.github.mindbound.cclj.headless.MachineSpecs.main(MachineSpecs.java:823)
+
+       cobalt: error: nil|nil (+3 lines) | line 0 '' | 2 WARN line(s) naming SpecAPI$Weird
+ok   12a error_values: nil
+[main] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: nil\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:1: in main chunk
+[main] WARN dan200.computercraft.core.lua.CobaltLuaMachine - Top level coroutine errored: org.squiddev.cobalt.LuaError: nil\nstack traceback:\n\tbios.lua:1: in main chunk
+	at org.squiddev.cobalt.lib.BaseLib.error(BaseLib.java:98)
+	at org.squiddev.cobalt.function.TwoArgFunction.call(TwoArgFunction.java:49)
+	at org.squiddev.cobalt.function.Dispatch.callImpl(Dispatch.java:106)
+	at org.squiddev.cobalt.function.Dispatch.call(Dispatch.java:32)
+	at org.squiddev.cobalt.function.LuaInterpreter.nativeCall(LuaInterpreter.java:602)
+	at org.squiddev.cobalt.function.LuaInterpreter.execute(LuaInterpreter.java:412)
+	at org.squiddev.cobalt.function.Dispatch.invokeImpl(Dispatch.java:166)
+	at org.squiddev.cobalt.function.Dispatch.invoke(Dispatch.java:63)
+	at org.squiddev.cobalt.function.Dispatch.invoke(Dispatch.java:58)
+	at org.squiddev.cobalt.LuaThread.loop(LuaThread.java:320)
+	at org.squiddev.cobalt.LuaThread.run(LuaThread.java:301)
+	at org.squiddev.cobalt.LuaThread.run(LuaThread.java:297)
+	at dan200.computercraft.core.lua.CobaltLuaMachine.handleEvent(CobaltLuaMachine.java:131)
+	at io.github.mindbound.cclj.headless.MachineSpecs$Env.event(MachineSpecs.java:193)
+	at io.github.mindbound.cclj.headless.MachineSpecs.run(MachineSpecs.java:232)
+	at io.github.mindbound.cclj.headless.MachineSpecs.lambda$bios$1(MachineSpecs.java:262)
+	at io.github.mindbound.cclj.headless.MachineSpecs.runOne(MachineSpecs.java:551)
+	at io.github.mindbound.cclj.headless.MachineSpecs.scenario(MachineSpecs.java:578)
+	at io.github.mindbound.cclj.headless.MachineSpecs.main(MachineSpecs.java:823)
+
+       luajit: error: nil (+3 lines) | line 0 ''
+       cobalt: error: nil (+2 lines) | line 0 ''
+[main] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: true\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:1: in main chunk
+[main] WARN dan200.computercraft.core.lua.CobaltLuaMachine - Top level coroutine errored: org.squiddev.cobalt.LuaError: true\nstack traceback:\n\tbios.lua:1: in main chunk
+	at org.squiddev.cobalt.lib.BaseLib.error(BaseLib.java:98)
+	at org.squiddev.cobalt.function.TwoArgFunction.call(TwoArgFunction.java:49)
+	at org.squiddev.cobalt.function.Dispatch.callImpl(Dispatch.java:106)
+	at org.squiddev.cobalt.function.Dispatch.call(Dispatch.java:32)
+	at org.squiddev.cobalt.function.LuaInterpreter.nativeCall(LuaInterpreter.java:602)
+	at org.squiddev.cobalt.function.LuaInterpreter.execute(LuaInterpreter.java:412)
+	at org.squiddev.cobalt.function.Dispatch.invokeImpl(Dispatch.java:166)
+	at org.squiddev.cobalt.function.Dispatch.invoke(Dispatch.java:63)
+	at org.squiddev.cobalt.function.Dispatch.invoke(Dispatch.java:58)
+	at org.squiddev.cobalt.LuaThread.loop(LuaThread.java:320)
+	at org.squiddev.cobalt.LuaThread.run(LuaThread.java:301)
+	at org.squiddev.cobalt.LuaThread.run(LuaThread.java:297)
+	at dan200.computercraft.core.lua.CobaltLuaMachine.handleEvent(CobaltLuaMachine.java:131)
+	at io.github.mindbound.cclj.headless.MachineSpecs$Env.event(MachineSpecs.java:193)
+ok   12b error_values: true
+	at io.github.mindbound.cclj.headless.MachineSpecs.run(MachineSpecs.java:232)
+	at io.github.mindbound.cclj.headless.MachineSpecs.lambda$bios$1(MachineSpecs.java:262)
+	at io.github.mindbound.cclj.headless.MachineSpecs.runOne(MachineSpecs.java:551)
+	at io.github.mindbound.cclj.headless.MachineSpecs.scenario(MachineSpecs.java:578)
+	at io.github.mindbound.cclj.headless.MachineSpecs.main(MachineSpecs.java:823)
+
+       luajit: error: true (+3 lines) | line 0 ''
+       cobalt: error: true (+2 lines) | line 0 ''
+[main] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: table: 6fc6b3de\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:1: in main chunk
+[main] WARN dan200.computercraft.core.lua.CobaltLuaMachine - Top level coroutine errored: org.squiddev.cobalt.LuaError: table: 79be0360\nstack traceback:\n\tbios.lua:1: in main chunk
+	at org.squiddev.cobalt.lib.BaseLib.error(BaseLib.java:98)
+	at org.squiddev.cobalt.function.TwoArgFunction.call(TwoArgFunction.java:49)
+	at org.squiddev.cobalt.function.Dispatch.callImpl(Dispatch.java:106)
+	at org.squiddev.cobalt.function.Dispatch.call(Dispatch.java:32)
+	at org.squiddev.cobalt.function.LuaInterpreter.nativeCall(LuaInterpreter.java:602)
+	at org.squiddev.cobalt.function.LuaInterpreter.execute(LuaInterpreter.java:412)
+	at org.squiddev.cobalt.function.Dispatch.invokeImpl(Dispatch.java:166)
+	at org.squiddev.cobalt.function.Dispatch.invoke(Dispatch.java:63)
+	at org.squiddev.cobalt.function.Dispatch.invoke(Dispatch.java:58)
+	at org.squiddev.cobalt.LuaThread.loop(LuaThread.java:320)
+ok   12c error_values: {}
+	at org.squiddev.cobalt.LuaThread.run(LuaThread.java:301)
+	at org.squiddev.cobalt.LuaThread.run(LuaThread.java:297)
+	at dan200.computercraft.core.lua.CobaltLuaMachine.handleEvent(CobaltLuaMachine.java:131)
+	at io.github.mindbound.cclj.headless.MachineSpecs$Env.event(MachineSpecs.java:193)
+	at io.github.mindbound.cclj.headless.MachineSpecs.run(MachineSpecs.java:232)
+	at io.github.mindbound.cclj.headless.MachineSpecs.lambda$bios$1(MachineSpecs.java:262)
+       luajit: error: table: 6fc6b3de (+3 lines) | line 0 ''
+       cobalt: error: table: 79be0360 (+2 lines) | line 0 ''
+       note: allowed (a table's name holds its identity, which differs per run): result 1: 'table: 6fc6b3de' vs 'table: 79be0360'
+	at io.github.mindbound.cclj.headless.MachineSpecs.runOne(MachineSpecs.java:551)
+	at io.github.mindbound.cclj.headless.MachineSpecs.scenario(MachineSpecs.java:578)
+	at io.github.mindbound.cclj.headless.MachineSpecs.main(MachineSpecs.java:823)
+
+[main] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: bios.lua:1: 42\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:1: in main chunk
+[main] WARN dan200.computercraft.core.lua.CobaltLuaMachine - Top level coroutine errored: org.squiddev.cobalt.LuaError: 42\nstack traceback:\n\tbios.lua:1: in main chunk
+	at org.squiddev.cobalt.lib.BaseLib.error(BaseLib.java:98)
+	at org.squiddev.cobalt.function.TwoArgFunction.call(TwoArgFunction.java:49)
+	at org.squiddev.cobalt.function.Dispatch.callImpl(Dispatch.java:106)
+	at org.squiddev.cobalt.function.Dispatch.call(Dispatch.java:32)
+	at org.squiddev.cobalt.function.LuaInterpreter.nativeCall(LuaInterpreter.java:602)
+	at org.squiddev.cobalt.function.LuaInterpreter.execute(LuaInterpreter.java:412)
+	at org.squiddev.cobalt.function.Dispatch.invokeImpl(Dispatch.java:166)
+	at org.squiddev.cobalt.function.Dispatch.invoke(Dispatch.java:63)
+	at org.squiddev.cobalt.function.Dispatch.invoke(Dispatch.java:58)
+ok   12d error_values: 42
+	at org.squiddev.cobalt.LuaThread.loop(LuaThread.java:320)
+	at org.squiddev.cobalt.LuaThread.run(LuaThread.java:301)
+	at org.squiddev.cobalt.LuaThread.run(LuaThread.java:297)
+	at dan200.computercraft.core.lua.CobaltLuaMachine.handleEvent(CobaltLuaMachine.java:131)
+       luajit: error: bios.lua:1: 42 (+3 lines) | line 0 ''
+	at io.github.mindbound.cclj.headless.MachineSpecs$Env.event(MachineSpecs.java:193)
+	at io.github.mindbound.cclj.headless.MachineSpecs.run(MachineSpecs.java:232)
+	at io.github.mindbound.cclj.headless.MachineSpecs.lambda$bios$1(MachineSpecs.java:262)
+	at io.github.mindbound.cclj.headless.MachineSpecs.runOne(MachineSpecs.java:551)
+	at io.github.mindbound.cclj.headless.MachineSpecs.scenario(MachineSpecs.java:578)
+	at io.github.mindbound.cclj.headless.MachineSpecs.main(MachineSpecs.java:823)
+
+       cobalt: error: 42 (+2 lines) | line 0 ''
+       note: allowed (F6 (P13): LuaJIT's error adds a position to a number, which lua_isstring accepts; Cobalt does not): result 1: 'bios.lua:1: 42' vs '42'
+[main] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: table: f9f02f0e\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:1: in main chunk
+[main] WARN dan200.computercraft.core.lua.CobaltLuaMachine - Top level coroutine errored: org.squiddev.cobalt.LuaError: table: 3b084709\nstack traceback:\n\tbios.lua:1: in main chunk
+	at org.squiddev.cobalt.lib.BaseLib.error(BaseLib.java:98)
+	at org.squiddev.cobalt.function.TwoArgFunction.invoke(TwoArgFunction.java:64)
+	at org.squiddev.cobalt.function.Dispatch.invokeImpl(Dispatch.java:175)
+	at org.squiddev.cobalt.function.Dispatch.invoke(Dispatch.java:63)
+	at org.squiddev.cobalt.function.LuaInterpreter.nativeCall(LuaInterpreter.java:614)
+	at org.squiddev.cobalt.function.LuaInterpreter.execute(LuaInterpreter.java:412)
+	at org.squiddev.cobalt.function.Dispatch.invokeImpl(Dispatch.java:166)
+	at org.squiddev.cobalt.function.Dispatch.invoke(Dispatch.java:63)
+	at org.squiddev.cobalt.function.Dispatch.invoke(Dispatch.java:58)
+	at org.squiddev.cobalt.LuaThread.loop(LuaThread.java:320)
+	at org.squiddev.cobalt.LuaThread.run(LuaThread.java:301)
+	at org.squiddev.cobalt.LuaThread.run(LuaThread.java:297)
+ok   13  no_tostring
+	at dan200.computercraft.core.lua.CobaltLuaMachine.handleEvent(CobaltLuaMachine.java:131)
+       luajit: error: table: f9f02f0e (+3 lines) | line 0 '' | mark() called 0 time(s)
+       cobalt: error: table: 3b084709 (+2 lines) | line 0 '' | mark() called 0 time(s)
+       note: allowed (a table's name holds its identity, which differs per run): result 1: 'table: f9f02f0e' vs 'table: 3b084709'
+	at io.github.mindbound.cclj.headless.MachineSpecs$Env.event(MachineSpecs.java:193)
+	at io.github.mindbound.cclj.headless.MachineSpecs.run(MachineSpecs.java:232)
+	at io.github.mindbound.cclj.headless.MachineSpecs.lambda$scenarios$16(MachineSpecs.java:363)
+	at io.github.mindbound.cclj.headless.MachineSpecs.runOne(MachineSpecs.java:551)
+	at io.github.mindbound.cclj.headless.MachineSpecs.scenario(MachineSpecs.java:578)
+	at io.github.mindbound.cclj.headless.MachineSpecs.main(MachineSpecs.java:823)
+
+ok   14  syntax
+       luajit: MachineException: bios.lua:1: unexpected symbol near '=' | line 0 ''
+       cobalt: MachineException: bios.lua:1: unexpected symbol near '=' | line 0 ''
+ok   15  binary
+       luajit: MachineException: attempt to load a binary chunk | line 0 ''
+       cobalt: MachineException: attempt to load a binary chunk | line 0 ''
+[main] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: bios.lua:1: CCLuaJIT: tables are not supported yet\nstack traceback:\n\t[C]: in field 'write'\n\tbios.lua:1: in main chunk
+ok   16  table_arg
+       luajit: error: bios.lua:1: CCLuaJIT: tables are not supported yet (+3 lines) | line 0 ''
+[main] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: []\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:7: in main chunk
+ok   17  environment
+       luajit: error: [] (+3 lines) | line 0 ''
+[main] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: false not enough memory alive\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:2: in main chunk
+ok   18  oom
+       luajit: error: false not enough memory alive (+3 lines) | line 0 ''
+ok   19  close_while_running
+       luajit: TIMEOUT | line 0 '' | close() on spec-close during t.block()
+[main] ERROR io.github.mindbound.cclj.computer.LuaJITMachine - Error calling reenter on io.github.mindbound.cclj.headless.SpecAPI@9660f4e
+java.lang.IllegalStateException: Machine is already running
+	at io.github.mindbound.cclj.natives.NativeMachine.resume(NativeMachine.java:120)
+	at io.github.mindbound.cclj.computer.LuaJITMachine.handleEvent(LuaJITMachine.java:117)
+	at io.github.mindbound.cclj.headless.SpecAPI.reenter(SpecAPI.java:102)
+	at dan200.computercraft.core.asm.LuaMethodSupplier.lambda$static$1(LuaMethodSupplier.java:27)
+	at io.github.mindbound.cclj.computer.LuaJITMachine.call(LuaJITMachine.java:163)
+	at io.github.mindbound.cclj.natives.NativeMachine.upcall(NativeMachine.java:197)
+	at io.github.mindbound.cclj.natives.NativeMachine.nResume(Native Method)
+	at io.github.mindbound.cclj.natives.NativeMachine.resume(NativeMachine.java:129)
+	at io.github.mindbound.cclj.computer.LuaJITMachine.handleEvent(LuaJITMachine.java:117)
+	at io.github.mindbound.cclj.headless.MachineSpecs$Env.event(MachineSpecs.java:193)
+	at io.github.mindbound.cclj.headless.MachineSpecs.run(MachineSpecs.java:232)
+	at io.github.mindbound.cclj.headless.MachineSpecs.lambda$bios$1(MachineSpecs.java:262)
+	at io.github.mindbound.cclj.headless.MachineSpecs.runOne(MachineSpecs.java:551)
+	at io.github.mindbound.cclj.headless.MachineSpecs.scenario(MachineSpecs.java:567)
+	at io.github.mindbound.cclj.headless.MachineSpecs.main(MachineSpecs.java:823)
+ok   20  reentry
+       luajit: error: Java Exception Thrown: java.lang.IllegalStateException: Machine is already running (+3 lines) | line 0 ''
+[main] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: Java Exception Thrown: java.lang.IllegalStateException: Machine is already running\nstack traceback:\n\t[C]: in field 'reenter'\n\tbios.lua:1: in main chunk
+[spec-event] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk
+[spec-event] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk
+[spec-event] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk
+[spec-event] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk
+[spec-event] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk
+[spec-event] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk
+[spec-event] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk
+[spec-event] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk
+[spec-event] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk
+[spec-event] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk
+[spec-event] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk
+[spec-event] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk
+[spec-event] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk
+[spec-event] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk
+[spec-event] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk
+[spec-event] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk
+[spec-event] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk
+[spec-event] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk
+[spec-event] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk
+[spec-event] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk
+[spec-event] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk
+[spec-event] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk
+[spec-event] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk
+[spec-event] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk
+[spec-event] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk
+[spec-event] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk
+[spec-event] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk
+[spec-event] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk
+[spec-event] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk
+[spec-event] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk
+[spec-event] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk
+[spec-event] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk
+[spec-event] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk
+[spec-event] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk
+[spec-event] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk
+[spec-event] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk
+[spec-event] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk
+[spec-event] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk
+[spec-event] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk
+[spec-event] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk
+[spec-event] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk
+[spec-event] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk
+[spec-event] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk
+[spec-event] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk
+[spec-event] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk
+[spec-event] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk
+[spec-event] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk
+[spec-event] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk
+[spec-event] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk
+[spec-event] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk
+[spec-event] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk
+[spec-event] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk
+[spec-event] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk
+[spec-event] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk
+[spec-event] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk
+[spec-event] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk
+[spec-event] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk
+[spec-event] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk
+[spec-event] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk
+[spec-event] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk
+[spec-event] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk
+[spec-event] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk
+[spec-event] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk
+[spec-event] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk
+[spec-event] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk
+[spec-event] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk
+[spec-event] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk
+[spec-event] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk
+[spec-event] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk
+[spec-event] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk
+[spec-event] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk
+[spec-event] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk
+[spec-event] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk
+[spec-event] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk
+[spec-event] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk
+[spec-event] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk
+[spec-event] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk
+[spec-event] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk
+[spec-event] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk
+[spec-event] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk
+[spec-event] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk
+[spec-event] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk
+[spec-event] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk
+[spec-event] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk
+[spec-event] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk
+[spec-event] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk
+[spec-event] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk
+[spec-event] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk
+[spec-event] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk
+[spec-event] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk
+[spec-event] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk
+[spec-event] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk
+[spec-event] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk
+[spec-event] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk
+[spec-event] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk
+[spec-event] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk
+[spec-event] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk
+[spec-event] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk
+[spec-event] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk
+[spec-event] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk
+[spec-event] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk
+[spec-event] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk
+[spec-event] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk
+[spec-event] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk
+[spec-event] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk
+[spec-event] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk
+[spec-event] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk
+[spec-event] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk
+[spec-event] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk
+[spec-event] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk
+[spec-event] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk
+[spec-event] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk
+[spec-event] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk
+[spec-event] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk
+[spec-event] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk
+[spec-event] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk
+[spec-event] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk
+[spec-event] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk
+[spec-event] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk
+[spec-event] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk
+[spec-event] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk
+[spec-event] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk
+[spec-event] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk
+[spec-event] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk
+[spec-event] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk
+[spec-event] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk
+[spec-event] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk
+[spec-event] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk
+[spec-event] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk
+[spec-event] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk
+[spec-event] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk
+[spec-event] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk
+[spec-event] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk
+[spec-event] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk
+[spec-event] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk
+[spec-event] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk
+[spec-event] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk
+[spec-event] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk
+[spec-event] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk
+[spec-event] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk
+[spec-event] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk
+[spec-event] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk
+[spec-event] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk
+[spec-event] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk
+[spec-event] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk
+[spec-event] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk
+[spec-event] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk
+[spec-event] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk
+[spec-event] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk
+[spec-event] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk
+[spec-event] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk
+[spec-event] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk
+[spec-event] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk
+[spec-event] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk
+[spec-event] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk
+[spec-event] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk
+[spec-event] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk
+[spec-event] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk
+[spec-event] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk
+[spec-event] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk
+[spec-event] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk
+[spec-event] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk
+[spec-event] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk
+[spec-event] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk
+[spec-event] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk
+[spec-event] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk
+[spec-event] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk
+[spec-event] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk
+[spec-event] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk
+[spec-event] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk
+[spec-event] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk
+[spec-event] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk
+[spec-event] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk
+[spec-event] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk
+[spec-event] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk
+[spec-event] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk
+[spec-event] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk
+[spec-event] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk
+[spec-event] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk
+[spec-event] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk
+[spec-event] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk
+[spec-event] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk
+[spec-event] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk
+[spec-event] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk
+[spec-event] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk
+[spec-event] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk
+[spec-event] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk
+[spec-event] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk
+[spec-event] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk
+[spec-event] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk
+[spec-event] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk
+[spec-event] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk
+[spec-event] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk
+[spec-event] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk
+[spec-event] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk
+[spec-event] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk
+[spec-event] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk
+[spec-event] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk
+[spec-event] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk
+[spec-event] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk
+ok   21  churn
+       luajit: churn | line 0 '' | 200 of 200 passed scenario 1's checks
+[main] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: done\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:2: in main chunk
+ok   22  many_calls
+       luajit: error: done (+3 lines) | line 0 '' | 308 ns per call (100,000 calls, one resume)
+[ComputerCraft-Computer-Worker-0] WARN io.github.mindbound.cclj.computer.LuaJITMachine - Top level coroutine errored: bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk
+ok   B1  error bios through Computer
+       result error: bios.lua:3: boom (+3 lines); close() called 1 time(s); create on ComputerCraft-Computer-Worker-0, handleEvent on ComputerCraft-Computer-Worker-0
+ok   B2  syntax error, retried
+       factory called 2 time(s); line 1 'bios.lua:1: unexpected symbol near '='', then 'bios.lua:1: unexpected symbol near '=''
+ok   B3  context closes
+       ctx.close(1, SECONDS) = true
+machineSpecs: 33 passed (5 with an allowed difference from Cobalt), 0 failed; native machines live 0, leaked 0
+report: <repo>\common\build\headless\machineSpecs.tsv
+machineSpecs: JNI scan clean, exit code 0 (log: <repo>\common\build\headless\logs\machineSpecs.log)
+
+> Task :common:headlessSmoke
+headlessSmoke: Java 21.0.13+9-LTS at C:\Program Files\Eclipse Adoptium\jdk-21.0.13.9-hotspot
+[lua] version=CraftOS 1.9 host=ComputerCraft 1.121.0 (headless)
+[lua] sleep ok
+[lua] mainAdd(2,3)=5
+[lua] read() got: Steve
+[lua] 8-bit roundtrip ok len=8
+[lua] bit32.extract(0xF0,4,4)=15
+[lua] programs run ok
+---- terminal (51x19) after 1.61 s ----
+|CraftOS 1.9                                        |
+|Files beginning with a "." are hidden from "list"  |
+|by default.                                        |
+|CraftOS 1.9	ComputerCraft 1.121.0 (headless)       |
+|name? Steve                                        |
+|apis        autorun     help        modules        |
+|programs                                           |
+|motd.txt    startup.lua                            |
+|>                                                  |
+|                                                   |
+|                                                   |
+|                                                   |
+|                                                   |
+|                                                   |
+|                                                   |
+|                                                   |
+|                                                   |
+|                                                   |
+|                                                   |
+---- exit 0 ----
+context closed cleanly: true
+headlessSmoke: JNI scan clean, exit code 0 (log: <repo>\common\build\headless\logs\headlessSmoke.log)
+
+> Task :common:headlessSuite
+headlessSuite: Java 21.0.13+9-LTS at C:\Program Files\Eclipse Adoptium\jdk-21.0.13.9-hotspot
+factory=cobalt http=disabled expected failures=5 (<repo>\common\src\test\resources\headless\expected-failures-cobalt.txt)
+suite: 1407 tests registered
+pending	The gps library -> on fake computers -> locates computers at random positions
+error	The http library -> http.checkURL -> accepts well formed domains	...pec/apis/http_spec.lua:10: attempt to index global 'http' (a nil value)
+error	The http library -> http.checkURL -> rejects local domains	...pec/apis/http_spec.lua:23: attempt to index global 'http' (a nil value)
+error	The http library -> http.checkURL -> rejects malformed URLs	...pec/apis/http_spec.lua:14: attempt to index global 'http' (a nil value)
+error	The http library -> http.requestAsync -> queues an event for immediate failures	...pec/apis/http_spec.lua:49: attempt to index global 'http' (a nil value)
+error	The http library -> http.websocketAsync -> queues an event for immediate failures	...pec/apis/http_spec.lua:37: attempt to index global 'http' (a nil value)
+pending	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_number_-01
+pending	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_number_-2.
+pending	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_number_0.e1
+pending	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_number_2.e+3
+pending	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_number_2.e-3
+pending	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_number_2.e3
+pending	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_number_neg_int_starting_with_zero
+pending	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_number_real_without_fractional_part
+pending	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_number_with_leading_zero
+pending	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_structure_100000_opening_arrays
+pending	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_structure_open_array_object
+suite done=true after 23.7 s; registered=1407 run=1407 counts={error=5, pass=1390, pending=12}
+context closed cleanly: true
+verdict: 0 unexpected failure(s), 5 expected failure(s), 0 stale expected-failure entries
+RESULT: PASS
+headlessSuite: JNI scan clean, exit code 0 (log: <repo>\common\build\headless\logs\headlessSuite.log)
+
+BUILD SUCCESSFUL in 36s
+9 actionable tasks: 5 executed, 4 up-to-date
+Consider enabling configuration cache to speed up this build: https://docs.gradle.org/9.8.2/userguide/configuration_cache_enabling.html

@@ -1,0 +1,22 @@
+82:  /* NEGATIVE CONTROL: the ExceptionCheck after CallObjectMethod is removed */
+=== build-mutant (11:49:43)
+== OK: <scratch>/g1/negctl-lin/natives/build/out/natives/linux-x86_64/libcclj.so (477856 bytes, sha256 f68b9e5f2f0d1b2b...)
+=== build-mutant exit: 0
+java exit: 1
+log: 1135383567 bytes
+scan exit: 1
+jni-scan: -Xcheck:jni reported problems: 1272129 matching line(s) in 1 log(s). At most 100 per log:
+/tmp/cclj-g1-negctl/bridge-probe.log:33:WARNING in native method: JNI call made without checking exceptions when required to from CallObjectMethod
+/tmp/cclj-g1-negctl/bridge-probe.log:52:WARNING in native method: JNI call made without checking exceptions when required to from CallObjectMethod
+/tmp/cclj-g1-negctl/bridge-probe.log:62:WARNING in native method: JNI call made without checking exceptions when required to from CallObjectMethod
+/tmp/cclj-g1-negctl/bridge-probe.log:72:WARNING in native method: JNI call made without checking exceptions when required to from CallObjectMethod
+library build: release
+FAIL host throws RuntimeException: uncaught, the fixed level-0 error: "CCLuaJIT: host call returned null\nstack traceback:\n\t[C]: in field 'f'\n\tbios.lua:1: in main chunk"
+FAIL host throws RuntimeException: under pcall, the machine goes on: "CCLuaJIT: JNI failure in host call\nstack traceback:\n\t[C]: in field 'after'\n\tbios.lua:2: in main chunk", after() called 0 time(s)
+FAIL host throws RuntimeException: printed to System.err once per call (ExceptionDescribe): 0 of 2 times, 0 chars on System.err
+FAIL host throws new OutOfMemoryError("fake"): uncaught, the fixed level-0 error: "CCLuaJIT: host call returned null\nstack traceback:\n\t[C]: in field 'f'\n\tbios.lua:1: in main chunk"
+FAIL host throws new OutOfMemoryError("fake"): under pcall, the machine goes on: "CCLuaJIT: JNI failure in host call\nstack traceback:\n\t[C]: in field 'after'\n\tbios.lua:2: in main chunk", after() called 0 time(s)
+FAIL host throws new OutOfMemoryError("fake"): printed to System.err once per call (ExceptionDescribe): 0 of 2 times, 0 chars on System.err
+FAIL local references, exception exit: 128 failing upcalls of 448 KiB; heap below baseline + 16 MiB; each exception printed once: baseline 19.1 MiB, in the last upcall after System.gc() 0.0 MiB (-19.1 MiB), 1 calls, 0 printed to System.err; machine: "call 1: CCLuaJIT: host call returned null\nstack 
+bridgeProbe: 88 checks, 7 failed
+bridgeProbe: FAILED

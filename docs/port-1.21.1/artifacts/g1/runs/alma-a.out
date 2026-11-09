@@ -1,0 +1,63 @@
+commit: 538150462af597f04b36d8a5a88ba96ab2ee581c
+host: AlmaLinux release 8.10 (Cerulean Leopard), gcc (GCC) 8.5.0 20210514 (Red Hat 8.5.0-30), ldd (GNU libc) 2.28
+openjdk version "21.0.13" 2026-10-20 LTS
+OpenJDK Runtime Environment (Red_Hat-21.0.13.0.9-1) (build 21.0.13+9-LTS)
+=== build-release (11:43:56)
+max GLIBC symbol version (objdump -T): GLIBC_2.14 (allowed: GLIBC_2.28)
+== OK: <repo>/natives/build/out/natives/linux-x86_64/libcclj.so (477856 bytes, sha256 004c09267fd7ee1d...)
+=== build-release exit: 0
+=== lint (11:44:02)
+== 12 checks, 0 failed
+lint-natives: OK
+=== lint exit: 0
+=== tier0 (11:44:02)
+== compiling with -fsanitize=address,undefined -fno-sanitize-recover=all -fno-omit-frame-pointer
+note: the sanitized build does not compile or link here (no libasan?); sanitizers dropped:
+== compiling without sanitizers
+machine_test: 166 checks, 0 failed
+machine-test: OK (linux-x86_64)
+=== tier0 exit: 0
+=== scan-self-test (11:44:08)
+jni-scan: self-test OK
+=== scan-self-test exit: 0
+=== tier1 (11:44:08)
+java exit: 0
+jni-scan: OK, none of the 4 patterns in 1 log(s): <scratch>/g1/logs/alma-tier1.log
+scan exit: 0
+java 21.0.13 (OpenJDK 64-Bit Server VM) on Linux amd64, -Xcheck:jni on, max heap 256 MiB
+library build: release
+ns per call: 275.8 (median of 5 runs of 200000 calls of t.echo("hello"), a string in and a string out, decoded and encoded by Wire; -Xcheck:jni on; runs: 272.5 275.8 295.1 275.8 268.8)
+bridgeProbe: 88 checks, 0 failed
+bridgeProbe: OK
+=== tier1 exit: 0
+=== tier1-nocheckjni-1 (11:44:11)
+java exit: 0
+jni-scan: OK, none of the 4 patterns in 1 log(s): <scratch>/g1/logs/alma-tier1-nocheckjni-1.log
+scan exit: 0
+java 21.0.13 (OpenJDK 64-Bit Server VM) on Linux amd64, -Xcheck:jni OFF, max heap 256 MiB
+library build: release
+ns per call: 211.6 (median of 5 runs of 200000 calls of t.echo("hello"), a string in and a string out, decoded and encoded by Wire; -Xcheck:jni off; runs: 211.6 226.0 204.1 226.6 203.7)
+bridgeProbe: 88 checks, 0 failed
+bridgeProbe: OK
+=== tier1-nocheckjni-1 exit: 0
+=== tier1-nocheckjni-2 (11:44:13)
+java exit: 0
+jni-scan: OK, none of the 4 patterns in 1 log(s): <scratch>/g1/logs/alma-tier1-nocheckjni-2.log
+scan exit: 0
+java 21.0.13 (OpenJDK 64-Bit Server VM) on Linux amd64, -Xcheck:jni OFF, max heap 256 MiB
+library build: release
+ns per call: 213.3 (median of 5 runs of 200000 calls of t.echo("hello"), a string in and a string out, decoded and encoded by Wire; -Xcheck:jni off; runs: 209.7 213.3 207.6 221.9 218.8)
+bridgeProbe: 88 checks, 0 failed
+bridgeProbe: OK
+=== tier1-nocheckjni-2 exit: 0
+=== tier1-nocheckjni-3 (11:44:15)
+java exit: 0
+jni-scan: OK, none of the 4 patterns in 1 log(s): <scratch>/g1/logs/alma-tier1-nocheckjni-3.log
+scan exit: 0
+java 21.0.13 (OpenJDK 64-Bit Server VM) on Linux amd64, -Xcheck:jni OFF, max heap 256 MiB
+library build: release
+ns per call: 212.5 (median of 5 runs of 200000 calls of t.echo("hello"), a string in and a string out, decoded and encoded by Wire; -Xcheck:jni off; runs: 212.5 214.2 204.1 216.8 205.9)
+bridgeProbe: 88 checks, 0 failed
+bridgeProbe: OK
+=== tier1-nocheckjni-3 exit: 0
+004c09267fd7ee1d3bd00fbf29109857115f8e0315c3912f09b13230e688fc68  natives/build/out/natives/linux-x86_64/libcclj.so

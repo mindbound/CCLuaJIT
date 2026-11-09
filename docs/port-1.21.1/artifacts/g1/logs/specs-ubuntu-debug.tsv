@@ -1,0 +1,34 @@
+id	name	verdict	luajit	cobalt	problems and notes
+1	g1	ok	error: bios.lua:3: boom (+3 lines); throws: java.lang.IllegalStateException: Machine has been closed | line 0 'hi' | create on spec-create, handleEvent on spec-event, close on spec-close	error: bios.lua:3: boom (+2 lines); throws: java.lang.IllegalStateException: Machine has been closed | line 0 'hi' | create on spec-create, handleEvent on spec-event, close on spec-close	
+2	yield	ok	OK; error: after (+3 lines) | line 0 'S1 hello'	OK; error: after (+3 lines) | line 0 'S1 hello'	
+3	returns	ok	GENERIC_ERROR | line 0 'x'	GENERIC_ERROR | line 0 'x'	
+4	bad_arg	ok	error: bios.lua:1: bad argument #1 (number expected, got string) (+3 lines) | line 0 ''	error: bios.lua:1: bad argument #1 (number expected, got string) (+2 lines) | line 0 ''	
+5a	levels: t.lvl(0)	ok	error: lvl0 (+3 lines) | line 0 ''	error: lvl0 (+3 lines) | line 0 ''	
+5b	levels: t.lvl(1)	ok	error: bios.lua:1: lvl1 (+3 lines) | line 0 ''	error: bios.lua:1: lvl1 (+2 lines) | line 0 ''	
+5c	levels: t.lvl(2)	ok	error: bios.lua:2: lvl2 (+4 lines) | line 0 ''	error: bios.lua:2: lvl2 (+2 lines) | line 0 ''	
+5d	levels: t.lvl(3)	ok	error: bios.lua:3: lvl3 (+5 lines) | line 0 ''	error: bios.lua:3: lvl3 (+2 lines) | line 0 ''	
+5e	levels: t.lvl(-1)	ok	error: lvl-1 (+3 lines) | line 0 ''	error: lvl-1 (+1 lines) | line 0 ''	
+5f	levels: t.nullmsg()	ok	error: nil (+3 lines) | line 0 ''	error: nil (+2 lines) | line 0 ''	
+6	java_exception	ok	error: Java Exception Thrown: java.lang.RuntimeException: kaboom (+3 lines) | line 0 ''	error: Java Exception Thrown: java.lang.RuntimeException: kaboom (+3 lines) | line 0 ''	
+7	pcall_continue	allowed	error: false|bad argument #1 (number expected, got string) (+3 lines) | line 0 'after'	error: false|bios.lua:1: bad argument #1 (number expected, got string) (+3 lines) | line 0 'after'	 allowed (F5: luaL_where adds no position for a C function called by pcall; Cobalt adds bios.lua:1: (decided in S3)): result 1: 'false|bad argument #1 (number expected, got string)' vs 'false|bios.lua:1: bad argument #1 (number expected, got string)'
+8	results	ok	error: 3,4 (+3 lines) | line 0 ''	error: 3,4 (+3 lines) | line 0 ''	
+9	latin1	ok	error: 4:233,63,63,63|same (+3 lines) | line 0 '\u00e9\u0080'	error: 4:233,63,63,63|same (+3 lines) | line 0 '\u00e9\u0080'	
+10	coerce	allowed	error: 1|1.5|nil|1.0E100|NaN|0|9.007199254740992E15 (+3 lines) | line 0 ''	error: 1|1.5|nil|1e+100|nan|0|9007199254740992 (+3 lines) | line 0 ''	 allowed (F7: ObjectArguments.getStringCoerced uses Double.toString for 1e100, NaN and 2^53; Cobalt formats them as Lua does (S3 replaces IArguments)): result 1: '1|1.5|nil|1.0E100|NaN|0|9.007199254740992E15' vs '1|1.5|nil|1e+100|nan|0|9007199254740992'
+11	weird	ok	error: nil|nil (+3 lines) | line 0 '' | 1 WARN line(s) naming SpecAPI$Weird	error: nil|nil (+3 lines) | line 0 '' | 2 WARN line(s) naming SpecAPI$Weird	
+12a	error_values: nil	ok	error: nil (+3 lines) | line 0 ''	error: nil (+2 lines) | line 0 ''	
+12b	error_values: true	ok	error: true (+3 lines) | line 0 ''	error: true (+2 lines) | line 0 ''	
+12c	error_values: {}	allowed	error: table: 3e757d69 (+3 lines) | line 0 ''	error: table: 13a5fe33 (+2 lines) | line 0 ''	 allowed (a table's name holds its identity, which differs per run): result 1: 'table: 3e757d69' vs 'table: 13a5fe33'
+12d	error_values: 42	allowed	error: bios.lua:1: 42 (+3 lines) | line 0 ''	error: 42 (+2 lines) | line 0 ''	 allowed (F6 (P13): LuaJIT's error adds a position to a number, which lua_isstring accepts; Cobalt does not): result 1: 'bios.lua:1: 42' vs '42'
+13	no_tostring	allowed	error: table: 63369e6e (+3 lines) | line 0 '' | mark() called 0 time(s)	error: table: 5f9d02cb (+2 lines) | line 0 '' | mark() called 0 time(s)	 allowed (a table's name holds its identity, which differs per run): result 1: 'table: 63369e6e' vs 'table: 5f9d02cb'
+14	syntax	ok	MachineException: bios.lua:1: unexpected symbol near '=' | line 0 ''	MachineException: bios.lua:1: unexpected symbol near '=' | line 0 ''	
+15	binary	ok	MachineException: attempt to load a binary chunk | line 0 ''	MachineException: attempt to load a binary chunk | line 0 ''	
+16	table_arg	ok	error: bios.lua:1: CCLuaJIT: tables are not supported yet (+3 lines) | line 0 ''	-	
+17	environment	ok	error: [] (+3 lines) | line 0 ''	-	
+18	oom	ok	error: false not enough memory alive (+3 lines) | line 0 ''	-	
+19	close_while_running	ok	TIMEOUT | line 0 '' | close() on spec-close during t.block()	-	
+20	reentry	ok	error: Java Exception Thrown: java.lang.IllegalStateException: Machine is already running (+3 lines) | line 0 ''	-	
+21	churn	ok	churn | line 0 '' | 200 of 200 passed scenario 1's checks	-	
+22	many_calls	ok	error: done (+3 lines) | line 0 '' | 303 ns per call (100,000 calls, one resume)	-	
+B1	error bios through Computer	ok	result error: bios.lua:3: boom (+3 lines); close() called 1 time(s); create on ComputerCraft-Computer-Worker-0, handleEvent on ComputerCraft-Computer-Worker-0	-	
+B2	syntax error, retried	ok	factory called 2 time(s); line 1 'bios.lua:1: unexpected symbol near '='', then 'bios.lua:1: unexpected symbol near '=''	-	
+B3	context closes	ok	ctx.close(1, SECONDS) = true	-	

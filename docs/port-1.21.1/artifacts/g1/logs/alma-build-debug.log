@@ -1,0 +1,34 @@
+== libcclj for linux-x86_64
+   LuaJIT:   <repo>/vendor/luajit at 047efd3bcbe3331c3b9cb69bf5b217164d80bd5c (Don't FOLD ldexp with non-integer exponent.)
+   compiler: gcc (GCC) 8.5.0 20210514 (Red Hat 8.5.0-30)
+   JDK:      /usr/lib/jvm/java-21-openjdk
+==================================================================================================
+== DEBUG BUILD (CCLJ_DEBUG=1): for local testing only. Do not ship it or build a mod jar with it.
+== LuaJIT: -DLUA_USE_ASSERT -DLUA_USE_APICHECK. natives/src: -g -O1 -DCCLJ_DEBUG. Not stripped.
+==================================================================================================
+== building the patched LuaJIT (log: <repo>/natives/build/linux-x86_64/luajit-build.log)
+   8 patches applied: 01-interrupt.patch 02-xpcall-handler-in-hook.patch 03-no-bytecode.patch 04-pattern-nul.patch 05-numfmt-roundtrip.patch 06-goto-contextual.patch 07-interruptible-patterns.patch 08-cstack-guard.patch
+   LuaJIT 2.1.1794071144 -- Copyright (C) 2005-2026 Mike Pall. https://luajit.org/
+== compiling cclj.c machine.c jni_machine.c (objects: <repo>/natives/build/linux-x86_64/obj)
+== linking <repo>/natives/build/out/natives/linux-x86_64/libcclj.so
+== dependency check
+ldd:
+  	linux-vdso.so.1 (0x0000745e232fa000)
+  	libm.so.6 => /lib64/libm.so.6 (0x0000745e22800000)
+  	libdl.so.2 => /lib64/libdl.so.2 (0x0000745e22400000)
+  	libpthread.so.0 => /lib64/libpthread.so.0 (0x0000745e22000000)
+  	libc.so.6 => /lib64/libc.so.6 (0x0000745e21c00000)
+  	/lib64/ld-linux-x86-64.so.2 (0x0000745e23000000)
+max GLIBC symbol version (objdump -T): GLIBC_2.14 (allowed: GLIBC_2.28)
+GNU_STACK flags: RW
+exports:
+  Java_io_github_mindbound_cclj_natives_NativeMachine_nAbi
+  Java_io_github_mindbound_cclj_natives_NativeMachine_nFree
+  Java_io_github_mindbound_cclj_natives_NativeMachine_nLoad
+  Java_io_github_mindbound_cclj_natives_NativeMachine_nMessage
+  Java_io_github_mindbound_cclj_natives_NativeMachine_nNew
+  Java_io_github_mindbound_cclj_natives_NativeMachine_nResume
+  Java_io_github_mindbound_cclj_natives_NativeProbe_selfTest
+== OK: <repo>/natives/build/out/natives/linux-x86_64/libcclj.so (786056 bytes, sha256 4cf7e96b8c470990...)
+   with DEBUG-BUILD.txt LuaJIT-COPYRIGHT.txt 
+== DEBUG BUILD (CCLJ_DEBUG=1): see <repo>/natives/build/out/natives/linux-x86_64/DEBUG-BUILD.txt. Do not ship it.

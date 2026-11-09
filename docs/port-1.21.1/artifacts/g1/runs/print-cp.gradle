@@ -1,0 +1,11 @@
+// Prints the test runtime class path of :common (for running MachineSpecs by hand under WSL).
+allprojects {
+    afterEvaluate { p ->
+        if (p.path == ':common') {
+            p.tasks.register('printTestClasspath') {
+                def cp = p.sourceSets.test.runtimeClasspath
+                doLast { println('CP=' + cp.files.collect { it.absolutePath }.join(';')) }
+            }
+        }
+    }
+}

@@ -1,0 +1,175 @@
+== Tier 0 machine test for linux-x86_64
+   compiler: gcc (Ubuntu 15.2.0-16ubuntu1) 15.2.0
+== building the assert LuaJIT into <repo>/natives/build/linux-x86_64/luajit-assert (log: <repo>/natives/build/linux-x86_64/luajit-assert-build.log)
+   LuaJIT 047efd3bcbe3331c3b9cb69bf5b217164d80bd5c, xcflags: -DLUAJIT_ENABLE_INTERRUPT -DLUAJIT_ENABLE_LUA52COMPAT -DLUAJIT_DISABLE_FFI -DLUAJIT_DISABLE_BCLOAD -DLUAJIT_ENABLE_CSTACKGUARD -DLUAJIT_DISABLE_PROFILE -DLUAJIT_DISABLE_VMEVENT -DLUA_USE_ASSERT -DLUA_USE_APICHECK
+== compiling with -fsanitize=address,undefined -fno-sanitize-recover=all -fno-omit-frame-pointer
+== running <repo>/natives/build/linux-x86_64/machine-test/machine_test (timeout 900 s, sanitized)
+machine_test: CCLJ_ABI 1, 16 host functions, spec 260 bytes
+ok   smoke: the G1 bios end to end: load 0 resume 3 free 0 "bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk"
+ok   1 allow-lists: state inspected: load 0, inspection 0
+ok   1 allow-lists: keys of _G: got "_G _VERSION alias1 alias2 assert coroutine empty error getfenv getmetatable ipairs load loadstring math next pairs pcall rawequal rawget rawlen rawset select setfenv setmetatable string t table term tonumber tostring type unpack xpcall" (0 non-string keys)
+ok   1 allow-lists: keys of _LOADED: got "_G aliasmod bit coroutine emptymod math string t table" (0 non-string keys)
+ok   1 allow-lists: each _LOADED entry is the table that _G has: entries that differ: none
+ok   1 allow-lists: string keys of the registry: got "_LOADED _PRELOAD"
+ok   1 allow-lists: _PRELOAD is an empty table: type 5, 0 entries
+ok   1 allow-lists: the JIT is on and maxmcode is 256 KiB: JIT on, maxmcode 256
+ok   1 allow-lists: removed globals and string.dump are absent: load 0, resume 3 (want 3), free 0, message "present:\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:6: in main chunk"
+ok   1 allow-lists: API tables, aliases and an empty API: load 0, resume 3 (want 3), free 0, message "true function function nil true\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:1: in main chunk"
+ok   2 load: a bios loads: load 0 (want 0), msg_tb none, message ""
+ok   2 load: syntax error: load 3 (want 3), msg_tb none, message "bios.lua:1: unexpected symbol near '='"
+ok   2 load: a chunk starting with ESC is refused: load 3 (want 3), msg_tb none, message "attempt to load a binary chunk"
+ok   2 load: real bytecode is refused: load 3 (want 3), msg_tb none, message "attempt to load a binary chunk"
+ok   2 load: a 0-byte bios loads: load 0 (want 0), msg_tb none, message ""
+ok   2 load: a 0-byte bios returns RETURNED: load 0, resume 2, message ""
+ok   2 load: an empty spec is corrupt: load 3 (want 3), msg_tb none, message "CCLuaJIT: corrupt API table description"
+ok   2 load: a truncated spec is corrupt: load 3 (want 3), msg_tb none, message "CCLuaJIT: corrupt API table description"
+ok   2 load: a spec with 65,536 methods loads: load 0 (want 0), msg_tb none, message ""
+ok   2 load: a spec with 65,537 methods is corrupt: load 3 (want 3), msg_tb none, message "CCLuaJIT: corrupt API table description"
+ok   2 load: a spec with 70,000 methods is corrupt: load 3 (want 3), msg_tb none, message "CCLuaJIT: corrupt API table description"
+ok   2 load: unknown method flag bits are corrupt: load 3 (want 3), msg_tb none, message "CCLuaJIT: corrupt API table description"
+ok   2 load: hasModule 2 is corrupt: load 3 (want 3), msg_tb none, message "CCLuaJIT: corrupt API table description"
+ok   2 load: a 257-byte name is corrupt: load 3 (want 3), msg_tb none, message "CCLuaJIT: corrupt API table description"
+ok   2 load: a 256-byte name loads: load 0 (want 0), msg_tb none, message ""
+ok   2 load: a trailing byte after the spec is corrupt: load 3 (want 3), msg_tb none, message "CCLuaJIT: corrupt API table description"
+ok   2 load: napi 0xFFFFFFFF is corrupt: load 3 (want 3), msg_tb none, message "CCLuaJIT: corrupt API table description"
+ok   2 load: a second load is INTERNAL: first 0, second 4 "bios is already loaded"
+ok   2 load: freed after a second load
+ok   2 load: a load after a failed load is INTERNAL: first 3, second 4 "machine is dead"
+ok   2 load: a resume after a failed load is INTERNAL: resume 4 "machine is dead"
+ok   2 load: NULL inputs with a length are INTERNAL: 4, 4 "bad load arguments"
+ok   2 load: a spec above CM_WIRE_MAX is INTERNAL: 4
+ok   2 load: the machine still loads after refused calls: 0
+ok   2 load: a NULL machine
+ok   3 spec fuzz: 100000 seeded mutations: 8416 loaded, 91584 corrupt, 0 other, 0 disagree with the reference checker, 0 loaded without all API tables (4.5 s)
+ok   4 resume: YIELD: load 0, resume 1, log "a", lua_gettop(co) before it 1 (want 1: the bios)
+ok   4 resume: YIELD with values, then ERROR: 1, 3 "after\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:5: in main chunk", log "ab"
+ok   4 resume: the bios coroutine's stack is empty after a YIELD: lua_gettop(co) when the next resume starts: 0 after yield(), 0 after yield(1, 2, 3)
+ok   4 resume: resume after ERROR is INTERNAL: 4 "machine is dead"
+ok   4 resume: freed after ERROR
+ok   4 resume: RETURNED: 2 ""
+ok   4 resume: resume after RETURNED is INTERNAL: 4 "machine is dead"
+ok   4 resume: a non-NULL event is INTERNAL: 4 "events are not implemented yet (S2)"
+ok   4 resume: a non-NULL empty event is INTERNAL: 4 "events are not implemented yet (S2)"
+ok   4 resume: the machine was not touched by the refused event: 2
+ok   4 resume: RETURNED after an INTERNAL message leaves the message empty: "", msg_tb -1
+ok   4 resume: YIELD after an INTERNAL message leaves the message empty: 0, 4, 1 ""
+ok   4 resume: the same after a YIELD: 4, 1 ""
+ok   4 resume: resume without a load: 3 "bios coroutine missing", then 4
+ok   4 resume: host calls and yields of a nested coroutine: 0 1 3 "x\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:5: in main chunk" log "in2"
+ok   5 traceback: G1 bios, exact text and msg_tb 16: status 3, msg_tb 16, log "hi", "bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk"
+ok   5 render: nil: load 0, resume 3 (want 3), free 0, message "nil\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:1: in main chunk"
+ok   5 render: error() is nil: load 0, resume 3 (want 3), free 0, message "nil\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:1: in main chunk"
+ok   5 render: true: load 0, resume 3 (want 3), free 0, message "true\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:1: in main chunk"
+ok   5 render: false: load 0, resume 3 (want 3), free 0, message "false\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:1: in main chunk"
+ok   5 render: a number at level 0: load 0, resume 3 (want 3), free 0, message "42\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:1: in main chunk"
+ok   5 render: a fraction: load 0, resume 3 (want 3), free 0, message "1.5\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:1: in main chunk"
+ok   5 render: error(42) (LuaJIT adds a position, F6): load 0, resume 3 (want 3), free 0, message "bios.lua:1: 42\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:1: in main chunk"
+ok   5 render: NUL and 0xFF bytes: "a\x00b\xff\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:1: in main chunk"
+ok   5 render: a table is "table: %08x": "table: a925168e\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:1: in main chunk"
+ok   5 render: a function: "function: 5a56fe86\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:1: in main chunk"
+ok   5 render: a thread: "thread: 39ae9fd6\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:1: in main chunk"
+ok   5 render: __tostring is never run: marks 0, "table: e92fb6cb\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:1: in main chunk"
+ok   5 render: a table is the hash of its address under key 1: "table: afe6f25a\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:2: in main chunk", want "table: afe6f25a" (address "table: 95941c98", other key "table: ac949364")
+ok   5 render: a table is the hash of its address under key 2: "table: ac949364\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:2: in main chunk", want "table: ac949364" (address "table: 95941c98", other key "table: afe6f25a")
+ok   5 traceback: global and local function frames: "bios.lua:1: deep2\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:1: in function 'g'\n\tbios.lua:2: in local 'l'\n\tbios.lua:3: in main chunk"
+ok   5 traceback: field frames: "m\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:2: in field 'm'\n\tbios.lua:3: in local 'f'\n\tbios.lua:4: in main chunk"
+ok   5 traceback: an error re-raised by coroutine.wrap shows the outer frames: "bios.lua:5: m\nstack traceback:\n\t[C]: in local 'co'\n\tbios.lua:5: in main chunk"
+ok   5 traceback: method frames: "m\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:2: in method 'm'\n\tbios.lua:3: in main chunk"
+ok   5 traceback: upvalue frames: "u\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:1: in upvalue 'up'\n\tbios.lua:2: in local 'f'\n\tbios.lua:3: in main chunk"
+ok   5 traceback: an unnamed Lua function: "anon\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:1: in function <bios.lua:1>\n\tbios.lua:2: in main chunk"
+ok   5 traceback: a "(for ...)" local is no name: "it\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:2: in function <bios.lua:2>\n\tbios.lua:2: in main chunk"
+ok   5 traceback: an unnamed C closure is "[C]: in ?": "bios.lua:1: f failed\nstack traceback:\n\t[C]: in ?\n\tbios.lua:1: in main chunk"
+ok   5 traceback: a host function frame: "bios.lua:1: CCLuaJIT: tables are not supported yet\nstack traceback:\n\t[C]: in field 'write'\n\tbios.lua:1: in main chunk"
+ok   5 traceback: a builtin through a local is "[C]: in local": "bios.lua:2: bad argument #1 to 'rm' (table expected, got nil)\nstack traceback:\n\t[C]: in local 'rm'\n\tbios.lua:2: in main chunk"
+ok   5 traceback: an unnamed builtin is "[C]: in ?": "bios.lua:1: bad argument #1 to '?' (table expected, got nil)\nstack traceback:\n\t[C]: in ?\n\tbios.lua:1: in main chunk"
+ok   5 traceback: string.len through a local: "bios.lua:2: bad argument #1 to 'len' (string expected, got nil)\nstack traceback:\n\t[C]: in local 'len'\n\tbios.lua:2: in main chunk"
+ok   5 traceback: names cut to 100 bytes: "long\nstack traceback:\n\t[C]: in function 'error'\n\tnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn:1: in upvalue 'f'\n\tbios.lua:2: in function 'nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn'\n\tbios.lua:3: in main chunk"
+ok   5 traceback: 13 frames, all printed: status 3, 13 lines (want 13), "..." at 0 (want 0): "bios.lua:1: deep\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in local 'f'\n\tbios.lua:2: in main chunk"
+ok   5 traceback: 22 frames, all printed: status 3, 22 lines (want 22), "..." at 0 (want 0): "bios.lua:1: deep\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in local 'f'\n\tbios.lua:2: in main chunk"
+ok   5 traceback: 23 frames, all printed: status 3, 23 lines (want 23), "..." at 0 (want 0): "bios.lua:1: deep\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in local 'f'\n\tbios.lua:2: in main chunk"
+ok   5 traceback: 24 frames give 12, "...", 10: status 3, 23 lines (want 23), "..." at 13 (want 13): "bios.lua:1: deep\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\t...\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in local 'f'\n\tbios.lua:2: in main chunk"
+ok   5 traceback: a 300-deep recursion gives 12, "...", 10: status 3, 23 lines (want 23), "..." at 13 (want 13): "bios.lua:1: deep\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\t...\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in local 'f'\n\tbios.lua:2: in main chunk"
+ok   5 traceback: an error 30,000 calls deep: status 3, 23 lines (want 23), "..." at 13 (want 13): "bios.lua:2: deep\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:2: in upvalue 'f'\n\tbios.lua:2: in upvalue 'f'\n\tbios.lua:2: in upvalue 'f'\n\tbios.lua:2: in upvalue 'f'\n\tbios.lua:2: in upvalue 'f'\n\tbios.lua:2: in upvalue 'f'\n\tbios.lua:2: in upvalue 'f'\n\tbios.lua:2: in upvalue 'f'\n\tbios.lua:2: in upvalue 'f'\n\tbios.lua:2: in upvalue 'f'\n\tbios.lua:2: in upvalue 'f'\n\t...\n\tbios.lua:2: in upvalue 'f'\n\tbios.lua:2: in upvalue 'f'\n\tbios.lua:2: in upvalue 'f'\n\tbios.lua:2: in upvalue 'f'\n\tbios.lua:2: in upvalue 'f'\n\tbios.lua:2: in upvalue 'f'\n\tbios.lua:2: in upvalue 'f'\n\tbios.lua:2: in upvalue 'f'\n\tbios.lua:2: in local 'f'\n\tbios.lua:3: in main chunk"
+ok   5 traceback: a stack overflow: status 3, 23 lines (want 23), "..." at 13 (want 13): "bios.lua:1: stack overflow\nstack traceback:\n\tbios.lua: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\t...\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in local 'f'\n\tbios.lua:2: in main chunk"
+ok   5 traceback: the overflow message, and a frame without a line: "bios.lua:1: stack overflow\nstack traceback:\n\tbios.lua: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\t...\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in local 'f'\n\tbios.lua:2: in main chunk"
+ok   5 traceback: a stack overflow with 100 locals per frame gives 12, "...", 10: status 3, 23 lines (want 23), "..." at 13 (want 13): "stack overflow\nstack traceback:\n\tbios.lua:3: in upvalue 'f'\n\tbios.lua:3: in upvalue 'f'\n\tbios.lua:3: in upvalue 'f'\n\tbios.lua:3: in upvalue 'f'\n\tbios.lua:3: in upvalue 'f'\n\tbios.lua:3: in upvalue 'f'\n\tbios.lua:3: in upvalue 'f'\n\tbios.lua:3: in upvalue 'f'\n\tbios.lua:3: in upvalue 'f'\n\tbios.lua:3: in upvalue 'f'\n\tbios.lua:3: in upvalue 'f'\n\tbios.lua:3: in upvalue 'f'\n\t...\n\tbios.lua:3: in upvalue 'f'\n\tbios.lua:3: in upvalue 'f'\n\tbios.lua:3: in upvalue 'f'\n\tbios.lua:3: in upvalue 'f'\n\tbios.lua:3: in upvalue 'f'\n\tbios.lua:3: in upvalue 'f'\n\tbios.lua:3: in upvalue 'f'\n\tbios.lua:3: in upvalue 'f'\n\tbios.lua:3: in local 'f'\n\tbios.lua:5: in main chunk"
+ok   5 traceback: a stack overflow with 190 locals per frame gives 12, "...", 10: status 3, 23 lines (want 23), "..." at 13 (want 13): "stack overflow\nstack traceback:\n\tbios.lua:3: in upvalue 'f'\n\tbios.lua:3: in upvalue 'f'\n\tbios.lua:3: in upvalue 'f'\n\tbios.lua:3: in upvalue 'f'\n\tbios.lua:3: in upvalue 'f'\n\tbios.lua:3: in upvalue 'f'\n\tbios.lua:3: in upvalue 'f'\n\tbios.lua:3: in upvalue 'f'\n\tbios.lua:3: in upvalue 'f'\n\tbios.lua:3: in upvalue 'f'\n\tbios.lua:3: in upvalue 'f'\n\tbios.lua:3: in upvalue 'f'\n\t...\n\tbios.lua:3: in upvalue 'f'\n\tbios.lua:3: in upvalue 'f'\n\tbios.lua:3: in upvalue 'f'\n\tbios.lua:3: in upvalue 'f'\n\tbios.lua:3: in upvalue 'f'\n\tbios.lua:3: in upvalue 'f'\n\tbios.lua:3: in upvalue 'f'\n\tbios.lua:3: in upvalue 'f'\n\tbios.lua:3: in local 'f'\n\tbios.lua:5: in main chunk"
+ok   5 traceback: an error under an exhausted cap: status 3, used 4194246 of 4194304, "not enough memory\nstack traceback:\n\tbios.lua: in local 'fill'\n\tbios.lua:5: in main chunk"
+ok   5 render: a number when no memory is left: "not enough memory" and the traceback: load 0, status 3, "not enough memory\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:2: in main chunk"
+ok   5 render: a string when no memory is left: the string and the traceback: load 0, status 3, "plain\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:2: in main chunk"
+ok   5 traceback: the bios coroutine stays alive without its registry reference: load 0, setup 0, status 3, w[1] is the coroutine, "12345.5\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk"
+ok   5 traceback: a 65536-byte value: status 3, len 65536, msg_tb -1
+ok   5 traceback: a 70000-byte value: status 3, len 65536, msg_tb -1
+ok   5 traceback: a 65526-byte value: status 3, len 65526, msg_tb -1
+ok   5 traceback: a 65519-byte value: status 3, len 65536, msg_tb 65519
+ok   5 traceback: a 65506-byte value: status 3, len 65523, msg_tb 65506
+ok   5 traceback: a 65476-byte value: status 3, len 65519, msg_tb 65476
+ok   5 traceback: msg_tb points at the real header: msg_tb 24 "a\nstack traceback:\n\tfake\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:1: in main chunk"
+ok   5 traceback: lua_gettop(co) is the same before and after: 0 of 46 runs changed it
+ok   5 traceback: no traceback so far contains "0x" or "[builtin": 0 of 46 do
+ok   6 host: request bytes of term.write("hi"): \x01\x00\x00\x00\x04\x02\x00\x00\x00hi
+ok   6 host: NUL and 0xFF round trip: "\x00\xffa\x00\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:2: in main chunk"
+ok   6 host: every value type round trips: load 0, resume 3 (want 3), free 0, message "true 3 0\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:4: in main chunk"
+ok   6 host: functions and threads are sent as nil: load 0, resume 3 (want 3), free 0, message "0 0 0 3 4 2 1\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:1: in main chunk"
+ok   6 host: a table argument raises: load 0, resume 3 (want 3), free 0, message "bios.lua:1: CCLuaJIT: tables are not supported yet\nstack traceback:\n\t[C]: in field 'argc'\n\tbios.lua:1: in main chunk"
+ok   6 host: a table argument under pcall: "false|CCLuaJIT: tables are not supported yet\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:2: in main chunk"
+ok   6 host: level 0: load 0, resume 3 (want 3), free 0, message "lvl0\nstack traceback:\n\t[C]: in field 'err'\n\tbios.lua:1: in main chunk"
+ok   6 host: level 1: load 0, resume 3 (want 3), free 0, message "bios.lua:1: lvl1\nstack traceback:\n\t[C]: in field 'err'\n\tbios.lua:1: in main chunk"
+ok   6 host: level 2: load 0, resume 3 (want 3), free 0, message "bios.lua:4: lvl2\nstack traceback:\n\t[C]: in field 'err'\n\tbios.lua:2: in local 'f'\n\tbios.lua:4: in main chunk"
+ok   6 host: level 3: load 0, resume 3 (want 3), free 0, message "bios.lua:3: lvl3\nstack traceback:\n\t[C]: in field 'err'\n\tbios.lua:1: in upvalue 'g'\n\tbios.lua:2: in local 'f'\n\tbios.lua:3: in main chunk"
+ok   6 host: level -1: load 0, resume 3 (want 3), free 0, message "lvl-1\nstack traceback:\n\t[C]: in field 'err'\n\tbios.lua:1: in main chunk"
+ok   6 host: level 1000: load 0, resume 3 (want 3), free 0, message "far\nstack traceback:\n\t[C]: in field 'err'\n\tbios.lua:1: in main chunk"
+ok   6 host: a nil message: load 0, resume 3 (want 3), free 0, message "nil\nstack traceback:\n\t[C]: in field 'err'\n\tbios.lua:1: in main chunk"
+ok   6 host: a nil message under pcall: load 0, resume 3 (want 3), free 0, message "false nil\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:2: in main chunk"
+ok   6 host: level 1 under pcall has no position (F5): load 0, resume 3 (want 3), free 0, message "p1\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:2: in main chunk"
+ok   6 host: level 2 under pcall is the caller of pcall: load 0, resume 3 (want 3), free 0, message "bios.lua:1: p2\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:2: in main chunk"
+ok   6 host: a host error is catchable: load 0, resume 3 (want 3), free 0, message "false caught alive\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:2: in main chunk"
+ok   6 host: host status 0: load 0, resume 3 (want 3), free 0, message "CCLuaJIT: corrupt host reply\nstack traceback:\n\t[C]: in field 'code'\n\tbios.lua:1: in main chunk"
+ok   6 host: host status 1: load 0, resume 3 (want 3), free 0, message "CCLuaJIT: JNI failure in host call\nstack traceback:\n\t[C]: in field 'code'\n\tbios.lua:1: in main chunk"
+ok   6 host: host status 2: load 0, resume 3 (want 3), free 0, message "CCLuaJIT: Java exception in host call\nstack traceback:\n\t[C]: in field 'code'\n\tbios.lua:1: in main chunk"
+ok   6 host: host status 3: load 0, resume 3 (want 3), free 0, message "CCLuaJIT: host call returned null\nstack traceback:\n\t[C]: in field 'code'\n\tbios.lua:1: in main chunk"
+ok   6 host: host status 4: load 0, resume 3 (want 3), free 0, message "CCLuaJIT: host reply too large\nstack traceback:\n\t[C]: in field 'code'\n\tbios.lua:1: in main chunk"
+ok   6 host: host status 5: load 0, resume 3 (want 3), free 0, message "CCLuaJIT: not enough memory for host reply\nstack traceback:\n\t[C]: in field 'code'\n\tbios.lua:1: in main chunk"
+ok   6 host: host status 99: load 0, resume 3 (want 3), free 0, message "CCLuaJIT: host call failed\nstack traceback:\n\t[C]: in field 'code'\n\tbios.lua:1: in main chunk"
+ok   6 host: a host status error is level 0 under pcall: load 0, resume 3 (want 3), free 0, message "CCLuaJIT: Java exception in host call\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:2: in main chunk"
+ok   6 host: function indices across APIs and aliases: load 0, resume 3 (want 3), free 0, message "14 14 15\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:1: in main chunk"
+ok   6 host: large numbers round trip: load 0, resume 3 (want 3), free 0, message "true\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:2: in main chunk"
+ok   6 host: a 1 MiB string round trips: load 0, resume 3 (want 3), free 0, message "true 1048578\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk"
+ok   6 host: reply count 0xFFFFFFFF: load 0, resume 3 (want 3), free 0, message "CCLuaJIT: corrupt host reply\nstack traceback:\n\t[C]: in field 'raw'\n\tbios.lua:1: in main chunk"
+ok   6 host: a string length past the end: load 0, resume 3 (want 3), free 0, message "CCLuaJIT: corrupt host reply\nstack traceback:\n\t[C]: in field 'raw'\n\tbios.lua:1: in main chunk"
+ok   6 host: a string length of 0xFFFFFFFF: load 0, resume 3 (want 3), free 0, message "CCLuaJIT: corrupt host reply\nstack traceback:\n\t[C]: in field 'raw'\n\tbios.lua:1: in main chunk"
+ok   6 host: a trailing byte: load 0, resume 3 (want 3), free 0, message "CCLuaJIT: corrupt host reply\nstack traceback:\n\t[C]: in field 'raw'\n\tbios.lua:1: in main chunk"
+ok   6 host: an unknown value tag: load 0, resume 3 (want 3), free 0, message "CCLuaJIT: corrupt host reply\nstack traceback:\n\t[C]: in field 'raw'\n\tbios.lua:1: in main chunk"
+ok   6 host: a truncated number: load 0, resume 3 (want 3), free 0, message "CCLuaJIT: corrupt host reply\nstack traceback:\n\t[C]: in field 'raw'\n\tbios.lua:1: in main chunk"
+ok   6 host: reply kind 2 (S5 CALLBACK) is refused: load 0, resume 3 (want 3), free 0, message "CCLuaJIT: corrupt host reply\nstack traceback:\n\t[C]: in field 'raw'\n\tbios.lua:1: in main chunk"
+ok   6 host: an empty reply: load 0, resume 3 (want 3), free 0, message "CCLuaJIT: corrupt host reply\nstack traceback:\n\t[C]: in field 'raw'\n\tbios.lua:1: in main chunk"
+ok   6 host: an ERROR with a number message: load 0, resume 3 (want 3), free 0, message "CCLuaJIT: corrupt host reply\nstack traceback:\n\t[C]: in field 'raw'\n\tbios.lua:1: in main chunk"
+ok   6 host: an ERROR without a message: load 0, resume 3 (want 3), free 0, message "CCLuaJIT: corrupt host reply\nstack traceback:\n\t[C]: in field 'raw'\n\tbios.lua:1: in main chunk"
+ok   6 host: an ERROR with level 1000: load 0, resume 3 (want 3), free 0, message "hi\nstack traceback:\n\t[C]: in field 'raw'\n\tbios.lua:1: in main chunk"
+ok   6 host: an ERROR with level INT32_MIN: load 0, resume 3 (want 3), free 0, message "hi\nstack traceback:\n\t[C]: in field 'raw'\n\tbios.lua:1: in main chunk"
+ok   6 host: 7,000 results: load 0, resume 3 (want 3), free 0, message "n=7000\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:1: in main chunk"
+ok   6 host: 8,000 results: load 0, resume 3 (want 3), free 0, message "n=8000\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:1: in main chunk"
+ok   6 host: 8,001 results are too many: load 0, resume 3 (want 3), free 0, message "bios.lua:1: too many results to return\nstack traceback:\n\t[C]: in field 'raw'\n\tbios.lua:1: in main chunk"
+ok   6 host: results that do not fit above the arguments: load 0, resume 3 (want 3), free 0, message "false too many results to return\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:2: in main chunk"
+ok   6 host: every request was well-formed: 0 bad of 47
+ok   7 reply fuzz: 100000 random + 100000 mutated valid replies: 179321 corrupt, 13210 values, 7469 errors, 0 mismatches, 0 bad requests (1.9 s); end "fuzz finished\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk"
+ok   8 oom: cap 4 MiB, string.rep fails and the machine goes on: 1 "false not enough memory", 3 "alive 1000\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:6: in main chunk"
+ok   8 oom: a 100 MiB string.rep under the 64 MiB cap: load 0, resume 3 (want 3), free 0, message "false not enough memory alive\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:2: in main chunk"
+ok   8 oom: garbage far beyond a 4 MiB cap is freed and counted: status 3, "survived 0 0\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk"
+ok   8 oom: cap 0, cm_load fails: 3 "not enough memory"
+ok   8 oom: every cap up to the load size: load needs about 19198 bytes (state 12524): 752 caps loaded, 3966 not enough memory, 0 other
+ok   8 oom: the buffer-growth scenario runs: 7 allocations, "done\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:6: in main chunk"
+ok   8 oom: cm_test_fail_after(n) for every n: n = 0..8, 0 bad
+ok   9 re-entrancy: cm_resume, cm_load and cm_free from the host are refused: outer 1; inner resume 4 "machine is busy", load 4, free 4
+ok   9 re-entrancy: the owner's YIELD replaces the "machine is busy" message: ""
+ok   9 re-entrancy: the machine was not freed or changed: 3 "4|machine is busy|4|4\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk"
+ok   9 re-entrancy: freed afterwards
+ok   9 re-entrancy: cm_free, cm_resume and cm_load from another thread while busy: free 4, resume 4 "machine is busy", load 4; owner 1
+ok   9 re-entrancy: the machine works and frees afterwards: 3 "end\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk"
+ok   10 threads: new, resume and free on three threads: load 0, resumes 1 1, log "r1r2", free 0
+ok   10 churn: 1,000 machines on three threads at once: 1000 ok, 0 bad (0.0 s)
+info 10 churn: process memory 354.2 MiB before, 355.3 MiB after (not checked under ASan)
+ok   all: no traceback of any test has "0x", "[builtin" or a line number below 1, or changed lua_gettop(co): 1102 tracebacks: 0 with an address or builtin name, 0 with a line below 1, 0 changed the top
+ok   all: after every load and resume, the cap counted what LuaJIT counts: 0 of 7684 checks differ
+machine_test: 165 checks, 0 failed
+machine-test: OK (linux-x86_64, with ASan and UBSan)

@@ -1,0 +1,1055 @@
+natives-windows-x86_64	Set up job	﻿2026-11-09T09:31:26.3340884Z Current runner version: '2.338.2'
+natives-windows-x86_64	Set up job	2026-11-09T09:31:26.3656335Z ##[group]Runner Image Provisioner
+natives-windows-x86_64	Set up job	2026-11-09T09:31:26.3657250Z Hosted Compute Agent
+natives-windows-x86_64	Set up job	2026-11-09T09:31:26.3657888Z Version: 20261103.629
+natives-windows-x86_64	Set up job	2026-11-09T09:31:26.3658581Z Commit: 15dbd9ccb5dbf34fae002b6ed1a2670f52df37bc
+natives-windows-x86_64	Set up job	2026-11-09T09:31:26.3659353Z Build Date: 2026-11-03T17:26:59Z
+natives-windows-x86_64	Set up job	2026-11-09T09:31:26.3660589Z Worker ID: {73eafd76-53e6-41ce-8e18-7d75e2c2ed22}
+natives-windows-x86_64	Set up job	2026-11-09T09:31:26.3661310Z Region: eastus2
+natives-windows-x86_64	Set up job	2026-11-09T09:31:26.3661875Z Cloud: Azure
+natives-windows-x86_64	Set up job	2026-11-09T09:31:26.3662417Z ##[endgroup]
+natives-windows-x86_64	Set up job	2026-11-09T09:31:26.3663891Z ##[group]Operating System
+natives-windows-x86_64	Set up job	2026-11-09T09:31:26.3664540Z Microsoft Windows Server 2025
+natives-windows-x86_64	Set up job	2026-11-09T09:31:26.3665128Z 10.0.26100
+natives-windows-x86_64	Set up job	2026-11-09T09:31:26.3665644Z Datacenter
+natives-windows-x86_64	Set up job	2026-11-09T09:31:26.3666133Z ##[endgroup]
+natives-windows-x86_64	Set up job	2026-11-09T09:31:26.3666638Z ##[group]Runner Image
+natives-windows-x86_64	Set up job	2026-11-09T09:31:26.3667226Z Image: windows-2025-vs2026
+natives-windows-x86_64	Set up job	2026-11-09T09:31:26.3667795Z Version: 20261103.298.1
+natives-windows-x86_64	Set up job	2026-11-09T09:31:26.3668951Z Included Software: https://github.com/actions/runner-images/blob/win25-vs2026/20261103.298/images/windows/Windows2025-VS2026-Readme.md
+natives-windows-x86_64	Set up job	2026-11-09T09:31:26.3670885Z Image Release: https://github.com/actions/runner-images/releases/tag/win25-vs2026%2F20261103.298
+natives-windows-x86_64	Set up job	2026-11-09T09:31:26.3671840Z ##[endgroup]
+natives-windows-x86_64	Set up job	2026-11-09T09:31:26.3672904Z ##[group]GITHUB_TOKEN Permissions
+natives-windows-x86_64	Set up job	2026-11-09T09:31:26.3674848Z Contents: read
+natives-windows-x86_64	Set up job	2026-11-09T09:31:26.3675455Z Metadata: read
+natives-windows-x86_64	Set up job	2026-11-09T09:31:26.3676023Z ##[endgroup]
+natives-windows-x86_64	Set up job	2026-11-09T09:31:26.3678732Z Secret source: Actions
+natives-windows-x86_64	Set up job	2026-11-09T09:31:26.3679819Z Cache mode: write
+natives-windows-x86_64	Set up job	2026-11-09T09:31:26.3680538Z Prepare workflow directory
+natives-windows-x86_64	Set up job	2026-11-09T09:31:26.5840095Z Prepare all required actions
+natives-windows-x86_64	Set up job	2026-11-09T09:31:26.5887973Z Getting action download info
+natives-windows-x86_64	Set up job	2026-11-09T09:31:26.7573075Z Download action repository 'actions/checkout@v7' (SHA:3d3c42e5aac5ba805825da76410c181273ba90b1)
+natives-windows-x86_64	Set up job	2026-11-09T09:31:26.9359349Z Download action repository 'actions/setup-java@v6' (SHA:b843ebf9b913146b38da2eaa7aeddf76074ae1ad)
+natives-windows-x86_64	Set up job	2026-11-09T09:31:27.4933573Z Download action repository 'msys2/setup-msys2@v2' (SHA:ec48f7c5447b3140e2b088413ae3a55687bccb6e)
+natives-windows-x86_64	Set up job	2026-11-09T09:31:27.6388616Z Download action repository 'actions/upload-artifact@v7' (SHA:cf430e030ddbb5b0abf93d22962f4752f3646cd9)
+natives-windows-x86_64	Set up job	2026-11-09T09:31:28.7938503Z Complete job name: natives-windows-x86_64
+natives-windows-x86_64	Run actions/checkout@v7	﻿2026-11-09T09:31:29.8413661Z ##[group]Run actions/checkout@v7
+natives-windows-x86_64	Run actions/checkout@v7	2026-11-09T09:31:29.8415027Z with:
+natives-windows-x86_64	Run actions/checkout@v7	2026-11-09T09:31:29.8415738Z   submodules: true
+natives-windows-x86_64	Run actions/checkout@v7	2026-11-09T09:31:29.8416529Z   repository: mindbound/CCLuaJIT
+natives-windows-x86_64	Run actions/checkout@v7	2026-11-09T09:31:29.8424124Z   token: ***
+natives-windows-x86_64	Run actions/checkout@v7	2026-11-09T09:31:29.8424883Z   ssh-strict: true
+natives-windows-x86_64	Run actions/checkout@v7	2026-11-09T09:31:29.8425615Z   ssh-user: git
+natives-windows-x86_64	Run actions/checkout@v7	2026-11-09T09:31:29.8426376Z   persist-credentials: true
+natives-windows-x86_64	Run actions/checkout@v7	2026-11-09T09:31:29.8427216Z   clean: true
+natives-windows-x86_64	Run actions/checkout@v7	2026-11-09T09:31:29.8427976Z   sparse-checkout-cone-mode: true
+natives-windows-x86_64	Run actions/checkout@v7	2026-11-09T09:31:29.8428869Z   fetch-depth: 1
+natives-windows-x86_64	Run actions/checkout@v7	2026-11-09T09:31:29.8429590Z   fetch-tags: false
+natives-windows-x86_64	Run actions/checkout@v7	2026-11-09T09:31:29.8430343Z   show-progress: true
+natives-windows-x86_64	Run actions/checkout@v7	2026-11-09T09:31:29.8431092Z   lfs: false
+natives-windows-x86_64	Run actions/checkout@v7	2026-11-09T09:31:29.8431823Z   set-safe-directory: true
+natives-windows-x86_64	Run actions/checkout@v7	2026-11-09T09:31:29.8432672Z   allow-unsafe-pr-checkout: false
+natives-windows-x86_64	Run actions/checkout@v7	2026-11-09T09:31:29.8433800Z ##[endgroup]
+natives-windows-x86_64	Run actions/checkout@v7	2026-11-09T09:31:30.0485800Z Syncing repository: mindbound/CCLuaJIT
+natives-windows-x86_64	Run actions/checkout@v7	2026-11-09T09:31:30.0488169Z ##[group]Getting Git version info
+natives-windows-x86_64	Run actions/checkout@v7	2026-11-09T09:31:30.0489510Z Working directory is 'D:\a\CCLuaJIT\CCLuaJIT'
+natives-windows-x86_64	Run actions/checkout@v7	2026-11-09T09:31:30.1408097Z [command]"C:\Program Files\Git\bin\git.exe" version
+natives-windows-x86_64	Run actions/checkout@v7	2026-11-09T09:31:30.4430407Z git version 2.56.0.windows.4
+natives-windows-x86_64	Run actions/checkout@v7	2026-11-09T09:31:30.4490303Z ##[endgroup]
+natives-windows-x86_64	Run actions/checkout@v7	2026-11-09T09:31:30.4519502Z Temporarily overriding HOME='D:\a\_temp\056f5ac8-eb9a-43ae-91f5-85a58e57d791' before making global git config changes
+natives-windows-x86_64	Run actions/checkout@v7	2026-11-09T09:31:30.4521507Z Adding repository directory to the temporary git global config as a safe directory
+natives-windows-x86_64	Run actions/checkout@v7	2026-11-09T09:31:30.4523236Z [command]"C:\Program Files\Git\bin\git.exe" config --global --add safe.directory D:\a\CCLuaJIT\CCLuaJIT
+natives-windows-x86_64	Run actions/checkout@v7	2026-11-09T09:31:30.5128726Z Deleting the contents of 'D:\a\CCLuaJIT\CCLuaJIT'
+natives-windows-x86_64	Run actions/checkout@v7	2026-11-09T09:31:30.5182414Z ##[group]Determining repository object format
+natives-windows-x86_64	Run actions/checkout@v7	2026-11-09T09:31:30.5183830Z ##[endgroup]
+natives-windows-x86_64	Run actions/checkout@v7	2026-11-09T09:31:30.5185027Z ##[group]Initializing the repository
+natives-windows-x86_64	Run actions/checkout@v7	2026-11-09T09:31:30.5186201Z [command]"C:\Program Files\Git\bin\git.exe" init D:\a\CCLuaJIT\CCLuaJIT
+natives-windows-x86_64	Run actions/checkout@v7	2026-11-09T09:31:30.5897673Z Initialized empty Git repository in D:/a/CCLuaJIT/CCLuaJIT/.git/
+natives-windows-x86_64	Run actions/checkout@v7	2026-11-09T09:31:30.5942114Z [command]"C:\Program Files\Git\bin\git.exe" remote add origin https://github.com/mindbound/CCLuaJIT
+natives-windows-x86_64	Run actions/checkout@v7	2026-11-09T09:31:30.6613896Z ##[endgroup]
+natives-windows-x86_64	Run actions/checkout@v7	2026-11-09T09:31:30.6615204Z ##[group]Disabling automatic garbage collection
+natives-windows-x86_64	Run actions/checkout@v7	2026-11-09T09:31:30.6627337Z [command]"C:\Program Files\Git\bin\git.exe" config --local gc.auto 0
+natives-windows-x86_64	Run actions/checkout@v7	2026-11-09T09:31:30.7028629Z ##[endgroup]
+natives-windows-x86_64	Run actions/checkout@v7	2026-11-09T09:31:30.7030620Z ##[group]Setting up auth
+natives-windows-x86_64	Run actions/checkout@v7	2026-11-09T09:31:30.7031989Z Removing SSH command configuration
+natives-windows-x86_64	Run actions/checkout@v7	2026-11-09T09:31:30.7041237Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp core\.sshCommand
+natives-windows-x86_64	Run actions/checkout@v7	2026-11-09T09:31:30.7454622Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "sh -c \"git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :\""
+natives-windows-x86_64	Run actions/checkout@v7	2026-11-09T09:31:32.0353453Z Removing HTTP extra header
+natives-windows-x86_64	Run actions/checkout@v7	2026-11-09T09:31:32.0362618Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+natives-windows-x86_64	Run actions/checkout@v7	2026-11-09T09:31:32.0731880Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "sh -c \"git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :\""
+natives-windows-x86_64	Run actions/checkout@v7	2026-11-09T09:31:32.6297137Z Removing includeIf entries pointing to credentials config files
+natives-windows-x86_64	Run actions/checkout@v7	2026-11-09T09:31:32.6307014Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp ^includeIf\.gitdir:
+natives-windows-x86_64	Run actions/checkout@v7	2026-11-09T09:31:32.6672397Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "git config --local --show-origin --name-only --get-regexp remote.origin.url"
+natives-windows-x86_64	Run actions/checkout@v7	2026-11-09T09:31:33.2298891Z [command]"C:\Program Files\Git\bin\git.exe" config --file D:\a\_temp\git-credentials-c30d09fa-20e0-4dbb-a009-d8a764d2df20.config http.https://github.com/.extraheader "AUTHORIZATION: basic ***"
+natives-windows-x86_64	Run actions/checkout@v7	2026-11-09T09:31:33.2679209Z [command]"C:\Program Files\Git\bin\git.exe" config --local includeIf.gitdir:D:/a/CCLuaJIT/CCLuaJIT/.git.path D:\a\_temp\git-credentials-c30d09fa-20e0-4dbb-a009-d8a764d2df20.config
+natives-windows-x86_64	Run actions/checkout@v7	2026-11-09T09:31:33.3045250Z [command]"C:\Program Files\Git\bin\git.exe" config --local includeIf.gitdir:D:/a/CCLuaJIT/CCLuaJIT/.git/worktrees/*.path D:\a\_temp\git-credentials-c30d09fa-20e0-4dbb-a009-d8a764d2df20.config
+natives-windows-x86_64	Run actions/checkout@v7	2026-11-09T09:31:33.3450450Z [command]"C:\Program Files\Git\bin\git.exe" config --local includeIf.gitdir:/github/workspace/.git.path /github/runner_temp/git-credentials-c30d09fa-20e0-4dbb-a009-d8a764d2df20.config
+natives-windows-x86_64	Run actions/checkout@v7	2026-11-09T09:31:33.3812849Z [command]"C:\Program Files\Git\bin\git.exe" config --local includeIf.gitdir:/github/workspace/.git/worktrees/*.path /github/runner_temp/git-credentials-c30d09fa-20e0-4dbb-a009-d8a764d2df20.config
+natives-windows-x86_64	Run actions/checkout@v7	2026-11-09T09:31:33.4191745Z ##[endgroup]
+natives-windows-x86_64	Run actions/checkout@v7	2026-11-09T09:31:33.4192354Z ##[group]Fetching the repository
+natives-windows-x86_64	Run actions/checkout@v7	2026-11-09T09:31:33.4207112Z [command]"C:\Program Files\Git\bin\git.exe" -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +538150462af597f04b36d8a5a88ba96ab2ee581c:refs/remotes/origin/1.21.1_CCT
+natives-windows-x86_64	Run actions/checkout@v7	2026-11-09T09:31:34.3788272Z From https://github.com/mindbound/CCLuaJIT
+natives-windows-x86_64	Run actions/checkout@v7	2026-11-09T09:31:34.3789153Z  * [new ref]         538150462af597f04b36d8a5a88ba96ab2ee581c -> origin/1.21.1_CCT
+natives-windows-x86_64	Run actions/checkout@v7	2026-11-09T09:31:34.3836881Z [command]"C:\Program Files\Git\bin\git.exe" branch --list --remote origin/1.21.1_CCT
+natives-windows-x86_64	Run actions/checkout@v7	2026-11-09T09:31:34.4264450Z   origin/1.21.1_CCT
+natives-windows-x86_64	Run actions/checkout@v7	2026-11-09T09:31:34.4308362Z [command]"C:\Program Files\Git\bin\git.exe" rev-parse refs/remotes/origin/1.21.1_CCT
+natives-windows-x86_64	Run actions/checkout@v7	2026-11-09T09:31:34.4706055Z 538150462af597f04b36d8a5a88ba96ab2ee581c
+natives-windows-x86_64	Run actions/checkout@v7	2026-11-09T09:31:34.4739202Z ##[endgroup]
+natives-windows-x86_64	Run actions/checkout@v7	2026-11-09T09:31:34.4739775Z ##[group]Determining the checkout info
+natives-windows-x86_64	Run actions/checkout@v7	2026-11-09T09:31:34.4740480Z ##[endgroup]
+natives-windows-x86_64	Run actions/checkout@v7	2026-11-09T09:31:34.4749830Z [command]"C:\Program Files\Git\bin\git.exe" sparse-checkout disable
+natives-windows-x86_64	Run actions/checkout@v7	2026-11-09T09:31:34.5221550Z [command]"C:\Program Files\Git\bin\git.exe" config --local --unset-all extensions.worktreeConfig
+natives-windows-x86_64	Run actions/checkout@v7	2026-11-09T09:31:34.5596910Z ##[group]Checking out the ref
+natives-windows-x86_64	Run actions/checkout@v7	2026-11-09T09:31:34.5604641Z [command]"C:\Program Files\Git\bin\git.exe" checkout --progress --force -B 1.21.1_CCT refs/remotes/origin/1.21.1_CCT
+natives-windows-x86_64	Run actions/checkout@v7	2026-11-09T09:31:34.9037338Z Switched to a new branch '1.21.1_CCT'
+natives-windows-x86_64	Run actions/checkout@v7	2026-11-09T09:31:34.9131741Z branch '1.21.1_CCT' set up to track 'origin/1.21.1_CCT'.
+natives-windows-x86_64	Run actions/checkout@v7	2026-11-09T09:31:34.9182271Z ##[endgroup]
+natives-windows-x86_64	Run actions/checkout@v7	2026-11-09T09:31:34.9183035Z ##[group]Setting up auth for fetching submodules
+natives-windows-x86_64	Run actions/checkout@v7	2026-11-09T09:31:34.9198870Z [command]"C:\Program Files\Git\bin\git.exe" config --file D:\a\_temp\git-credentials-c30d09fa-20e0-4dbb-a009-d8a764d2df20.config http.https://github.com/.extraheader "AUTHORIZATION: basic ***"
+natives-windows-x86_64	Run actions/checkout@v7	2026-11-09T09:31:34.9641519Z [command]"C:\Program Files\Git\bin\git.exe" config --global include.path D:\a\_temp\git-credentials-c30d09fa-20e0-4dbb-a009-d8a764d2df20.config
+natives-windows-x86_64	Run actions/checkout@v7	2026-11-09T09:31:35.0057055Z [command]"C:\Program Files\Git\bin\git.exe" config --global --unset-all url.https://github.com/.insteadOf
+natives-windows-x86_64	Run actions/checkout@v7	2026-11-09T09:31:35.0441853Z [command]"C:\Program Files\Git\bin\git.exe" config --global --add url.https://github.com/.insteadOf git@github.com:
+natives-windows-x86_64	Run actions/checkout@v7	2026-11-09T09:31:35.0837583Z [command]"C:\Program Files\Git\bin\git.exe" config --global --add url.https://github.com/.insteadOf org-1147991@github.com:
+natives-windows-x86_64	Run actions/checkout@v7	2026-11-09T09:31:35.1223712Z ##[endgroup]
+natives-windows-x86_64	Run actions/checkout@v7	2026-11-09T09:31:35.1224115Z ##[group]Fetching submodules
+natives-windows-x86_64	Run actions/checkout@v7	2026-11-09T09:31:35.1232592Z [command]"C:\Program Files\Git\bin\git.exe" submodule sync
+natives-windows-x86_64	Run actions/checkout@v7	2026-11-09T09:31:35.7023593Z [command]"C:\Program Files\Git\bin\git.exe" -c protocol.version=2 submodule update --init --force --depth=1
+natives-windows-x86_64	Run actions/checkout@v7	2026-11-09T09:31:36.3019261Z Submodule 'luajit' (https://github.com/mindbound/LuaJIT.git) registered for path 'vendor/luajit'
+natives-windows-x86_64	Run actions/checkout@v7	2026-11-09T09:31:36.3521648Z Cloning into 'D:/a/CCLuaJIT/CCLuaJIT/vendor/luajit'...
+natives-windows-x86_64	Run actions/checkout@v7	2026-11-09T09:31:37.9867420Z From https://github.com/mindbound/LuaJIT
+natives-windows-x86_64	Run actions/checkout@v7	2026-11-09T09:31:37.9868159Z  * branch            047efd3bcbe3331c3b9cb69bf5b217164d80bd5c -> FETCH_HEAD
+natives-windows-x86_64	Run actions/checkout@v7	2026-11-09T09:31:38.6403351Z Submodule path 'vendor/luajit': checked out '047efd3bcbe3331c3b9cb69bf5b217164d80bd5c'
+natives-windows-x86_64	Run actions/checkout@v7	2026-11-09T09:31:38.6497417Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach "git config --local gc.auto 0"
+natives-windows-x86_64	Run actions/checkout@v7	2026-11-09T09:31:39.2628368Z Entering 'vendor/luajit'
+natives-windows-x86_64	Run actions/checkout@v7	2026-11-09T09:31:39.3180841Z ##[endgroup]
+natives-windows-x86_64	Run actions/checkout@v7	2026-11-09T09:31:39.3181495Z ##[group]Persisting credentials for submodules
+natives-windows-x86_64	Run actions/checkout@v7	2026-11-09T09:31:39.3194965Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "sh -c \"git config --local --name-only --get-regexp 'url\.https\:\/\/github\.com\/\.insteadOf' && git config --local --unset-all 'url.https://github.com/.insteadOf' || :\""
+natives-windows-x86_64	Run actions/checkout@v7	2026-11-09T09:31:39.8546316Z Entering 'vendor/luajit'
+natives-windows-x86_64	Run actions/checkout@v7	2026-11-09T09:31:39.9470994Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach "git config --local --show-origin --name-only --get-regexp remote.origin.url"
+natives-windows-x86_64	Run actions/checkout@v7	2026-11-09T09:31:40.6310188Z Entering 'vendor/luajit'
+natives-windows-x86_64	Run actions/checkout@v7	2026-11-09T09:31:40.6703322Z file:D:/a/CCLuaJIT/CCLuaJIT/.git/modules/luajit/config	remote.origin.url
+natives-windows-x86_64	Run actions/checkout@v7	2026-11-09T09:31:40.6844374Z [command]"C:\Program Files\Git\bin\git.exe" config --file D:/a/CCLuaJIT/CCLuaJIT/.git/modules/luajit/config includeIf.gitdir:D:/a/CCLuaJIT/CCLuaJIT/.git/modules/luajit.path D:\a\_temp\git-credentials-c30d09fa-20e0-4dbb-a009-d8a764d2df20.config
+natives-windows-x86_64	Run actions/checkout@v7	2026-11-09T09:31:40.7247799Z [command]"C:\Program Files\Git\bin\git.exe" config --file D:/a/CCLuaJIT/CCLuaJIT/.git/modules/luajit/config includeIf.gitdir:/github/workspace/.git/modules/luajit.path /github/runner_temp/git-credentials-c30d09fa-20e0-4dbb-a009-d8a764d2df20.config
+natives-windows-x86_64	Run actions/checkout@v7	2026-11-09T09:31:40.7680189Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach "git config --local --add 'url.https://github.com/.insteadOf' 'git@github.com:'"
+natives-windows-x86_64	Run actions/checkout@v7	2026-11-09T09:31:41.3350650Z Entering 'vendor/luajit'
+natives-windows-x86_64	Run actions/checkout@v7	2026-11-09T09:31:41.3868149Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach "git config --local --add 'url.https://github.com/.insteadOf' 'org-1147991@github.com:'"
+natives-windows-x86_64	Run actions/checkout@v7	2026-11-09T09:31:41.9352604Z Entering 'vendor/luajit'
+natives-windows-x86_64	Run actions/checkout@v7	2026-11-09T09:31:41.9818852Z ##[endgroup]
+natives-windows-x86_64	Run actions/checkout@v7	2026-11-09T09:31:42.0321153Z [command]"C:\Program Files\Git\bin\git.exe" log -1 --format=%H
+natives-windows-x86_64	Run actions/checkout@v7	2026-11-09T09:31:42.0673686Z 538150462af597f04b36d8a5a88ba96ab2ee581c
+natives-windows-x86_64	Run actions/setup-java@v6	﻿2026-11-09T09:31:42.3817649Z ##[group]Run actions/setup-java@v6
+natives-windows-x86_64	Run actions/setup-java@v6	2026-11-09T09:31:42.3817980Z with:
+natives-windows-x86_64	Run actions/setup-java@v6	2026-11-09T09:31:42.3818155Z   distribution: temurin
+natives-windows-x86_64	Run actions/setup-java@v6	2026-11-09T09:31:42.3818354Z   java-version: 21
+natives-windows-x86_64	Run actions/setup-java@v6	2026-11-09T09:31:42.3818533Z   java-package: jdk
+natives-windows-x86_64	Run actions/setup-java@v6	2026-11-09T09:31:42.3818721Z   check-latest: false
+natives-windows-x86_64	Run actions/setup-java@v6	2026-11-09T09:31:42.3818906Z   force-download: false
+natives-windows-x86_64	Run actions/setup-java@v6	2026-11-09T09:31:42.3819115Z   set-default: true
+natives-windows-x86_64	Run actions/setup-java@v6	2026-11-09T09:31:42.3819286Z   server-id: github
+natives-windows-x86_64	Run actions/setup-java@v6	2026-11-09T09:31:42.3819485Z   mvn-repositories-include-central: true
+natives-windows-x86_64	Run actions/setup-java@v6	2026-11-09T09:31:42.3819770Z   mvn-repositories-prioritize-central: true
+natives-windows-x86_64	Run actions/setup-java@v6	2026-11-09T09:31:42.3820032Z   overwrite-settings: true
+natives-windows-x86_64	Run actions/setup-java@v6	2026-11-09T09:31:42.3820236Z   cache-read-only: false
+natives-windows-x86_64	Run actions/setup-java@v6	2026-11-09T09:31:42.3820426Z   job-status: success
+natives-windows-x86_64	Run actions/setup-java@v6	2026-11-09T09:31:42.3822748Z   token: ***
+natives-windows-x86_64	Run actions/setup-java@v6	2026-11-09T09:31:42.3822937Z   show-download-progress: false
+natives-windows-x86_64	Run actions/setup-java@v6	2026-11-09T09:31:42.3823162Z   problem-matcher: true
+natives-windows-x86_64	Run actions/setup-java@v6	2026-11-09T09:31:42.3823347Z ##[endgroup]
+natives-windows-x86_64	Run actions/setup-java@v6	2026-11-09T09:31:42.4892921Z ##[group]Installed distributions
+natives-windows-x86_64	Run actions/setup-java@v6	2026-11-09T09:31:42.5120102Z Resolved Java 21.0.13+9.0 from tool-cache
+natives-windows-x86_64	Run actions/setup-java@v6	2026-11-09T09:31:42.5120873Z Setting Java 21.0.13+9.0 as the default
+natives-windows-x86_64	Run actions/setup-java@v6	2026-11-09T09:31:42.5138738Z 
+natives-windows-x86_64	Run actions/setup-java@v6	2026-11-09T09:31:42.5139084Z Java configuration:
+natives-windows-x86_64	Run actions/setup-java@v6	2026-11-09T09:31:42.5139463Z   Distribution: temurin
+natives-windows-x86_64	Run actions/setup-java@v6	2026-11-09T09:31:42.5139803Z   Version: 21.0.13+9.0
+natives-windows-x86_64	Run actions/setup-java@v6	2026-11-09T09:31:42.5140358Z   Path: C:\hostedtoolcache\windows\Java_Temurin-Hotspot_jdk\21.0.13-9.0\x64
+natives-windows-x86_64	Run actions/setup-java@v6	2026-11-09T09:31:42.5140874Z 
+natives-windows-x86_64	Run actions/setup-java@v6	2026-11-09T09:31:42.5141271Z ##[endgroup]
+natives-windows-x86_64	Run actions/setup-java@v6	2026-11-09T09:31:42.5178040Z Creating settings.xml with server-id: github
+natives-windows-x86_64	Run actions/setup-java@v6	2026-11-09T09:31:42.5188422Z Creating toolchains.xml for JDK version 21 from temurin
+natives-windows-x86_64	Run actions/setup-java@v6	2026-11-09T09:31:42.5203516Z Writing to C:\Users\runneradmin\.m2\toolchains.xml
+natives-windows-x86_64	Run actions/setup-java@v6	2026-11-09T09:31:42.5212305Z Writing to C:\Users\runneradmin\.m2\settings.xml
+natives-windows-x86_64	Run actions/setup-java@v6	2026-11-09T09:31:42.5225944Z Configured MAVEN_ARGS to include -ntp to suppress Maven transfer progress logs. Set 'show-download-progress: true' to keep the download progress output.
+natives-windows-x86_64	Remove setup-java's "Exception in thread" problem matcher	﻿2026-11-09T09:31:42.5666391Z ##[group]Run echo "::remove-matcher owner=java::"
+natives-windows-x86_64	Remove setup-java's "Exception in thread" problem matcher	2026-11-09T09:31:42.5666876Z ^[[36;1mecho "::remove-matcher owner=java::"^[[0m
+natives-windows-x86_64	Remove setup-java's "Exception in thread" problem matcher	2026-11-09T09:31:42.6253304Z shell: C:\Program Files\Git\bin\bash.EXE --noprofile --norc -e -o pipefail {0}
+natives-windows-x86_64	Remove setup-java's "Exception in thread" problem matcher	2026-11-09T09:31:42.6253707Z env:
+natives-windows-x86_64	Remove setup-java's "Exception in thread" problem matcher	2026-11-09T09:31:42.6253999Z   JAVA_HOME: C:\hostedtoolcache\windows\Java_Temurin-Hotspot_jdk\21.0.13-9.0\x64
+natives-windows-x86_64	Remove setup-java's "Exception in thread" problem matcher	2026-11-09T09:31:42.6254520Z   JAVA_HOME_21_X64: C:\hostedtoolcache\windows\Java_Temurin-Hotspot_jdk\21.0.13-9.0\x64
+natives-windows-x86_64	Remove setup-java's "Exception in thread" problem matcher	2026-11-09T09:31:42.6254900Z   MAVEN_ARGS: -ntp
+natives-windows-x86_64	Remove setup-java's "Exception in thread" problem matcher	2026-11-09T09:31:42.6255075Z ##[endgroup]
+natives-windows-x86_64	Run msys2/setup-msys2@v2	﻿2026-11-09T09:31:42.8374280Z ##[group]Run msys2/setup-msys2@v2
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:31:42.8374603Z with:
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:31:42.8374765Z   msystem: MINGW64
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:31:42.8374949Z   path-type: inherit
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:31:42.8375393Z   install: mingw-w64-x86_64-gcc mingw-w64-x86_64-binutils mingw-w64-x86_64-make mingw-w64-x86_64-python diffutils
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:31:42.8375872Z   update: false
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:31:42.8376041Z   release: true
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:31:42.8376226Z   platform-check-severity: fatal
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:31:42.8376440Z   cache: true
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:31:42.8376591Z env:
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:31:42.8376870Z   JAVA_HOME: C:\hostedtoolcache\windows\Java_Temurin-Hotspot_jdk\21.0.13-9.0\x64
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:31:42.8377369Z   JAVA_HOME_21_X64: C:\hostedtoolcache\windows\Java_Temurin-Hotspot_jdk\21.0.13-9.0\x64
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:31:42.8377968Z   MAVEN_ARGS: -ntp
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:31:42.8378136Z ##[endgroup]
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:31:42.9908849Z ##[warning][msystem-mingw64] MINGW64 is deprecated. Migrate to UCRT64 or CLANG64. To acknowledge and suppress this warning, add 'msystem-mingw64' to 'suppress-deprecation-warnings'.
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:31:42.9919902Z ##[group]Downloading MSYS2...
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:31:43.7244506Z ##[endgroup]
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:31:43.7245272Z ##[group]Extracting MSYS2...
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:31:43.7265389Z [command]C:\hostedtoolcache\windows\msys2-installer\0.0.20260927\x64\base.exe -y
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:31:43.9410119Z 
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:31:43.9411109Z 7-Zip SFX 26.02 ZS v1.5.7 R1 (x64) : Copyright (c) 1999- Igor Pavlov, 2016- Tino Reichardt, 2022- Sergey G. Brester : 2026-06-27
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:31:43.9412050Z 
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:31:43.9412613Z Extracting archive: C:\hostedtoolcache\windows\msys2-installer\0.0.20260927\x64\base.exe
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:31:43.9414972Z --
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:31:43.9415660Z Path = C:\hostedtoolcache\windows\msys2-installer\0.0.20260927\x64\base.exe
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:31:43.9416477Z Type = 7z
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:31:43.9416656Z 
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:31:44.1294536Z   0%
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:31:44.1295122Z     
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:31:44.3331646Z   0% 552 - msys64\usr\share\zoneinfo\posix\Brazil
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:31:44.3332253Z                                                  
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:31:44.5354568Z   0% 1007 - msys64\usr\lib\terminfo\61\aixterm-m
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:31:44.5355178Z                                                 
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:31:44.7389709Z   1% 1407 - msys64\usr\lib\terminfo\63\cons60-iso-m
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:31:44.7390359Z                                                    
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:31:44.9434668Z   1% 1905 - msys64\usr\lib\terminfo\68\hp2621
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:31:44.9435313Z                                              
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:31:45.1452844Z   1% 2410 - msys64\usr\lib\terminfo\6e\nsterm-m-7
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:31:45.1453643Z                                                  
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:31:45.3486740Z   1% 2890 - msys64\usr\lib\terminfo\74\tek4025-17
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:31:45.3487358Z                                                  
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:31:45.5528760Z   2% 3378 - msys64\usr\lib\terminfo\77\wy370-nk
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:31:45.5529365Z                                                
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:31:45.7555031Z   2% 3894 - msys64\usr\share\bash-completion\completions-core\aspell.bash
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:31:45.7555782Z                                                                          
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:31:45.9577582Z   2% 4195 - msys64\usr\share\bash-completion\completions-core\ldapsearch.bash
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:31:45.9578414Z                                                                              
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:31:46.1607293Z   3% 4667 - msys64\usr\share\bash-completion\completions-fallback\cilium.bash
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:31:46.1607865Z                                                                              
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:31:46.3648937Z   5% 5124 - msys64\usr\share\doc\mpfr\NEWS
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:31:46.3649349Z                                           
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:31:46.5668546Z  12% 5558 - msys64\usr\share\locale\de\LC_MESSAGES\tar.mo
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:31:46.5669240Z                                                          
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:31:46.7704291Z  22% 5934 - msys64\usr\share\locale\lv\LC_MESSAGES\libidn2.mo
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:31:46.7707142Z                                                              
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:31:47.1188652Z  34% 6291 - msys64\usr\share\locale\zh_CN\LC_MESSAGES\util-linux.mo
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:31:47.1189538Z                                                                    
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:31:47.3184200Z  36% 6773 - msys64\usr\share\man\man1\openssl-dgst.1ssl.gz
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:31:47.3184876Z                                                           
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:31:47.5207599Z  36% 7275 - msys64\usr\share\man\man3\CURLOPT_ECH.3.gz
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:31:47.5208270Z                                                       
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:31:47.7229980Z  37% 7787 - msys64\usr\share\man\man3\flash.3x.gz
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:31:47.7231742Z                                                  
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:31:47.9266558Z  37% 8327 - msys64\usr\share\man\man3\mvwgetstr.3x.gz
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:31:47.9267144Z                                                      
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:31:48.1310833Z  38% 8851 - msys64\usr\share\man\pt_BR\man1\lzcat.1.gz
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:31:48.1311467Z                                                       
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:31:48.3330732Z  44% 9347 - msys64\usr\share\terminfo\61\arm100-wam
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:31:48.3331348Z                                                    
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:31:48.5353154Z  44% 9879 - msys64\usr\share\terminfo\64\diablo1720
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:31:48.5353793Z                                                    
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:31:48.7395410Z  44% 10127 - msys64\usr\share\terminfo\68\hp2621k45
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:31:48.7396174Z                                                    
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:31:48.9416344Z  45% 10672 - msys64\usr\share\terminfo\6f\oblit
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:31:48.9416932Z                                                
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:31:49.1461844Z  45% 11218 - msys64\usr\share\terminfo\74\tty5420-w-rv-n
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:31:49.1462775Z                                                         
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:31:49.3479374Z  45% 11757 - msys64\usr\share\terminfo\78\x10term+sl
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:31:49.3480000Z                                                     
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:31:49.5521236Z  46% 12300 - msys64\usr\share\zoneinfo\Asia\Yekaterinburg
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:31:49.5521841Z                                                          
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:31:49.7592355Z  46% 12841 - msys64\usr\share\zoneinfo\posix\Asia\Novosibirsk
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:31:49.7593005Z                                                              
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:31:49.9581930Z  46% 13329 - msys64\usr\share\zoneinfo\right\America\Porto_Acre
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:31:49.9582751Z                                                                
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:31:50.1608875Z  46% 13581 - msys64\usr\share\zoneinfo\right\Europe\Bucharest
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:31:50.1609620Z                                                              
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:31:50.3646313Z  48% 14070 - msys64\usr\share\mintty\sounds\ambient-uncork.wav
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:31:50.3647004Z                                                               
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:31:50.5681284Z  63% 14300 - msys64\usr\bin\msys-gnutls-30.dll
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:31:50.5681902Z                                               
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:31:50.6341059Z  91% 14438 - msys64\usr\bin\tic.exe
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:31:50.6341759Z                                    
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:31:50.6342900Z Everything is Ok
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:31:50.6365801Z ##[endgroup]
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:31:50.6366427Z ##[group]Disable Key Refresh...
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:31:50.6384736Z ##[endgroup]
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:31:50.6402375Z ##[group]Restoring package cache...
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:31:50.8337545Z Cache hit for restore-key: msys2-pkgs-upd:false-conf:ea4e0b8b-files:19c181313c852435e93e198fab8bae130e73a08c3d0b7d19c856fd23857a4212
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:31:51.6672312Z Received 120241749 of 120241749 (100.0%), 146.5 MBs/sec
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:31:51.6677029Z Cache Size: ~115 MB (120241749 B)
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:31:51.6715334Z [command]"C:\Program Files\Git\usr\bin\tar.exe" -xf D:/a/_temp/90b3d0c6-8b3c-48a4-a004-db605970ea6f/cache.tzst -P -C D:/a/CCLuaJIT/CCLuaJIT --force-local --use-compress-program "zstd -d"
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:31:51.9983425Z Cache restored successfully
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:31:52.0057215Z Cache restore for msys2-pkgs-upd:false-conf:ea4e0b8b, got msys2-pkgs-upd:false-conf:ea4e0b8b-files:19c181313c852435e93e198fab8bae130e73a08c3d0b7d19c856fd23857a4212
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:31:52.0059911Z Cache restore for msys2-pkgs-upd:false-conf:ea4e0b8b, got msys2-pkgs-upd:false-conf:ea4e0b8b-files:19c181313c852435e93e198fab8bae130e73a08c3d0b7d19c856fd23857a4212
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:31:52.0061790Z ##[endgroup]
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:31:52.0062394Z ##[group]Starting MSYS2 for the first time...
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:31:52.1357625Z [command]C:\Windows\system32\cmd.exe /D /S /C D:\a\_temp\setup-msys2\msys2.cmd -c "'uname' '-a'"
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:31:52.1774996Z ^[[1;32mMSYS2 is starting for the first time. Executing the initial setup.^[[1;0m
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:31:52.3068532Z Copying skeleton files.
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:31:52.3069145Z These files are for the users to personalise their msys2 experience.
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:31:52.3069520Z 
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:31:52.3069688Z They will never be overwritten nor automatically updated.
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:31:52.3069927Z 
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:31:52.3679899Z './.bashrc' -> '/home/runneradmin/.bashrc'
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:31:52.3906822Z './.bash_profile' -> '/home/runneradmin/.bash_profile'
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:31:52.4117367Z './.profile' -> '/home/runneradmin/.profile'
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:31:52.4969256Z 'C:\Windows\system32\drivers\etc\hosts' -> '/etc/hosts'
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:31:52.5603602Z 'C:\Windows\system32\drivers\etc\protocol' -> '/etc/protocols'
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:31:52.6185584Z 'C:\Windows\system32\drivers\etc\services' -> '/etc/services'
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:31:52.6772495Z 'C:\Windows\system32\drivers\etc\networks' -> '/etc/networks'
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:31:52.8883192Z gpg: /etc/pacman.d/gnupg/trustdb.gpg: trustdb created
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:31:52.8967417Z gpg: no ultimately trusted keys found
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:31:53.2428222Z gpg: starting migration from earlier GnuPG versions
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:31:53.3047940Z gpg: porting secret keys from '/etc/pacman.d/gnupg/secring.gpg' to gpg-agent
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:31:53.3051766Z gpg: migration succeeded
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:31:53.3301420Z ==> Generating pacman master key. This may take some time.
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:31:53.3522481Z gpg: Generating pacman keyring master key...
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:31:55.2670201Z gpg: directory '/etc/pacman.d/gnupg/openpgp-revocs.d' created
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:31:55.2949622Z gpg: revocation certificate stored as '/etc/pacman.d/gnupg/openpgp-revocs.d/54D0C4CEFA24299FC96237C06BF7FD6388815B89.rev'
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:31:55.2951552Z gpg: Done
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:31:55.3173589Z ==> Updating trust database...
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:31:55.3636272Z gpg: marginals needed: 3  completes needed: 1  trust model: pgp
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:31:55.3637201Z gpg: depth: 0  valid:   1  signed:   0  trust: 0-, 0q, 0n, 0m, 0f, 1u
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:31:55.5200885Z ==> Appending keys from msys2.gpg...
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:31:56.2031026Z ==> Locally signing trusted keys in keyring...
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:31:56.7917967Z   -> Locally signed 5 keys.
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:31:56.8133985Z ==> Importing owner trust values...
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:31:56.8357348Z gpg: setting ownertrust to 4
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:31:56.8358001Z gpg: setting ownertrust to 4
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:31:56.8358837Z gpg: setting ownertrust to 4
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:31:56.8359280Z gpg: setting ownertrust to 4
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:31:56.8359709Z gpg: setting ownertrust to 4
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:31:56.8666779Z ==> Disabling revoked keys in keyring...
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:31:57.1348590Z   -> Disabled 4 keys.
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:31:57.1522224Z ==> Updating trust database...
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:31:57.1963236Z gpg: marginals needed: 3  completes needed: 1  trust model: pgp
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:31:57.1994849Z gpg: depth: 0  valid:   1  signed:   5  trust: 0-, 0q, 0n, 0m, 0f, 1u
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:31:57.2042792Z gpg: depth: 1  valid:   5  signed:   7  trust: 0-, 0q, 0n, 5m, 0f, 0u
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:31:57.2058201Z gpg: depth: 2  valid:   4  signed:   2  trust: 4-, 0q, 0n, 0m, 0f, 0u
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:31:57.2061789Z gpg: next trustdb check due at 2027-02-10
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:31:57.2509443Z pacman-key (pacman) 6.1.0
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:31:57.2510073Z Copyright (c) 2010-2024 Pacman Development Team <pacman-dev@lists.archlinux.org>.
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:31:57.2510518Z 
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:31:57.2695863Z This is free software; see the source for copying conditions.
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:31:57.2696609Z There is NO WARRANTY, to the extent permitted by law.
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:31:57.5164603Z ^[[1;32mInitial setup complete. MSYS2 is now ready to use.^[[1;0m
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:31:57.5370293Z MINGW64_NT-10.0-26100 runnervmm7ud1 3.6.10-c770e1b9.x86_64 2026-09-26 06:38 UTC x86_64 Msys
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:31:57.5424569Z ##[endgroup]
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:31:57.5424998Z ##[group]Disable CheckSpace...
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:31:57.6278047Z [command]C:\Windows\system32\cmd.exe /D /S /C D:\a\_temp\setup-msys2\msys2.cmd -c "'sed' '-i' 's/^CheckSpace/#CheckSpace/g' '/etc/pacman.conf'"
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:31:57.8618067Z ##[endgroup]
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:31:57.8618771Z ##[group]Installing additional packages through pacman...
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:31:57.9530665Z [command]C:\Windows\system32\cmd.exe /D /S /C D:\a\_temp\setup-msys2\msys2.cmd -c "'pacman' '--noconfirm' '-S' '--needed' '--overwrite' '*' 'mingw-w64-x86_64-gcc' 'mingw-w64-x86_64-binutils' 'mingw-w64-x86_64-make' 'mingw-w64-x86_64-python' 'diffutils'"
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:31:58.9578890Z resolving dependencies...
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:31:58.9725706Z looking for conflicting packages...
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:31:58.9777120Z 
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:31:58.9785124Z Packages (39) mingw-w64-x86_64-bzip2-1.0.8-4  mingw-w64-x86_64-cc-libs-16.2.0-4  mingw-w64-x86_64-crt-14.0.0.r426.g4564ee4b5-1  mingw-w64-x86_64-expat-2.8.5-1  mingw-w64-x86_64-gettext-runtime-1.0-1  mingw-w64-x86_64-gmp-6.3.0-2  mingw-w64-x86_64-headers-14.0.0.r426.g4564ee4b5-1  mingw-w64-x86_64-isl-0.28-1  mingw-w64-x86_64-libatomic-16.2.0-4  mingw-w64-x86_64-libb2-0.98.1-3  mingw-w64-x86_64-libffi-3.8.0-1  mingw-w64-x86_64-libgcc-16.2.0-4  mingw-w64-x86_64-libiconv-1.19-1  mingw-w64-x86_64-libquadmath-16.2.0-4  mingw-w64-x86_64-libstdc++-16.2.0-4  mingw-w64-x86_64-libsystre-1.0.2-3  mingw-w64-x86_64-libtre-0.9.0-2  mingw-w64-x86_64-libwinpthread-14.0.0.r426.g4564ee4b5-1  mingw-w64-x86_64-mpc-1.4.1-1  mingw-w64-x86_64-mpdecimal-4.0.1-3  mingw-w64-x86_64-mpfr-4.2.2-3  mingw-w64-x86_64-ncurses-6.6-4  mingw-w64-x86_64-openssl-3.6.4-1  mingw-w64-x86_64-pcre2-10.48-3  mingw-w64-x86_64-sqlite3-3.53.4-1  mingw-w64-x86_64-tcl-8.6.18-1  mingw-w64-x86_64-tk-8.6.18-1  mingw-w64-x86_64-tzdata-2026d-1  mingw-w64-x86_64-windows-default-manifest-20260815-1  mingw-w64-x86_64-wineditline-2.208-1  mingw-w64-x86_64-winpthreads-14.0.0.r426.g4564ee4b5-1  mingw-w64-x86_64-xz-5.8.4-1  mingw-w64-x86_64-zlib-1.3.2-2  mingw-w64-x86_64-zstd-1.5.7-2  diffutils-3.12-1  mingw-w64-x86_64-binutils-2.47-3  mingw-w64-x86_64-gcc-16.2.0-4  mingw-w64-x86_64-make-4.4.1-5  mingw-w64-x86_64-python-3.14.7-1
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:31:58.9793983Z 
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:31:58.9794174Z Total Installed Size:  812.63 MiB
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:31:58.9794481Z 
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:31:58.9850862Z :: Proceed with installation? [Y/n] 
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:31:58.9851315Z checking keyring...
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:31:59.0455244Z checking package integrity...
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:32:06.2024374Z loading package files...
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:32:06.4499679Z checking for file conflicts...
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:32:08.1333247Z :: Processing package changes...
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:32:08.1334018Z installing mingw-w64-x86_64-libwinpthread...
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:32:08.1390203Z installing mingw-w64-x86_64-libatomic...
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:32:08.1448500Z installing mingw-w64-x86_64-libgcc...
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:32:08.1509177Z installing mingw-w64-x86_64-tzdata...
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:32:10.5765986Z installing mingw-w64-x86_64-libstdc++...
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:32:10.5885773Z installing mingw-w64-x86_64-libquadmath...
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:32:10.5944669Z installing mingw-w64-x86_64-cc-libs...
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:32:10.5971205Z installing mingw-w64-x86_64-libiconv...
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:32:10.6269540Z installing mingw-w64-x86_64-gettext-runtime...
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:32:10.7849064Z installing mingw-w64-x86_64-zlib...
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:32:10.7946120Z installing mingw-w64-x86_64-zstd...
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:32:10.8163896Z installing mingw-w64-x86_64-binutils...
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:32:11.0675222Z installing mingw-w64-x86_64-headers...
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:32:12.5290626Z installing mingw-w64-x86_64-crt...
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:32:13.2465041Z installing mingw-w64-x86_64-gmp...
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:32:13.2625853Z installing mingw-w64-x86_64-isl...
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:32:13.3346669Z installing mingw-w64-x86_64-mpfr...
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:32:13.3592345Z installing mingw-w64-x86_64-mpc...
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:32:13.3667785Z installing mingw-w64-x86_64-windows-default-manifest...
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:32:13.3699839Z installing mingw-w64-x86_64-winpthreads...
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:32:13.3818036Z installing mingw-w64-x86_64-gcc...
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:32:14.7959860Z Optional dependencies for mingw-w64-x86_64-gcc
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:32:14.7960927Z     mingw-w64-x86_64-libatomic [installed]
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:32:14.7961426Z     mingw-w64-x86_64-libgomp: OpenMP
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:32:14.7961950Z     mingw-w64-x86_64-libquadmath: Quad Math [installed]
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:32:14.7962473Z installing mingw-w64-x86_64-make...
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:32:14.8036084Z installing mingw-w64-x86_64-expat...
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:32:14.8217301Z installing mingw-w64-x86_64-bzip2...
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:32:14.8429986Z installing mingw-w64-x86_64-libffi...
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:32:14.8553552Z installing mingw-w64-x86_64-mpdecimal...
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:32:14.8725909Z installing mingw-w64-x86_64-wineditline...
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:32:14.8825343Z installing mingw-w64-x86_64-pcre2...
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:32:15.0992471Z installing mingw-w64-x86_64-libtre...
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:32:15.1130667Z installing mingw-w64-x86_64-libsystre...
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:32:15.1234077Z installing mingw-w64-x86_64-ncurses...
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:32:20.9560463Z installing mingw-w64-x86_64-openssl...
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:32:27.4185245Z Optional dependencies for mingw-w64-x86_64-openssl
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:32:27.4185902Z     mingw-w64-x86_64-ca-certificates
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:32:27.4186240Z installing mingw-w64-x86_64-tcl...
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:32:29.1811203Z installing mingw-w64-x86_64-sqlite3...
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:32:29.3152686Z installing mingw-w64-x86_64-tk...
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:32:29.9430774Z installing mingw-w64-x86_64-libb2...
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:32:29.9505398Z installing mingw-w64-x86_64-xz...
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:32:30.0824805Z installing mingw-w64-x86_64-python...
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:32:38.3919834Z installing diffutils...
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:32:38.4591947Z :: Running post-transaction hooks...
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:32:38.4592595Z (1/1) Updating the info directory file...
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:32:38.6725292Z ##[endgroup]
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:32:38.6725718Z ##[group]Saving package cache...
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:32:38.7573618Z [command]C:\Windows\system32\cmd.exe /D /S /C D:\a\_temp\setup-msys2\msys2.cmd -c "'paccache' '-r' '-f' '-u' '-k0'"
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:32:39.8013990Z ==> no candidate packages found for pruning
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:32:39.8894759Z [command]C:\Windows\system32\cmd.exe /D /S /C D:\a\_temp\setup-msys2\msys2.cmd -c "'paccache' '-r' '-f' '-k1'"
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:32:40.2060726Z ==> no candidate packages found for pruning
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:32:40.5540629Z Cache unchanged, skipping save for msys2-pkgs-upd:false-conf:ea4e0b8b-files:19c181313c852435e93e198fab8bae130e73a08c3d0b7d19c856fd23857a4212
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:32:40.6707807Z [command]C:\Windows\system32\cmd.exe /D /S /C D:\a\_temp\setup-msys2\msys2.cmd -c "'pacman' '--noconfirm' '-Scc'"
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:32:41.5135682Z 
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:32:41.5136135Z Cache directory: /var/cache/pacman/pkg/
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:32:41.5288929Z :: Do you want to remove ALL files from cache? [Y/n] 
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:32:41.5289743Z removing all files from cache...
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:32:41.5289932Z 
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:32:41.5290048Z Database directory: /var/lib/pacman/
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:32:41.5308865Z :: Do you want to remove unused repositories? [Y/n] 
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:32:41.5310223Z removing unused sync repositories...
+natives-windows-x86_64	Run msys2/setup-msys2@v2	2026-11-09T09:32:41.5369218Z ##[endgroup]
+natives-windows-x86_64	Show the toolchain	﻿2026-11-09T09:32:41.5722220Z ##[group]Run uname -s
+natives-windows-x86_64	Show the toolchain	2026-11-09T09:32:41.5722565Z ^[[36;1muname -s^[[0m
+natives-windows-x86_64	Show the toolchain	2026-11-09T09:32:41.5722779Z ^[[36;1mgcc --version | sed -n 1p^[[0m
+natives-windows-x86_64	Show the toolchain	2026-11-09T09:32:41.5723055Z ^[[36;1mmingw32-make --version | sed -n 1p^[[0m
+natives-windows-x86_64	Show the toolchain	2026-11-09T09:32:41.5723331Z ^[[36;1mpython --version^[[0m
+natives-windows-x86_64	Show the toolchain	2026-11-09T09:32:41.5723592Z ^[[36;1mecho "git: $(command -v git), $(git --version)"^[[0m
+natives-windows-x86_64	Show the toolchain	2026-11-09T09:32:41.5723895Z ^[[36;1mecho "JAVA_HOME=$JAVA_HOME"^[[0m
+natives-windows-x86_64	Show the toolchain	2026-11-09T09:32:41.5725988Z shell: D:\a\_temp\setup-msys2\msys2.CMD {0}
+natives-windows-x86_64	Show the toolchain	2026-11-09T09:32:41.5726259Z env:
+natives-windows-x86_64	Show the toolchain	2026-11-09T09:32:41.5726568Z   JAVA_HOME: C:\hostedtoolcache\windows\Java_Temurin-Hotspot_jdk\21.0.13-9.0\x64
+natives-windows-x86_64	Show the toolchain	2026-11-09T09:32:41.5727094Z   JAVA_HOME_21_X64: C:\hostedtoolcache\windows\Java_Temurin-Hotspot_jdk\21.0.13-9.0\x64
+natives-windows-x86_64	Show the toolchain	2026-11-09T09:32:41.5727491Z   MAVEN_ARGS: -ntp
+natives-windows-x86_64	Show the toolchain	2026-11-09T09:32:41.5727676Z   MSYSTEM: MINGW64
+natives-windows-x86_64	Show the toolchain	2026-11-09T09:32:41.5727851Z ##[endgroup]
+natives-windows-x86_64	Show the toolchain	2026-11-09T09:32:41.8033412Z MINGW64_NT-10.0-26100
+natives-windows-x86_64	Show the toolchain	2026-11-09T09:32:41.8440151Z gcc.exe (Rev4, Built by MSYS2 project) 16.2.0
+natives-windows-x86_64	Show the toolchain	2026-11-09T09:32:41.9549487Z GNU Make 4.4.1
+natives-windows-x86_64	Show the toolchain	2026-11-09T09:32:41.9881810Z Python 3.14.7
+natives-windows-x86_64	Show the toolchain	2026-11-09T09:32:42.0520784Z git: /c/Program Files/Git/bin/git, git version 2.56.0.windows.4
+natives-windows-x86_64	Show the toolchain	2026-11-09T09:32:42.0523085Z JAVA_HOME=C:\hostedtoolcache\windows\Java_Temurin-Hotspot_jdk\21.0.13-9.0\x64
+natives-windows-x86_64	Build libcclj (checks imports and exports)	﻿2026-11-09T09:32:42.0780778Z ##[group]Run bash natives/build-natives.sh windows-x86_64
+natives-windows-x86_64	Build libcclj (checks imports and exports)	2026-11-09T09:32:42.0781280Z ^[[36;1mbash natives/build-natives.sh windows-x86_64^[[0m
+natives-windows-x86_64	Build libcclj (checks imports and exports)	2026-11-09T09:32:42.0783513Z shell: D:\a\_temp\setup-msys2\msys2.CMD {0}
+natives-windows-x86_64	Build libcclj (checks imports and exports)	2026-11-09T09:32:42.0783785Z env:
+natives-windows-x86_64	Build libcclj (checks imports and exports)	2026-11-09T09:32:42.0784084Z   JAVA_HOME: C:\hostedtoolcache\windows\Java_Temurin-Hotspot_jdk\21.0.13-9.0\x64
+natives-windows-x86_64	Build libcclj (checks imports and exports)	2026-11-09T09:32:42.0784607Z   JAVA_HOME_21_X64: C:\hostedtoolcache\windows\Java_Temurin-Hotspot_jdk\21.0.13-9.0\x64
+natives-windows-x86_64	Build libcclj (checks imports and exports)	2026-11-09T09:32:42.0785012Z   MAVEN_ARGS: -ntp
+natives-windows-x86_64	Build libcclj (checks imports and exports)	2026-11-09T09:32:42.0785196Z   MSYSTEM: MINGW64
+natives-windows-x86_64	Build libcclj (checks imports and exports)	2026-11-09T09:32:42.0785446Z ##[endgroup]
+natives-windows-x86_64	Build libcclj (checks imports and exports)	2026-11-09T09:32:42.6319550Z == libcclj for windows-x86_64
+natives-windows-x86_64	Build libcclj (checks imports and exports)	2026-11-09T09:32:42.7477007Z    LuaJIT:   D:/a/CCLuaJIT/CCLuaJIT/vendor/luajit at 047efd3bcbe3331c3b9cb69bf5b217164d80bd5c (Don't FOLD ldexp with non-integer exponent.)
+natives-windows-x86_64	Build libcclj (checks imports and exports)	2026-11-09T09:32:42.7967873Z    compiler: gcc.exe (Rev4, Built by MSYS2 project) 16.2.0
+natives-windows-x86_64	Build libcclj (checks imports and exports)	2026-11-09T09:32:42.7969296Z    JDK:      C:/hostedtoolcache/windows/Java_Temurin-Hotspot_jdk/21.0.13-9.0/x64
+natives-windows-x86_64	Build libcclj (checks imports and exports)	2026-11-09T09:32:42.8440177Z == building the patched LuaJIT (log: D:/a/CCLuaJIT/CCLuaJIT/natives/build/windows-x86_64/luajit-build.log)
+natives-windows-x86_64	Build libcclj (checks imports and exports)	2026-11-09T09:32:57.9800764Z    8 patches applied: 01-interrupt.patch 02-xpcall-handler-in-hook.patch 03-no-bytecode.patch 04-pattern-nul.patch 05-numfmt-roundtrip.patch 06-goto-contextual.patch 07-interruptible-patterns.patch 08-cstack-guard.patch
+natives-windows-x86_64	Build libcclj (checks imports and exports)	2026-11-09T09:32:58.0061681Z    LuaJIT 2.1.1794071144 -- Copyright (C) 2005-2026 Mike Pall. https://luajit.org/
+natives-windows-x86_64	Build libcclj (checks imports and exports)	2026-11-09T09:32:58.0666125Z == compiling cclj.c machine.c jni_machine.c (objects: D:/a/CCLuaJIT/CCLuaJIT/natives/build/windows-x86_64/obj)
+natives-windows-x86_64	Build libcclj (checks imports and exports)	2026-11-09T09:32:59.3336797Z == linking D:/a/CCLuaJIT/CCLuaJIT/natives/build/out/natives/windows-x86_64/cclj.dll
+natives-windows-x86_64	Build libcclj (checks imports and exports)	2026-11-09T09:32:59.5440232Z == dependency check
+natives-windows-x86_64	Build libcclj (checks imports and exports)	2026-11-09T09:32:59.6878014Z imports (objdump -p):
+natives-windows-x86_64	Build libcclj (checks imports and exports)	2026-11-09T09:32:59.7077315Z   KERNEL32.dll
+natives-windows-x86_64	Build libcclj (checks imports and exports)	2026-11-09T09:32:59.7077750Z   msvcrt.dll
+natives-windows-x86_64	Build libcclj (checks imports and exports)	2026-11-09T09:32:59.8940466Z exports:
+natives-windows-x86_64	Build libcclj (checks imports and exports)	2026-11-09T09:32:59.9127079Z   Java_io_github_mindbound_cclj_natives_NativeMachine_nAbi
+natives-windows-x86_64	Build libcclj (checks imports and exports)	2026-11-09T09:32:59.9127879Z   Java_io_github_mindbound_cclj_natives_NativeMachine_nFree
+natives-windows-x86_64	Build libcclj (checks imports and exports)	2026-11-09T09:32:59.9128563Z   Java_io_github_mindbound_cclj_natives_NativeMachine_nLoad
+natives-windows-x86_64	Build libcclj (checks imports and exports)	2026-11-09T09:32:59.9129228Z   Java_io_github_mindbound_cclj_natives_NativeMachine_nMessage
+natives-windows-x86_64	Build libcclj (checks imports and exports)	2026-11-09T09:32:59.9129879Z   Java_io_github_mindbound_cclj_natives_NativeMachine_nNew
+natives-windows-x86_64	Build libcclj (checks imports and exports)	2026-11-09T09:32:59.9130506Z   Java_io_github_mindbound_cclj_natives_NativeMachine_nResume
+natives-windows-x86_64	Build libcclj (checks imports and exports)	2026-11-09T09:32:59.9131151Z   Java_io_github_mindbound_cclj_natives_NativeProbe_selfTest
+natives-windows-x86_64	Build libcclj (checks imports and exports)	2026-11-09T09:33:00.0677590Z == OK: D:/a/CCLuaJIT/CCLuaJIT/natives/build/out/natives/windows-x86_64/cclj.dll (514048 bytes, sha256 94c7c5149bfec68b...)
+natives-windows-x86_64	Build libcclj (checks imports and exports)	2026-11-09T09:33:00.1196931Z    with LuaJIT-COPYRIGHT.txt MinGW-w64-runtime.txt 
+natives-windows-x86_64	Lint the native sources and objects (lint-natives.sh)	﻿2026-11-09T09:33:00.1514927Z ##[group]Run bash natives/tests/lint-natives.sh windows-x86_64
+natives-windows-x86_64	Lint the native sources and objects (lint-natives.sh)	2026-11-09T09:33:00.1515450Z ^[[36;1mbash natives/tests/lint-natives.sh windows-x86_64^[[0m
+natives-windows-x86_64	Lint the native sources and objects (lint-natives.sh)	2026-11-09T09:33:00.1517944Z shell: D:\a\_temp\setup-msys2\msys2.CMD {0}
+natives-windows-x86_64	Lint the native sources and objects (lint-natives.sh)	2026-11-09T09:33:00.1518210Z env:
+natives-windows-x86_64	Lint the native sources and objects (lint-natives.sh)	2026-11-09T09:33:00.1518554Z   JAVA_HOME: C:\hostedtoolcache\windows\Java_Temurin-Hotspot_jdk\21.0.13-9.0\x64
+natives-windows-x86_64	Lint the native sources and objects (lint-natives.sh)	2026-11-09T09:33:00.1519083Z   JAVA_HOME_21_X64: C:\hostedtoolcache\windows\Java_Temurin-Hotspot_jdk\21.0.13-9.0\x64
+natives-windows-x86_64	Lint the native sources and objects (lint-natives.sh)	2026-11-09T09:33:00.1519486Z   MAVEN_ARGS: -ntp
+natives-windows-x86_64	Lint the native sources and objects (lint-natives.sh)	2026-11-09T09:33:00.1519672Z   MSYSTEM: MINGW64
+natives-windows-x86_64	Lint the native sources and objects (lint-natives.sh)	2026-11-09T09:33:00.1519849Z ##[endgroup]
+natives-windows-x86_64	Lint the native sources and objects (lint-natives.sh)	2026-11-09T09:33:00.4876189Z == lint-natives for windows-x86_64
+natives-windows-x86_64	Lint the native sources and objects (lint-natives.sh)	2026-11-09T09:33:00.4877638Z    sources: D:/a/CCLuaJIT/CCLuaJIT/natives/src
+natives-windows-x86_64	Lint the native sources and objects (lint-natives.sh)	2026-11-09T09:33:00.4878143Z    objects: D:/a/CCLuaJIT/CCLuaJIT/natives/build/windows-x86_64/obj
+natives-windows-x86_64	Lint the native sources and objects (lint-natives.sh)	2026-11-09T09:33:00.4878910Z    library: D:/a/CCLuaJIT/CCLuaJIT/natives/build/out/natives/windows-x86_64/cclj.dll (release build)
+natives-windows-x86_64	Lint the native sources and objects (lint-natives.sh)	2026-11-09T09:33:00.4879547Z == include graph
+natives-windows-x86_64	Lint the native sources and objects (lint-natives.sh)	2026-11-09T09:33:00.6596217Z   PASS  machine.c does not include jni.h
+natives-windows-x86_64	Lint the native sources and objects (lint-natives.sh)	2026-11-09T09:33:00.7433763Z   PASS  cclj_machine.h does not include jni.h
+natives-windows-x86_64	Lint the native sources and objects (lint-natives.sh)	2026-11-09T09:33:00.8965191Z   PASS  jni_machine.c includes none of lua.h, lauxlib.h, lualib.h, luajit.h, lj_*
+natives-windows-x86_64	Lint the native sources and objects (lint-natives.sh)	2026-11-09T09:33:00.9443307Z   PASS  cclj_machine.h includes only <stddef.h> and <stdint.h>
+natives-windows-x86_64	Lint the native sources and objects (lint-natives.sh)	2026-11-09T09:33:00.9444328Z == forbidden names (natives/src except cclj.c; comments and literals removed)
+natives-windows-x86_64	Lint the native sources and objects (lint-natives.sh)	2026-11-09T09:33:01.5126869Z   PASS  none of FindClass, NewGlobalRef, NewWeakGlobalRef, NewStringUTF, GetStringUTFChars, Critical, ThrowNew, lua_pushlightuserdata, luaL_openlibs, lua_sethook, luaL_traceback in cclj_machine.h jni_machine.c machine.c
+natives-windows-x86_64	Lint the native sources and objects (lint-natives.sh)	2026-11-09T09:33:01.5128519Z == objects
+natives-windows-x86_64	Lint the native sources and objects (lint-natives.sh)	2026-11-09T09:33:01.5167505Z   PASS  objects are newer than every file in natives/src
+natives-windows-x86_64	Lint the native sources and objects (lint-natives.sh)	2026-11-09T09:33:01.7079654Z   PASS  no writable static data in machine.o (nm: no b B d D C G S V v symbol, section symbols aside)
+natives-windows-x86_64	Lint the native sources and objects (lint-natives.sh)	2026-11-09T09:33:01.8655144Z   PASS  no writable static data in jni_machine.o (nm: no b B d D C G S V v symbol, section symbols aside)
+natives-windows-x86_64	Lint the native sources and objects (lint-natives.sh)	2026-11-09T09:33:02.0629929Z   PASS  no reference to lua_pushlightuserdata, luaL_openlibs, lua_sethook, luaL_traceback in machine.o jni_machine.o (nm)
+natives-windows-x86_64	Lint the native sources and objects (lint-natives.sh)	2026-11-09T09:33:02.0630570Z == no CCLJ_TEST
+natives-windows-x86_64	Lint the native sources and objects (lint-natives.sh)	2026-11-09T09:33:02.2839061Z   PASS  no cm_test_ symbol in cclj.o machine.o jni_machine.o
+natives-windows-x86_64	Lint the native sources and objects (lint-natives.sh)	2026-11-09T09:33:02.3569406Z   PASS  no cm_test_ symbol in cclj.dll
+natives-windows-x86_64	Lint the native sources and objects (lint-natives.sh)	2026-11-09T09:33:02.5689276Z   PASS  no file of natives/src defines CCLJ_TEST (cclj.c cclj_machine.h jni_machine.c machine.c)
+natives-windows-x86_64	Lint the native sources and objects (lint-natives.sh)	2026-11-09T09:33:02.5690625Z == 12 checks, 0 failed
+natives-windows-x86_64	Lint the native sources and objects (lint-natives.sh)	2026-11-09T09:33:02.5691671Z lint-natives: OK
+natives-windows-x86_64	Tier 0 machine test (machine-test.sh, assert LuaJIT)	﻿2026-11-09T09:33:02.5947515Z ##[group]Run bash natives/tests/machine-test.sh windows-x86_64
+natives-windows-x86_64	Tier 0 machine test (machine-test.sh, assert LuaJIT)	2026-11-09T09:33:02.5948039Z ^[[36;1mbash natives/tests/machine-test.sh windows-x86_64^[[0m
+natives-windows-x86_64	Tier 0 machine test (machine-test.sh, assert LuaJIT)	2026-11-09T09:33:02.5950655Z shell: D:\a\_temp\setup-msys2\msys2.CMD {0}
+natives-windows-x86_64	Tier 0 machine test (machine-test.sh, assert LuaJIT)	2026-11-09T09:33:02.5951007Z env:
+natives-windows-x86_64	Tier 0 machine test (machine-test.sh, assert LuaJIT)	2026-11-09T09:33:02.5951314Z   JAVA_HOME: C:\hostedtoolcache\windows\Java_Temurin-Hotspot_jdk\21.0.13-9.0\x64
+natives-windows-x86_64	Tier 0 machine test (machine-test.sh, assert LuaJIT)	2026-11-09T09:33:02.5951845Z   JAVA_HOME_21_X64: C:\hostedtoolcache\windows\Java_Temurin-Hotspot_jdk\21.0.13-9.0\x64
+natives-windows-x86_64	Tier 0 machine test (machine-test.sh, assert LuaJIT)	2026-11-09T09:33:02.5952231Z   MAVEN_ARGS: -ntp
+natives-windows-x86_64	Tier 0 machine test (machine-test.sh, assert LuaJIT)	2026-11-09T09:33:02.5952414Z   MSYSTEM: MINGW64
+natives-windows-x86_64	Tier 0 machine test (machine-test.sh, assert LuaJIT)	2026-11-09T09:33:02.5952588Z ##[endgroup]
+natives-windows-x86_64	Tier 0 machine test (machine-test.sh, assert LuaJIT)	2026-11-09T09:33:03.0505870Z == Tier 0 machine test for windows-x86_64
+natives-windows-x86_64	Tier 0 machine test (machine-test.sh, assert LuaJIT)	2026-11-09T09:33:03.1397715Z    compiler: gcc.exe (Rev4, Built by MSYS2 project) 16.2.0
+natives-windows-x86_64	Tier 0 machine test (machine-test.sh, assert LuaJIT)	2026-11-09T09:33:03.4194162Z == building the assert LuaJIT into D:/a/CCLuaJIT/CCLuaJIT/natives/build/windows-x86_64/luajit-assert (log: D:/a/CCLuaJIT/CCLuaJIT/natives/build/windows-x86_64/luajit-assert-build.log)
+natives-windows-x86_64	Tier 0 machine test (machine-test.sh, assert LuaJIT)	2026-11-09T09:33:19.0258305Z    LuaJIT 047efd3bcbe3331c3b9cb69bf5b217164d80bd5c, xcflags: -DLUAJIT_ENABLE_INTERRUPT -DLUAJIT_ENABLE_LUA52COMPAT -DLUAJIT_DISABLE_FFI -DLUAJIT_DISABLE_BCLOAD -DLUAJIT_ENABLE_CSTACKGUARD -DLUAJIT_DISABLE_PROFILE -DLUAJIT_DISABLE_VMEVENT -DLUA_USE_ASSERT -DLUA_USE_APICHECK
+natives-windows-x86_64	Tier 0 machine test (machine-test.sh, assert LuaJIT)	2026-11-09T09:33:19.0821184Z == compiling without sanitizers
+natives-windows-x86_64	Tier 0 machine test (machine-test.sh, assert LuaJIT)	2026-11-09T09:33:20.9841941Z == running D:/a/CCLuaJIT/CCLuaJIT/natives/build/windows-x86_64/machine-test/machine_test.exe (timeout 900 s)
+natives-windows-x86_64	Tier 0 machine test (machine-test.sh, assert LuaJIT)	2026-11-09T09:33:21.0332861Z machine_test: CCLJ_ABI 1, 16 host functions, spec 260 bytes
+natives-windows-x86_64	Tier 0 machine test (machine-test.sh, assert LuaJIT)	2026-11-09T09:33:21.0334387Z ok   smoke: the G1 bios end to end: load 0 resume 3 free 0 "bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk"
+natives-windows-x86_64	Tier 0 machine test (machine-test.sh, assert LuaJIT)	2026-11-09T09:33:21.0335503Z ok   1 allow-lists: state inspected: load 0, inspection 0
+natives-windows-x86_64	Tier 0 machine test (machine-test.sh, assert LuaJIT)	2026-11-09T09:33:21.0337544Z ok   1 allow-lists: keys of _G: got "_G _VERSION alias1 alias2 assert coroutine empty error getfenv getmetatable ipairs load loadstring math next pairs pcall rawequal rawget rawlen rawset select setfenv setmetatable string t table term tonumber tostring type unpack xpcall" (0 non-string keys)
+natives-windows-x86_64	Tier 0 machine test (machine-test.sh, assert LuaJIT)	2026-11-09T09:33:21.0340225Z ok   1 allow-lists: keys of _LOADED: got "_G aliasmod bit coroutine emptymod math string t table" (0 non-string keys)
+natives-windows-x86_64	Tier 0 machine test (machine-test.sh, assert LuaJIT)	2026-11-09T09:33:21.0341332Z ok   1 allow-lists: each _LOADED entry is the table that _G has: entries that differ: none
+natives-windows-x86_64	Tier 0 machine test (machine-test.sh, assert LuaJIT)	2026-11-09T09:33:21.0342179Z ok   1 allow-lists: string keys of the registry: got "_LOADED _PRELOAD"
+natives-windows-x86_64	Tier 0 machine test (machine-test.sh, assert LuaJIT)	2026-11-09T09:33:21.0342882Z ok   1 allow-lists: _PRELOAD is an empty table: type 5, 0 entries
+natives-windows-x86_64	Tier 0 machine test (machine-test.sh, assert LuaJIT)	2026-11-09T09:33:21.0343613Z ok   1 allow-lists: the JIT is on and maxmcode is 256 KiB: JIT on, maxmcode 256
+natives-windows-x86_64	Tier 0 machine test (machine-test.sh, assert LuaJIT)	2026-11-09T09:33:21.0345159Z ok   1 allow-lists: removed globals and string.dump are absent: load 0, resume 3 (want 3), free 0, message "present:\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:6: in main chunk"
+natives-windows-x86_64	Tier 0 machine test (machine-test.sh, assert LuaJIT)	2026-11-09T09:33:21.0347323Z ok   1 allow-lists: API tables, aliases and an empty API: load 0, resume 3 (want 3), free 0, message "true function function nil true\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:1: in main chunk"
+natives-windows-x86_64	Tier 0 machine test (machine-test.sh, assert LuaJIT)	2026-11-09T09:33:21.0348797Z ok   2 load: a bios loads: load 0 (want 0), msg_tb none, message ""
+natives-windows-x86_64	Tier 0 machine test (machine-test.sh, assert LuaJIT)	2026-11-09T09:33:21.0349664Z ok   2 load: syntax error: load 3 (want 3), msg_tb none, message "bios.lua:1: unexpected symbol near '='"
+natives-windows-x86_64	Tier 0 machine test (machine-test.sh, assert LuaJIT)	2026-11-09T09:33:21.0350794Z ok   2 load: a chunk starting with ESC is refused: load 3 (want 3), msg_tb none, message "attempt to load a binary chunk"
+natives-windows-x86_64	Tier 0 machine test (machine-test.sh, assert LuaJIT)	2026-11-09T09:33:21.0351867Z ok   2 load: real bytecode is refused: load 3 (want 3), msg_tb none, message "attempt to load a binary chunk"
+natives-windows-x86_64	Tier 0 machine test (machine-test.sh, assert LuaJIT)	2026-11-09T09:33:21.0352717Z ok   2 load: a 0-byte bios loads: load 0 (want 0), msg_tb none, message ""
+natives-windows-x86_64	Tier 0 machine test (machine-test.sh, assert LuaJIT)	2026-11-09T09:33:21.0353378Z ok   2 load: a 0-byte bios returns RETURNED: load 0, resume 2, message ""
+natives-windows-x86_64	Tier 0 machine test (machine-test.sh, assert LuaJIT)	2026-11-09T09:33:21.0370660Z ok   2 load: an empty spec is corrupt: load 3 (want 3), msg_tb none, message "CCLuaJIT: corrupt API table description"
+natives-windows-x86_64	Tier 0 machine test (machine-test.sh, assert LuaJIT)	2026-11-09T09:33:21.0374251Z ok   2 load: a truncated spec is corrupt: load 3 (want 3), msg_tb none, message "CCLuaJIT: corrupt API table description"
+natives-windows-x86_64	Tier 0 machine test (machine-test.sh, assert LuaJIT)	2026-11-09T09:33:21.0649443Z ok   2 load: a spec with 65,536 methods loads: load 0 (want 0), msg_tb none, message ""
+natives-windows-x86_64	Tier 0 machine test (machine-test.sh, assert LuaJIT)	2026-11-09T09:33:21.0651358Z ok   2 load: a spec with 65,537 methods is corrupt: load 3 (want 3), msg_tb none, message "CCLuaJIT: corrupt API table description"
+natives-windows-x86_64	Tier 0 machine test (machine-test.sh, assert LuaJIT)	2026-11-09T09:33:21.0653175Z ok   2 load: a spec with 70,000 methods is corrupt: load 3 (want 3), msg_tb none, message "CCLuaJIT: corrupt API table description"
+natives-windows-x86_64	Tier 0 machine test (machine-test.sh, assert LuaJIT)	2026-11-09T09:33:21.0654994Z ok   2 load: unknown method flag bits are corrupt: load 3 (want 3), msg_tb none, message "CCLuaJIT: corrupt API table description"
+natives-windows-x86_64	Tier 0 machine test (machine-test.sh, assert LuaJIT)	2026-11-09T09:33:21.0656803Z ok   2 load: hasModule 2 is corrupt: load 3 (want 3), msg_tb none, message "CCLuaJIT: corrupt API table description"
+natives-windows-x86_64	Tier 0 machine test (machine-test.sh, assert LuaJIT)	2026-11-09T09:33:21.0658418Z ok   2 load: a 257-byte name is corrupt: load 3 (want 3), msg_tb none, message "CCLuaJIT: corrupt API table description"
+natives-windows-x86_64	Tier 0 machine test (machine-test.sh, assert LuaJIT)	2026-11-09T09:33:21.0659818Z ok   2 load: a 256-byte name loads: load 0 (want 0), msg_tb none, message ""
+natives-windows-x86_64	Tier 0 machine test (machine-test.sh, assert LuaJIT)	2026-11-09T09:33:21.0661281Z ok   2 load: a trailing byte after the spec is corrupt: load 3 (want 3), msg_tb none, message "CCLuaJIT: corrupt API table description"
+natives-windows-x86_64	Tier 0 machine test (machine-test.sh, assert LuaJIT)	2026-11-09T09:33:21.0663129Z ok   2 load: napi 0xFFFFFFFF is corrupt: load 3 (want 3), msg_tb none, message "CCLuaJIT: corrupt API table description"
+natives-windows-x86_64	Tier 0 machine test (machine-test.sh, assert LuaJIT)	2026-11-09T09:33:21.0664308Z ok   2 load: a second load is INTERNAL: first 0, second 4 "bios is already loaded"
+natives-windows-x86_64	Tier 0 machine test (machine-test.sh, assert LuaJIT)	2026-11-09T09:33:21.0664994Z ok   2 load: freed after a second load
+natives-windows-x86_64	Tier 0 machine test (machine-test.sh, assert LuaJIT)	2026-11-09T09:33:21.0665641Z ok   2 load: a load after a failed load is INTERNAL: first 3, second 4 "machine is dead"
+natives-windows-x86_64	Tier 0 machine test (machine-test.sh, assert LuaJIT)	2026-11-09T09:33:21.0666526Z ok   2 load: a resume after a failed load is INTERNAL: resume 4 "machine is dead"
+natives-windows-x86_64	Tier 0 machine test (machine-test.sh, assert LuaJIT)	2026-11-09T09:33:21.0667357Z ok   2 load: NULL inputs with a length are INTERNAL: 4, 4 "bad load arguments"
+natives-windows-x86_64	Tier 0 machine test (machine-test.sh, assert LuaJIT)	2026-11-09T09:33:21.0668390Z ok   2 load: a spec above CM_WIRE_MAX is INTERNAL: 4
+natives-windows-x86_64	Tier 0 machine test (machine-test.sh, assert LuaJIT)	2026-11-09T09:33:21.0668989Z ok   2 load: the machine still loads after refused calls: 0
+natives-windows-x86_64	Tier 0 machine test (machine-test.sh, assert LuaJIT)	2026-11-09T09:33:21.0669525Z ok   2 load: a NULL machine
+natives-windows-x86_64	Tier 0 machine test (machine-test.sh, assert LuaJIT)	2026-11-09T09:33:27.4624033Z ok   3 spec fuzz: 100000 seeded mutations: 8416 loaded, 91584 corrupt, 0 other, 0 disagree with the reference checker, 0 loaded without all API tables (6.4 s)
+natives-windows-x86_64	Tier 0 machine test (machine-test.sh, assert LuaJIT)	2026-11-09T09:33:27.4625580Z ok   4 resume: YIELD: load 0, resume 1, log "a", lua_gettop(co) before it 1 (want 1: the bios)
+natives-windows-x86_64	Tier 0 machine test (machine-test.sh, assert LuaJIT)	2026-11-09T09:33:27.4626868Z ok   4 resume: YIELD with values, then ERROR: 1, 3 "after\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:5: in main chunk", log "ab"
+natives-windows-x86_64	Tier 0 machine test (machine-test.sh, assert LuaJIT)	2026-11-09T09:33:27.4628454Z ok   4 resume: the bios coroutine's stack is empty after a YIELD: lua_gettop(co) when the next resume starts: 0 after yield(), 0 after yield(1, 2, 3)
+natives-windows-x86_64	Tier 0 machine test (machine-test.sh, assert LuaJIT)	2026-11-09T09:33:27.4629653Z ok   4 resume: resume after ERROR is INTERNAL: 4 "machine is dead"
+natives-windows-x86_64	Tier 0 machine test (machine-test.sh, assert LuaJIT)	2026-11-09T09:33:27.4630251Z ok   4 resume: freed after ERROR
+natives-windows-x86_64	Tier 0 machine test (machine-test.sh, assert LuaJIT)	2026-11-09T09:33:27.4630691Z ok   4 resume: RETURNED: 2 ""
+natives-windows-x86_64	Tier 0 machine test (machine-test.sh, assert LuaJIT)	2026-11-09T09:33:27.4631222Z ok   4 resume: resume after RETURNED is INTERNAL: 4 "machine is dead"
+natives-windows-x86_64	Tier 0 machine test (machine-test.sh, assert LuaJIT)	2026-11-09T09:33:27.4632043Z ok   4 resume: a non-NULL event is INTERNAL: 4 "events are not implemented yet (S2)"
+natives-windows-x86_64	Tier 0 machine test (machine-test.sh, assert LuaJIT)	2026-11-09T09:33:27.4632986Z ok   4 resume: a non-NULL empty event is INTERNAL: 4 "events are not implemented yet (S2)"
+natives-windows-x86_64	Tier 0 machine test (machine-test.sh, assert LuaJIT)	2026-11-09T09:33:27.4633825Z ok   4 resume: the machine was not touched by the refused event: 2
+natives-windows-x86_64	Tier 0 machine test (machine-test.sh, assert LuaJIT)	2026-11-09T09:33:27.4634660Z ok   4 resume: RETURNED after an INTERNAL message leaves the message empty: "", msg_tb -1
+natives-windows-x86_64	Tier 0 machine test (machine-test.sh, assert LuaJIT)	2026-11-09T09:33:27.4635605Z ok   4 resume: YIELD after an INTERNAL message leaves the message empty: 0, 4, 1 ""
+natives-windows-x86_64	Tier 0 machine test (machine-test.sh, assert LuaJIT)	2026-11-09T09:33:27.4636300Z ok   4 resume: the same after a YIELD: 4, 1 ""
+natives-windows-x86_64	Tier 0 machine test (machine-test.sh, assert LuaJIT)	2026-11-09T09:33:27.4636941Z ok   4 resume: resume without a load: 3 "bios coroutine missing", then 4
+natives-windows-x86_64	Tier 0 machine test (machine-test.sh, assert LuaJIT)	2026-11-09T09:33:27.4638141Z ok   4 resume: host calls and yields of a nested coroutine: 0 1 3 "x\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:5: in main chunk" log "in2"
+natives-windows-x86_64	Tier 0 machine test (machine-test.sh, assert LuaJIT)	2026-11-09T09:33:27.4641292Z ok   5 traceback: G1 bios, exact text and msg_tb 16: status 3, msg_tb 16, log "hi", "bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk"
+natives-windows-x86_64	Tier 0 machine test (machine-test.sh, assert LuaJIT)	2026-11-09T09:33:27.4642979Z ok   5 render: nil: load 0, resume 3 (want 3), free 0, message "nil\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:1: in main chunk"
+natives-windows-x86_64	Tier 0 machine test (machine-test.sh, assert LuaJIT)	2026-11-09T09:33:27.4644826Z ok   5 render: error() is nil: load 0, resume 3 (want 3), free 0, message "nil\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:1: in main chunk"
+natives-windows-x86_64	Tier 0 machine test (machine-test.sh, assert LuaJIT)	2026-11-09T09:33:27.4646388Z ok   5 render: true: load 0, resume 3 (want 3), free 0, message "true\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:1: in main chunk"
+natives-windows-x86_64	Tier 0 machine test (machine-test.sh, assert LuaJIT)	2026-11-09T09:33:27.4647905Z ok   5 render: false: load 0, resume 3 (want 3), free 0, message "false\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:1: in main chunk"
+natives-windows-x86_64	Tier 0 machine test (machine-test.sh, assert LuaJIT)	2026-11-09T09:33:27.4649481Z ok   5 render: a number at level 0: load 0, resume 3 (want 3), free 0, message "42\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:1: in main chunk"
+natives-windows-x86_64	Tier 0 machine test (machine-test.sh, assert LuaJIT)	2026-11-09T09:33:27.4651042Z ok   5 render: a fraction: load 0, resume 3 (want 3), free 0, message "1.5\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:1: in main chunk"
+natives-windows-x86_64	Tier 0 machine test (machine-test.sh, assert LuaJIT)	2026-11-09T09:33:27.4652720Z ok   5 render: error(42) (LuaJIT adds a position, F6): load 0, resume 3 (want 3), free 0, message "bios.lua:1: 42\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:1: in main chunk"
+natives-windows-x86_64	Tier 0 machine test (machine-test.sh, assert LuaJIT)	2026-11-09T09:33:27.4654407Z ok   5 render: NUL and 0xFF bytes: "a\x00b\xff\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:1: in main chunk"
+natives-windows-x86_64	Tier 0 machine test (machine-test.sh, assert LuaJIT)	2026-11-09T09:33:27.4655692Z ok   5 render: a table is "table: %08x": "table: 4dc5f190\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:1: in main chunk"
+natives-windows-x86_64	Tier 0 machine test (machine-test.sh, assert LuaJIT)	2026-11-09T09:33:27.4656966Z ok   5 render: a function: "function: 7648e415\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:1: in main chunk"
+natives-windows-x86_64	Tier 0 machine test (machine-test.sh, assert LuaJIT)	2026-11-09T09:33:27.4658502Z ok   5 render: a thread: "thread: e1876068\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:1: in main chunk"
+natives-windows-x86_64	Tier 0 machine test (machine-test.sh, assert LuaJIT)	2026-11-09T09:33:27.4659912Z ok   5 render: __tostring is never run: marks 0, "table: c17748ad\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:1: in main chunk"
+natives-windows-x86_64	Tier 0 machine test (machine-test.sh, assert LuaJIT)	2026-11-09T09:33:27.4661805Z ok   5 render: a table is the hash of its address under key 1: "table: 302c1161\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:2: in main chunk", want "table: 302c1161" (address "table: 33df8c98", other key "table: a609ec40")
+natives-windows-x86_64	Tier 0 machine test (machine-test.sh, assert LuaJIT)	2026-11-09T09:33:27.4664094Z ok   5 render: a table is the hash of its address under key 2: "table: a609ec40\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:2: in main chunk", want "table: a609ec40" (address "table: 33df8c98", other key "table: 302c1161")
+natives-windows-x86_64	Tier 0 machine test (machine-test.sh, assert LuaJIT)	2026-11-09T09:33:27.4666093Z ok   5 traceback: global and local function frames: "bios.lua:1: deep2\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:1: in function 'g'\n\tbios.lua:2: in local 'l'\n\tbios.lua:3: in main chunk"
+natives-windows-x86_64	Tier 0 machine test (machine-test.sh, assert LuaJIT)	2026-11-09T09:33:27.4667752Z ok   5 traceback: field frames: "m\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:2: in field 'm'\n\tbios.lua:3: in local 'f'\n\tbios.lua:4: in main chunk"
+natives-windows-x86_64	Tier 0 machine test (machine-test.sh, assert LuaJIT)	2026-11-09T09:33:27.4669553Z ok   5 traceback: an error re-raised by coroutine.wrap shows the outer frames: "bios.lua:5: m\nstack traceback:\n\t[C]: in local 'co'\n\tbios.lua:5: in main chunk"
+natives-windows-x86_64	Tier 0 machine test (machine-test.sh, assert LuaJIT)	2026-11-09T09:33:27.4781629Z ok   5 traceback: method frames: "m\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:2: in method 'm'\n\tbios.lua:3: in main chunk"
+natives-windows-x86_64	Tier 0 machine test (machine-test.sh, assert LuaJIT)	2026-11-09T09:33:27.4783808Z ok   5 traceback: upvalue frames: "u\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:1: in upvalue 'up'\n\tbios.lua:2: in local 'f'\n\tbios.lua:3: in main chunk"
+natives-windows-x86_64	Tier 0 machine test (machine-test.sh, assert LuaJIT)	2026-11-09T09:33:27.4785574Z ok   5 traceback: an unnamed Lua function: "anon\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:1: in function <bios.lua:1>\n\tbios.lua:2: in main chunk"
+natives-windows-x86_64	Tier 0 machine test (machine-test.sh, assert LuaJIT)	2026-11-09T09:33:27.4787475Z ok   5 traceback: a "(for ...)" local is no name: "it\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:2: in function <bios.lua:2>\n\tbios.lua:2: in main chunk"
+natives-windows-x86_64	Tier 0 machine test (machine-test.sh, assert LuaJIT)	2026-11-09T09:33:27.4788655Z ok   5 traceback: an unnamed C closure is "[C]: in ?": "bios.lua:1: f failed\nstack traceback:\n\t[C]: in ?\n\tbios.lua:1: in main chunk"
+natives-windows-x86_64	Tier 0 machine test (machine-test.sh, assert LuaJIT)	2026-11-09T09:33:27.4789757Z ok   5 traceback: a host function frame: "bios.lua:1: CCLuaJIT: tables are not supported yet\nstack traceback:\n\t[C]: in field 'write'\n\tbios.lua:1: in main chunk"
+natives-windows-x86_64	Tier 0 machine test (machine-test.sh, assert LuaJIT)	2026-11-09T09:33:27.4791071Z ok   5 traceback: a builtin through a local is "[C]: in local": "bios.lua:2: bad argument #1 to 'rm' (table expected, got nil)\nstack traceback:\n\t[C]: in local 'rm'\n\tbios.lua:2: in main chunk"
+natives-windows-x86_64	Tier 0 machine test (machine-test.sh, assert LuaJIT)	2026-11-09T09:33:27.4792368Z ok   5 traceback: an unnamed builtin is "[C]: in ?": "bios.lua:1: bad argument #1 to '?' (table expected, got nil)\nstack traceback:\n\t[C]: in ?\n\tbios.lua:1: in main chunk"
+natives-windows-x86_64	Tier 0 machine test (machine-test.sh, assert LuaJIT)	2026-11-09T09:33:27.4793660Z ok   5 traceback: string.len through a local: "bios.lua:2: bad argument #1 to 'len' (string expected, got nil)\nstack traceback:\n\t[C]: in local 'len'\n\tbios.lua:2: in main chunk"
+natives-windows-x86_64	Tier 0 machine test (machine-test.sh, assert LuaJIT)	2026-11-09T09:33:27.4795525Z ok   5 traceback: names cut to 100 bytes: "long\nstack traceback:\n\t[C]: in function 'error'\n\tnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn:1: in upvalue 'f'\n\tbios.lua:2: in function 'nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn'\n\tbios.lua:3: in main chunk"
+natives-windows-x86_64	Tier 0 machine test (machine-test.sh, assert LuaJIT)	2026-11-09T09:33:27.4798179Z ok   5 traceback: 13 frames, all printed: status 3, 13 lines (want 13), "..." at 0 (want 0): "bios.lua:1: deep\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in local 'f'\n\tbios.lua:2: in main chunk"
+natives-windows-x86_64	Tier 0 machine test (machine-test.sh, assert LuaJIT)	2026-11-09T09:33:27.4802786Z ok   5 traceback: 22 frames, all printed: status 3, 22 lines (want 22), "..." at 0 (want 0): "bios.lua:1: deep\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in local 'f'\n\tbios.lua:2: in main chunk"
+natives-windows-x86_64	Tier 0 machine test (machine-test.sh, assert LuaJIT)	2026-11-09T09:33:27.4807249Z ok   5 traceback: 23 frames, all printed: status 3, 23 lines (want 23), "..." at 0 (want 0): "bios.lua:1: deep\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in local 'f'\n\tbios.lua:2: in main chunk"
+natives-windows-x86_64	Tier 0 machine test (machine-test.sh, assert LuaJIT)	2026-11-09T09:33:27.4811665Z ok   5 traceback: 24 frames give 12, "...", 10: status 3, 23 lines (want 23), "..." at 13 (want 13): "bios.lua:1: deep\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\t...\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in local 'f'\n\tbios.lua:2: in main chunk"
+natives-windows-x86_64	Tier 0 machine test (machine-test.sh, assert LuaJIT)	2026-11-09T09:33:27.4816218Z ok   5 traceback: a 300-deep recursion gives 12, "...", 10: status 3, 23 lines (want 23), "..." at 13 (want 13): "bios.lua:1: deep\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\t...\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in local 'f'\n\tbios.lua:2: in main chunk"
+natives-windows-x86_64	Tier 0 machine test (machine-test.sh, assert LuaJIT)	2026-11-09T09:33:27.4820822Z ok   5 traceback: an error 30,000 calls deep: status 3, 23 lines (want 23), "..." at 13 (want 13): "bios.lua:2: deep\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:2: in upvalue 'f'\n\tbios.lua:2: in upvalue 'f'\n\tbios.lua:2: in upvalue 'f'\n\tbios.lua:2: in upvalue 'f'\n\tbios.lua:2: in upvalue 'f'\n\tbios.lua:2: in upvalue 'f'\n\tbios.lua:2: in upvalue 'f'\n\tbios.lua:2: in upvalue 'f'\n\tbios.lua:2: in upvalue 'f'\n\tbios.lua:2: in upvalue 'f'\n\tbios.lua:2: in upvalue 'f'\n\t...\n\tbios.lua:2: in upvalue 'f'\n\tbios.lua:2: in upvalue 'f'\n\tbios.lua:2: in upvalue 'f'\n\tbios.lua:2: in upvalue 'f'\n\tbios.lua:2: in upvalue 'f'\n\tbios.lua:2: in upvalue 'f'\n\tbios.lua:2: in upvalue 'f'\n\tbios.lua:2: in upvalue 'f'\n\tbios.lua:2: in local 'f'\n\tbios.lua:3: in main chunk"
+natives-windows-x86_64	Tier 0 machine test (machine-test.sh, assert LuaJIT)	2026-11-09T09:33:27.4825543Z ok   5 traceback: a stack overflow: status 3, 23 lines (want 23), "..." at 13 (want 13): "bios.lua:1: stack overflow\nstack traceback:\n\tbios.lua: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\t...\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in local 'f'\n\tbios.lua:2: in main chunk"
+natives-windows-x86_64	Tier 0 machine test (machine-test.sh, assert LuaJIT)	2026-11-09T09:33:27.4829891Z ok   5 traceback: the overflow message, and a frame without a line: "bios.lua:1: stack overflow\nstack traceback:\n\tbios.lua: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\t...\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in upvalue 'f'\n\tbios.lua:1: in local 'f'\n\tbios.lua:2: in main chunk"
+natives-windows-x86_64	Tier 0 machine test (machine-test.sh, assert LuaJIT)	2026-11-09T09:33:27.4834342Z ok   5 traceback: a stack overflow with 100 locals per frame gives 12, "...", 10: status 3, 23 lines (want 23), "..." at 13 (want 13): "stack overflow\nstack traceback:\n\tbios.lua:3: in upvalue 'f'\n\tbios.lua:3: in upvalue 'f'\n\tbios.lua:3: in upvalue 'f'\n\tbios.lua:3: in upvalue 'f'\n\tbios.lua:3: in upvalue 'f'\n\tbios.lua:3: in upvalue 'f'\n\tbios.lua:3: in upvalue 'f'\n\tbios.lua:3: in upvalue 'f'\n\tbios.lua:3: in upvalue 'f'\n\tbios.lua:3: in upvalue 'f'\n\tbios.lua:3: in upvalue 'f'\n\tbios.lua:3: in upvalue 'f'\n\t...\n\tbios.lua:3: in upvalue 'f'\n\tbios.lua:3: in upvalue 'f'\n\tbios.lua:3: in upvalue 'f'\n\tbios.lua:3: in upvalue 'f'\n\tbios.lua:3: in upvalue 'f'\n\tbios.lua:3: in upvalue 'f'\n\tbios.lua:3: in upvalue 'f'\n\tbios.lua:3: in upvalue 'f'\n\tbios.lua:3: in local 'f'\n\tbios.lua:5: in main chunk"
+natives-windows-x86_64	Tier 0 machine test (machine-test.sh, assert LuaJIT)	2026-11-09T09:33:27.4839622Z ok   5 traceback: a stack overflow with 190 locals per frame gives 12, "...", 10: status 3, 23 lines (want 23), "..." at 13 (want 13): "stack overflow\nstack traceback:\n\tbios.lua:3: in upvalue 'f'\n\tbios.lua:3: in upvalue 'f'\n\tbios.lua:3: in upvalue 'f'\n\tbios.lua:3: in upvalue 'f'\n\tbios.lua:3: in upvalue 'f'\n\tbios.lua:3: in upvalue 'f'\n\tbios.lua:3: in upvalue 'f'\n\tbios.lua:3: in upvalue 'f'\n\tbios.lua:3: in upvalue 'f'\n\tbios.lua:3: in upvalue 'f'\n\tbios.lua:3: in upvalue 'f'\n\tbios.lua:3: in upvalue 'f'\n\t...\n\tbios.lua:3: in upvalue 'f'\n\tbios.lua:3: in upvalue 'f'\n\tbios.lua:3: in upvalue 'f'\n\tbios.lua:3: in upvalue 'f'\n\tbios.lua:3: in upvalue 'f'\n\tbios.lua:3: in upvalue 'f'\n\tbios.lua:3: in upvalue 'f'\n\tbios.lua:3: in upvalue 'f'\n\tbios.lua:3: in local 'f'\n\tbios.lua:5: in main chunk"
+natives-windows-x86_64	Tier 0 machine test (machine-test.sh, assert LuaJIT)	2026-11-09T09:33:27.4842877Z ok   5 traceback: an error under an exhausted cap: status 3, used 4194246 of 4194304, "not enough memory\nstack traceback:\n\tbios.lua: in local 'fill'\n\tbios.lua:5: in main chunk"
+natives-windows-x86_64	Tier 0 machine test (machine-test.sh, assert LuaJIT)	2026-11-09T09:33:27.4844043Z ok   5 render: a number when no memory is left: "not enough memory" and the traceback: load 0, status 3, "not enough memory\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:2: in main chunk"
+natives-windows-x86_64	Tier 0 machine test (machine-test.sh, assert LuaJIT)	2026-11-09T09:33:27.4845161Z ok   5 render: a string when no memory is left: the string and the traceback: load 0, status 3, "plain\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:2: in main chunk"
+natives-windows-x86_64	Tier 0 machine test (machine-test.sh, assert LuaJIT)	2026-11-09T09:33:27.4846480Z ok   5 traceback: the bios coroutine stays alive without its registry reference: load 0, setup 0, status 3, w[1] is the coroutine, "12345.5\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk"
+natives-windows-x86_64	Tier 0 machine test (machine-test.sh, assert LuaJIT)	2026-11-09T09:33:27.4940959Z ok   5 traceback: a 65536-byte value: status 3, len 65536, msg_tb -1
+natives-windows-x86_64	Tier 0 machine test (machine-test.sh, assert LuaJIT)	2026-11-09T09:33:27.4941699Z ok   5 traceback: a 70000-byte value: status 3, len 65536, msg_tb -1
+natives-windows-x86_64	Tier 0 machine test (machine-test.sh, assert LuaJIT)	2026-11-09T09:33:27.4942388Z ok   5 traceback: a 65526-byte value: status 3, len 65526, msg_tb -1
+natives-windows-x86_64	Tier 0 machine test (machine-test.sh, assert LuaJIT)	2026-11-09T09:33:27.4943086Z ok   5 traceback: a 65519-byte value: status 3, len 65536, msg_tb 65519
+natives-windows-x86_64	Tier 0 machine test (machine-test.sh, assert LuaJIT)	2026-11-09T09:33:27.4943783Z ok   5 traceback: a 65506-byte value: status 3, len 65523, msg_tb 65506
+natives-windows-x86_64	Tier 0 machine test (machine-test.sh, assert LuaJIT)	2026-11-09T09:33:27.4944471Z ok   5 traceback: a 65476-byte value: status 3, len 65519, msg_tb 65476
+natives-windows-x86_64	Tier 0 machine test (machine-test.sh, assert LuaJIT)	2026-11-09T09:33:27.4945700Z ok   5 traceback: msg_tb points at the real header: msg_tb 24 "a\nstack traceback:\n\tfake\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:1: in main chunk"
+natives-windows-x86_64	Tier 0 machine test (machine-test.sh, assert LuaJIT)	2026-11-09T09:33:27.4947082Z ok   5 traceback: lua_gettop(co) is the same before and after: 0 of 46 runs changed it
+natives-windows-x86_64	Tier 0 machine test (machine-test.sh, assert LuaJIT)	2026-11-09T09:33:27.4947951Z ok   5 traceback: no traceback so far contains "0x" or "[builtin": 0 of 46 do
+natives-windows-x86_64	Tier 0 machine test (machine-test.sh, assert LuaJIT)	2026-11-09T09:33:27.4948754Z ok   6 host: request bytes of term.write("hi"): \x01\x00\x00\x00\x04\x02\x00\x00\x00hi
+natives-windows-x86_64	Tier 0 machine test (machine-test.sh, assert LuaJIT)	2026-11-09T09:33:27.4949804Z ok   6 host: NUL and 0xFF round trip: "\x00\xffa\x00\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:2: in main chunk"
+natives-windows-x86_64	Tier 0 machine test (machine-test.sh, assert LuaJIT)	2026-11-09T09:33:27.4951335Z ok   6 host: every value type round trips: load 0, resume 3 (want 3), free 0, message "true 3 0\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:4: in main chunk"
+natives-windows-x86_64	Tier 0 machine test (machine-test.sh, assert LuaJIT)	2026-11-09T09:33:27.4953109Z ok   6 host: functions and threads are sent as nil: load 0, resume 3 (want 3), free 0, message "0 0 0 3 4 2 1\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:1: in main chunk"
+natives-windows-x86_64	Tier 0 machine test (machine-test.sh, assert LuaJIT)	2026-11-09T09:33:27.4955321Z ok   6 host: a table argument raises: load 0, resume 3 (want 3), free 0, message "bios.lua:1: CCLuaJIT: tables are not supported yet\nstack traceback:\n\t[C]: in field 'argc'\n\tbios.lua:1: in main chunk"
+natives-windows-x86_64	Tier 0 machine test (machine-test.sh, assert LuaJIT)	2026-11-09T09:33:27.4957262Z ok   6 host: a table argument under pcall: "false|CCLuaJIT: tables are not supported yet\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:2: in main chunk"
+natives-windows-x86_64	Tier 0 machine test (machine-test.sh, assert LuaJIT)	2026-11-09T09:33:27.4958834Z ok   6 host: level 0: load 0, resume 3 (want 3), free 0, message "lvl0\nstack traceback:\n\t[C]: in field 'err'\n\tbios.lua:1: in main chunk"
+natives-windows-x86_64	Tier 0 machine test (machine-test.sh, assert LuaJIT)	2026-11-09T09:33:27.4960635Z ok   6 host: level 1: load 0, resume 3 (want 3), free 0, message "bios.lua:1: lvl1\nstack traceback:\n\t[C]: in field 'err'\n\tbios.lua:1: in main chunk"
+natives-windows-x86_64	Tier 0 machine test (machine-test.sh, assert LuaJIT)	2026-11-09T09:33:27.4962272Z ok   6 host: level 2: load 0, resume 3 (want 3), free 0, message "bios.lua:4: lvl2\nstack traceback:\n\t[C]: in field 'err'\n\tbios.lua:2: in local 'f'\n\tbios.lua:4: in main chunk"
+natives-windows-x86_64	Tier 0 machine test (machine-test.sh, assert LuaJIT)	2026-11-09T09:33:27.4964164Z ok   6 host: level 3: load 0, resume 3 (want 3), free 0, message "bios.lua:3: lvl3\nstack traceback:\n\t[C]: in field 'err'\n\tbios.lua:1: in upvalue 'g'\n\tbios.lua:2: in local 'f'\n\tbios.lua:3: in main chunk"
+natives-windows-x86_64	Tier 0 machine test (machine-test.sh, assert LuaJIT)	2026-11-09T09:33:27.4965909Z ok   6 host: level -1: load 0, resume 3 (want 3), free 0, message "lvl-1\nstack traceback:\n\t[C]: in field 'err'\n\tbios.lua:1: in main chunk"
+natives-windows-x86_64	Tier 0 machine test (machine-test.sh, assert LuaJIT)	2026-11-09T09:33:27.4967314Z ok   6 host: level 1000: load 0, resume 3 (want 3), free 0, message "far\nstack traceback:\n\t[C]: in field 'err'\n\tbios.lua:1: in main chunk"
+natives-windows-x86_64	Tier 0 machine test (machine-test.sh, assert LuaJIT)	2026-11-09T09:33:27.4968723Z ok   6 host: a nil message: load 0, resume 3 (want 3), free 0, message "nil\nstack traceback:\n\t[C]: in field 'err'\n\tbios.lua:1: in main chunk"
+natives-windows-x86_64	Tier 0 machine test (machine-test.sh, assert LuaJIT)	2026-11-09T09:33:27.4970485Z ok   6 host: a nil message under pcall: load 0, resume 3 (want 3), free 0, message "false nil\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:2: in main chunk"
+natives-windows-x86_64	Tier 0 machine test (machine-test.sh, assert LuaJIT)	2026-11-09T09:33:27.4972241Z ok   6 host: level 1 under pcall has no position (F5): load 0, resume 3 (want 3), free 0, message "p1\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:2: in main chunk"
+natives-windows-x86_64	Tier 0 machine test (machine-test.sh, assert LuaJIT)	2026-11-09T09:33:27.4975057Z ok   6 host: level 2 under pcall is the caller of pcall: load 0, resume 3 (want 3), free 0, message "bios.lua:1: p2\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:2: in main chunk"
+natives-windows-x86_64	Tier 0 machine test (machine-test.sh, assert LuaJIT)	2026-11-09T09:33:27.4976966Z ok   6 host: a host error is catchable: load 0, resume 3 (want 3), free 0, message "false caught alive\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:2: in main chunk"
+natives-windows-x86_64	Tier 0 machine test (machine-test.sh, assert LuaJIT)	2026-11-09T09:33:27.4978781Z ok   6 host: host status 0: load 0, resume 3 (want 3), free 0, message "CCLuaJIT: corrupt host reply\nstack traceback:\n\t[C]: in field 'code'\n\tbios.lua:1: in main chunk"
+natives-windows-x86_64	Tier 0 machine test (machine-test.sh, assert LuaJIT)	2026-11-09T09:33:27.4980880Z ok   6 host: host status 1: load 0, resume 3 (want 3), free 0, message "CCLuaJIT: JNI failure in host call\nstack traceback:\n\t[C]: in field 'code'\n\tbios.lua:1: in main chunk"
+natives-windows-x86_64	Tier 0 machine test (machine-test.sh, assert LuaJIT)	2026-11-09T09:33:27.4982740Z ok   6 host: host status 2: load 0, resume 3 (want 3), free 0, message "CCLuaJIT: Java exception in host call\nstack traceback:\n\t[C]: in field 'code'\n\tbios.lua:1: in main chunk"
+natives-windows-x86_64	Tier 0 machine test (machine-test.sh, assert LuaJIT)	2026-11-09T09:33:27.4984596Z ok   6 host: host status 3: load 0, resume 3 (want 3), free 0, message "CCLuaJIT: host call returned null\nstack traceback:\n\t[C]: in field 'code'\n\tbios.lua:1: in main chunk"
+natives-windows-x86_64	Tier 0 machine test (machine-test.sh, assert LuaJIT)	2026-11-09T09:33:27.4986378Z ok   6 host: host status 4: load 0, resume 3 (want 3), free 0, message "CCLuaJIT: host reply too large\nstack traceback:\n\t[C]: in field 'code'\n\tbios.lua:1: in main chunk"
+natives-windows-x86_64	Tier 0 machine test (machine-test.sh, assert LuaJIT)	2026-11-09T09:33:27.4988223Z ok   6 host: host status 5: load 0, resume 3 (want 3), free 0, message "CCLuaJIT: not enough memory for host reply\nstack traceback:\n\t[C]: in field 'code'\n\tbios.lua:1: in main chunk"
+natives-windows-x86_64	Tier 0 machine test (machine-test.sh, assert LuaJIT)	2026-11-09T09:33:27.4990052Z ok   6 host: host status 99: load 0, resume 3 (want 3), free 0, message "CCLuaJIT: host call failed\nstack traceback:\n\t[C]: in field 'code'\n\tbios.lua:1: in main chunk"
+natives-windows-x86_64	Tier 0 machine test (machine-test.sh, assert LuaJIT)	2026-11-09T09:33:27.4992036Z ok   6 host: a host status error is level 0 under pcall: load 0, resume 3 (want 3), free 0, message "CCLuaJIT: Java exception in host call\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:2: in main chunk"
+natives-windows-x86_64	Tier 0 machine test (machine-test.sh, assert LuaJIT)	2026-11-09T09:33:27.4994255Z ok   6 host: function indices across APIs and aliases: load 0, resume 3 (want 3), free 0, message "14 14 15\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:1: in main chunk"
+natives-windows-x86_64	Tier 0 machine test (machine-test.sh, assert LuaJIT)	2026-11-09T09:33:27.4996006Z ok   6 host: large numbers round trip: load 0, resume 3 (want 3), free 0, message "true\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:2: in main chunk"
+natives-windows-x86_64	Tier 0 machine test (machine-test.sh, assert LuaJIT)	2026-11-09T09:33:27.4997688Z ok   6 host: a 1 MiB string round trips: load 0, resume 3 (want 3), free 0, message "true 1048578\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk"
+natives-windows-x86_64	Tier 0 machine test (machine-test.sh, assert LuaJIT)	2026-11-09T09:33:27.4999496Z ok   6 host: reply count 0xFFFFFFFF: load 0, resume 3 (want 3), free 0, message "CCLuaJIT: corrupt host reply\nstack traceback:\n\t[C]: in field 'raw'\n\tbios.lua:1: in main chunk"
+natives-windows-x86_64	Tier 0 machine test (machine-test.sh, assert LuaJIT)	2026-11-09T09:33:27.5001684Z ok   6 host: a string length past the end: load 0, resume 3 (want 3), free 0, message "CCLuaJIT: corrupt host reply\nstack traceback:\n\t[C]: in field 'raw'\n\tbios.lua:1: in main chunk"
+natives-windows-x86_64	Tier 0 machine test (machine-test.sh, assert LuaJIT)	2026-11-09T09:33:27.5003610Z ok   6 host: a string length of 0xFFFFFFFF: load 0, resume 3 (want 3), free 0, message "CCLuaJIT: corrupt host reply\nstack traceback:\n\t[C]: in field 'raw'\n\tbios.lua:1: in main chunk"
+natives-windows-x86_64	Tier 0 machine test (machine-test.sh, assert LuaJIT)	2026-11-09T09:33:27.5005474Z ok   6 host: a trailing byte: load 0, resume 3 (want 3), free 0, message "CCLuaJIT: corrupt host reply\nstack traceback:\n\t[C]: in field 'raw'\n\tbios.lua:1: in main chunk"
+natives-windows-x86_64	Tier 0 machine test (machine-test.sh, assert LuaJIT)	2026-11-09T09:33:27.5007272Z ok   6 host: an unknown value tag: load 0, resume 3 (want 3), free 0, message "CCLuaJIT: corrupt host reply\nstack traceback:\n\t[C]: in field 'raw'\n\tbios.lua:1: in main chunk"
+natives-windows-x86_64	Tier 0 machine test (machine-test.sh, assert LuaJIT)	2026-11-09T09:33:27.5009092Z ok   6 host: a truncated number: load 0, resume 3 (want 3), free 0, message "CCLuaJIT: corrupt host reply\nstack traceback:\n\t[C]: in field 'raw'\n\tbios.lua:1: in main chunk"
+natives-windows-x86_64	Tier 0 machine test (machine-test.sh, assert LuaJIT)	2026-11-09T09:33:27.5011156Z ok   6 host: reply kind 2 (S5 CALLBACK) is refused: load 0, resume 3 (want 3), free 0, message "CCLuaJIT: corrupt host reply\nstack traceback:\n\t[C]: in field 'raw'\n\tbios.lua:1: in main chunk"
+natives-windows-x86_64	Tier 0 machine test (machine-test.sh, assert LuaJIT)	2026-11-09T09:33:27.5013039Z ok   6 host: an empty reply: load 0, resume 3 (want 3), free 0, message "CCLuaJIT: corrupt host reply\nstack traceback:\n\t[C]: in field 'raw'\n\tbios.lua:1: in main chunk"
+natives-windows-x86_64	Tier 0 machine test (machine-test.sh, assert LuaJIT)	2026-11-09T09:33:27.5014891Z ok   6 host: an ERROR with a number message: load 0, resume 3 (want 3), free 0, message "CCLuaJIT: corrupt host reply\nstack traceback:\n\t[C]: in field 'raw'\n\tbios.lua:1: in main chunk"
+natives-windows-x86_64	Tier 0 machine test (machine-test.sh, assert LuaJIT)	2026-11-09T09:33:27.5016810Z ok   6 host: an ERROR without a message: load 0, resume 3 (want 3), free 0, message "CCLuaJIT: corrupt host reply\nstack traceback:\n\t[C]: in field 'raw'\n\tbios.lua:1: in main chunk"
+natives-windows-x86_64	Tier 0 machine test (machine-test.sh, assert LuaJIT)	2026-11-09T09:33:27.5018526Z ok   6 host: an ERROR with level 1000: load 0, resume 3 (want 3), free 0, message "hi\nstack traceback:\n\t[C]: in field 'raw'\n\tbios.lua:1: in main chunk"
+natives-windows-x86_64	Tier 0 machine test (machine-test.sh, assert LuaJIT)	2026-11-09T09:33:27.5020355Z ok   6 host: an ERROR with level INT32_MIN: load 0, resume 3 (want 3), free 0, message "hi\nstack traceback:\n\t[C]: in field 'raw'\n\tbios.lua:1: in main chunk"
+natives-windows-x86_64	Tier 0 machine test (machine-test.sh, assert LuaJIT)	2026-11-09T09:33:27.5021920Z ok   6 host: 7,000 results: load 0, resume 3 (want 3), free 0, message "n=7000\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:1: in main chunk"
+natives-windows-x86_64	Tier 0 machine test (machine-test.sh, assert LuaJIT)	2026-11-09T09:33:27.5023420Z ok   6 host: 8,000 results: load 0, resume 3 (want 3), free 0, message "n=8000\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:1: in main chunk"
+natives-windows-x86_64	Tier 0 machine test (machine-test.sh, assert LuaJIT)	2026-11-09T09:33:27.5025142Z ok   6 host: 8,001 results are too many: load 0, resume 3 (want 3), free 0, message "bios.lua:1: too many results to return\nstack traceback:\n\t[C]: in field 'raw'\n\tbios.lua:1: in main chunk"
+natives-windows-x86_64	Tier 0 machine test (machine-test.sh, assert LuaJIT)	2026-11-09T09:33:27.5027200Z ok   6 host: results that do not fit above the arguments: load 0, resume 3 (want 3), free 0, message "false too many results to return\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:2: in main chunk"
+natives-windows-x86_64	Tier 0 machine test (machine-test.sh, assert LuaJIT)	2026-11-09T09:33:27.5028725Z ok   6 host: every request was well-formed: 0 bad of 47
+natives-windows-x86_64	Tier 0 machine test (machine-test.sh, assert LuaJIT)	2026-11-09T09:33:27.9695600Z ok   7 reply fuzz: 100000 random + 100000 mutated valid replies: 179321 corrupt, 13210 values, 7469 errors, 0 mismatches, 0 bad requests (0.5 s); end "fuzz finished\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk"
+natives-windows-x86_64	Tier 0 machine test (machine-test.sh, assert LuaJIT)	2026-11-09T09:33:27.9700294Z ok   8 oom: cap 4 MiB, string.rep fails and the machine goes on: 1 "false not enough memory", 3 "alive 1000\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:6: in main chunk"
+natives-windows-x86_64	Tier 0 machine test (machine-test.sh, assert LuaJIT)	2026-11-09T09:33:27.9701919Z ok   8 oom: a 100 MiB string.rep under the 64 MiB cap: load 0, resume 3 (want 3), free 0, message "false not enough memory alive\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:2: in main chunk"
+natives-windows-x86_64	Tier 0 machine test (machine-test.sh, assert LuaJIT)	2026-11-09T09:33:27.9716483Z ok   8 oom: garbage far beyond a 4 MiB cap is freed and counted: status 3, "survived 0 0\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk"
+natives-windows-x86_64	Tier 0 machine test (machine-test.sh, assert LuaJIT)	2026-11-09T09:33:27.9717742Z ok   8 oom: cap 0, cm_load fails: 3 "not enough memory"
+natives-windows-x86_64	Tier 0 machine test (machine-test.sh, assert LuaJIT)	2026-11-09T09:33:28.1752184Z ok   8 oom: every cap up to the load size: load needs about 19198 bytes (state 12524): 752 caps loaded, 3966 not enough memory, 0 other
+natives-windows-x86_64	Tier 0 machine test (machine-test.sh, assert LuaJIT)	2026-11-09T09:33:28.1753398Z ok   8 oom: the buffer-growth scenario runs: 7 allocations, "done\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:6: in main chunk"
+natives-windows-x86_64	Tier 0 machine test (machine-test.sh, assert LuaJIT)	2026-11-09T09:33:28.1754227Z ok   8 oom: cm_test_fail_after(n) for every n: n = 0..8, 0 bad
+natives-windows-x86_64	Tier 0 machine test (machine-test.sh, assert LuaJIT)	2026-11-09T09:33:28.1755170Z ok   9 re-entrancy: cm_resume, cm_load and cm_free from the host are refused: outer 1; inner resume 4 "machine is busy", load 4, free 4
+natives-windows-x86_64	Tier 0 machine test (machine-test.sh, assert LuaJIT)	2026-11-09T09:33:28.1756304Z ok   9 re-entrancy: the owner's YIELD replaces the "machine is busy" message: ""
+natives-windows-x86_64	Tier 0 machine test (machine-test.sh, assert LuaJIT)	2026-11-09T09:33:28.1757394Z ok   9 re-entrancy: the machine was not freed or changed: 3 "4|machine is busy|4|4\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk"
+natives-windows-x86_64	Tier 0 machine test (machine-test.sh, assert LuaJIT)	2026-11-09T09:33:28.1758668Z ok   9 re-entrancy: freed afterwards
+natives-windows-x86_64	Tier 0 machine test (machine-test.sh, assert LuaJIT)	2026-11-09T09:33:28.1912320Z ok   9 re-entrancy: cm_free, cm_resume and cm_load from another thread while busy: free 4, resume 4 "machine is busy", load 4; owner 1
+natives-windows-x86_64	Tier 0 machine test (machine-test.sh, assert LuaJIT)	2026-11-09T09:33:28.1914283Z ok   9 re-entrancy: the machine works and frees afterwards: 3 "end\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk"
+natives-windows-x86_64	Tier 0 machine test (machine-test.sh, assert LuaJIT)	2026-11-09T09:33:28.1915820Z ok   10 threads: new, resume and free on three threads: load 0, resumes 1 1, log "r1r2", free 0
+natives-windows-x86_64	Tier 0 machine test (machine-test.sh, assert LuaJIT)	2026-11-09T09:33:28.2270344Z ok   10 churn: 1,000 machines on three threads at once: 1000 ok, 0 bad (0.1 s)
+natives-windows-x86_64	Tier 0 machine test (machine-test.sh, assert LuaJIT)	2026-11-09T09:33:28.2273100Z ok   10 churn: process memory stays flat: 1.0 MiB before, 1.0 MiB after the 1,000 machines (at most 16 MiB more)
+natives-windows-x86_64	Tier 0 machine test (machine-test.sh, assert LuaJIT)	2026-11-09T09:33:28.2275271Z ok   all: no traceback of any test has "0x", "[builtin" or a line number below 1, or changed lua_gettop(co): 1102 tracebacks: 0 with an address or builtin name, 0 with a line below 1, 0 changed the top
+natives-windows-x86_64	Tier 0 machine test (machine-test.sh, assert LuaJIT)	2026-11-09T09:33:28.2277523Z ok   all: after every load and resume, the cap counted what LuaJIT counts: 0 of 7684 checks differ
+natives-windows-x86_64	Tier 0 machine test (machine-test.sh, assert LuaJIT)	2026-11-09T09:33:28.2278737Z machine_test: 166 checks, 0 failed
+natives-windows-x86_64	Tier 0 machine test (machine-test.sh, assert LuaJIT)	2026-11-09T09:33:28.2382016Z machine-test: OK (windows-x86_64)
+natives-windows-x86_64	Self-test of the -Xcheck:jni scan (jni-scan.sh --self-test)	﻿2026-11-09T09:33:28.2641168Z ##[group]Run bash natives/tests/jni-scan.sh --self-test
+natives-windows-x86_64	Self-test of the -Xcheck:jni scan (jni-scan.sh --self-test)	2026-11-09T09:33:28.2641623Z ^[[36;1mbash natives/tests/jni-scan.sh --self-test^[[0m
+natives-windows-x86_64	Self-test of the -Xcheck:jni scan (jni-scan.sh --self-test)	2026-11-09T09:33:28.2643549Z shell: D:\a\_temp\setup-msys2\msys2.CMD {0}
+natives-windows-x86_64	Self-test of the -Xcheck:jni scan (jni-scan.sh --self-test)	2026-11-09T09:33:28.2643819Z env:
+natives-windows-x86_64	Self-test of the -Xcheck:jni scan (jni-scan.sh --self-test)	2026-11-09T09:33:28.2644118Z   JAVA_HOME: C:\hostedtoolcache\windows\Java_Temurin-Hotspot_jdk\21.0.13-9.0\x64
+natives-windows-x86_64	Self-test of the -Xcheck:jni scan (jni-scan.sh --self-test)	2026-11-09T09:33:28.2644631Z   JAVA_HOME_21_X64: C:\hostedtoolcache\windows\Java_Temurin-Hotspot_jdk\21.0.13-9.0\x64
+natives-windows-x86_64	Self-test of the -Xcheck:jni scan (jni-scan.sh --self-test)	2026-11-09T09:33:28.2645037Z   MAVEN_ARGS: -ntp
+natives-windows-x86_64	Self-test of the -Xcheck:jni scan (jni-scan.sh --self-test)	2026-11-09T09:33:28.2645225Z   MSYSTEM: MINGW64
+natives-windows-x86_64	Self-test of the -Xcheck:jni scan (jni-scan.sh --self-test)	2026-11-09T09:33:28.2645407Z ##[endgroup]
+natives-windows-x86_64	Self-test of the -Xcheck:jni scan (jni-scan.sh --self-test)	2026-11-09T09:33:28.5402611Z == jni-scan self-test: 4 patterns, 4 dirty fixtures, clean.log
+natives-windows-x86_64	Self-test of the -Xcheck:jni scan (jni-scan.sh --self-test)	2026-11-09T09:33:28.5969946Z   PASS  dirty-critical.log fails the scan (1 matching line(s))
+natives-windows-x86_64	Self-test of the -Xcheck:jni scan (jni-scan.sh --self-test)	2026-11-09T09:33:28.6539092Z   PASS  dirty-fatal.log fails the scan (1 matching line(s))
+natives-windows-x86_64	Self-test of the -Xcheck:jni scan (jni-scan.sh --self-test)	2026-11-09T09:33:28.7100758Z   PASS  dirty-mxcsr.log fails the scan (1 matching line(s))
+natives-windows-x86_64	Self-test of the -Xcheck:jni scan (jni-scan.sh --self-test)	2026-11-09T09:33:28.7682085Z   PASS  dirty-warning.log fails the scan (1 matching line(s))
+natives-windows-x86_64	Self-test of the -Xcheck:jni scan (jni-scan.sh --self-test)	2026-11-09T09:33:28.7874207Z   PASS  pattern occurs in a dirty fixture: WARNING in native method
+natives-windows-x86_64	Self-test of the -Xcheck:jni scan (jni-scan.sh --self-test)	2026-11-09T09:33:28.8073290Z   PASS  pattern occurs in a dirty fixture: FATAL ERROR in native method
+natives-windows-x86_64	Self-test of the -Xcheck:jni scan (jni-scan.sh --self-test)	2026-11-09T09:33:28.8250598Z   PASS  pattern occurs in a dirty fixture: Warning: Calling other JNI functions in the scope of Get/Release
+natives-windows-x86_64	Self-test of the -Xcheck:jni scan (jni-scan.sh --self-test)	2026-11-09T09:33:28.8430365Z   PASS  pattern occurs in a dirty fixture: MXCSR changed by native JNI code
+natives-windows-x86_64	Self-test of the -Xcheck:jni scan (jni-scan.sh --self-test)	2026-11-09T09:33:28.8707512Z   PASS  clean.log passes the scan
+natives-windows-x86_64	Self-test of the -Xcheck:jni scan (jni-scan.sh --self-test)	2026-11-09T09:33:28.8708459Z jni-scan: self-test OK
+natives-windows-x86_64	Run the harnesses (preempt, patterns, cstack, compat, syntax, fixcheck)	﻿2026-11-09T09:33:28.8985428Z ##[group]Run bash natives/tests/run-harnesses.sh natives/build/windows-x86_64/luajit/src
+natives-windows-x86_64	Run the harnesses (preempt, patterns, cstack, compat, syntax, fixcheck)	2026-11-09T09:33:28.8986132Z ^[[36;1mbash natives/tests/run-harnesses.sh natives/build/windows-x86_64/luajit/src^[[0m
+natives-windows-x86_64	Run the harnesses (preempt, patterns, cstack, compat, syntax, fixcheck)	2026-11-09T09:33:28.8988145Z shell: D:\a\_temp\setup-msys2\msys2.CMD {0}
+natives-windows-x86_64	Run the harnesses (preempt, patterns, cstack, compat, syntax, fixcheck)	2026-11-09T09:33:28.8988404Z env:
+natives-windows-x86_64	Run the harnesses (preempt, patterns, cstack, compat, syntax, fixcheck)	2026-11-09T09:33:28.8988695Z   JAVA_HOME: C:\hostedtoolcache\windows\Java_Temurin-Hotspot_jdk\21.0.13-9.0\x64
+natives-windows-x86_64	Run the harnesses (preempt, patterns, cstack, compat, syntax, fixcheck)	2026-11-09T09:33:28.8989204Z   JAVA_HOME_21_X64: C:\hostedtoolcache\windows\Java_Temurin-Hotspot_jdk\21.0.13-9.0\x64
+natives-windows-x86_64	Run the harnesses (preempt, patterns, cstack, compat, syntax, fixcheck)	2026-11-09T09:33:28.8989583Z   MAVEN_ARGS: -ntp
+natives-windows-x86_64	Run the harnesses (preempt, patterns, cstack, compat, syntax, fixcheck)	2026-11-09T09:33:28.8989771Z   MSYSTEM: MINGW64
+natives-windows-x86_64	Run the harnesses (preempt, patterns, cstack, compat, syntax, fixcheck)	2026-11-09T09:33:28.8989945Z ##[endgroup]
+natives-windows-x86_64	Run the harnesses (preempt, patterns, cstack, compat, syntax, fixcheck)	2026-11-09T09:33:29.5090052Z == LuaJIT: LuaJIT 2.1.1794071144 -- Copyright (C) 2005-2026 Mike Pall. https://luajit.org/ (D:/a/CCLuaJIT/CCLuaJIT/natives/build/windows-x86_64/luajit/src)
+natives-windows-x86_64	Run the harnesses (preempt, patterns, cstack, compat, syntax, fixcheck)	2026-11-09T09:33:29.5271976Z    luajit_rev=HEAD
+natives-windows-x86_64	Run the harnesses (preempt, patterns, cstack, compat, syntax, fixcheck)	2026-11-09T09:33:29.5272658Z    luajit_commit=047efd3bcbe3331c3b9cb69bf5b217164d80bd5c
+natives-windows-x86_64	Run the harnesses (preempt, patterns, cstack, compat, syntax, fixcheck)	2026-11-09T09:33:29.5274021Z    xcflags=-DLUAJIT_ENABLE_INTERRUPT -DLUAJIT_ENABLE_LUA52COMPAT -DLUAJIT_DISABLE_FFI -DLUAJIT_DISABLE_BCLOAD -DLUAJIT_ENABLE_CSTACKGUARD -DLUAJIT_DISABLE_PROFILE -DLUAJIT_DISABLE_VMEVENT
+natives-windows-x86_64	Run the harnesses (preempt, patterns, cstack, compat, syntax, fixcheck)	2026-11-09T09:33:29.5275549Z    target_cflags=
+natives-windows-x86_64	Run the harnesses (preempt, patterns, cstack, compat, syntax, fixcheck)	2026-11-09T09:33:29.5276765Z    patches=01-interrupt.patch 02-xpcall-handler-in-hook.patch 03-no-bytecode.patch 04-pattern-nul.patch 05-numfmt-roundtrip.patch 06-goto-contextual.patch 07-interruptible-patterns.patch 08-cstack-guard.patch
+natives-windows-x86_64	Run the harnesses (preempt, patterns, cstack, compat, syntax, fixcheck)	2026-11-09T09:33:29.5577087Z == work dir: D:/a/CCLuaJIT/CCLuaJIT/natives/build/windows-x86_64/harnesses (windows, x86_64)
+natives-windows-x86_64	Run the harnesses (preempt, patterns, cstack, compat, syntax, fixcheck)	2026-11-09T09:33:29.5578253Z == preempt (log: D:/a/CCLuaJIT/CCLuaJIT/natives/build/windows-x86_64/harnesses/results/preempt.txt)
+natives-windows-x86_64	Run the harnesses (preempt, patterns, cstack, compat, syntax, fixcheck)	2026-11-09T09:33:58.2796326Z preempt   PASS  33 OK of 35 results, hangs: X_finalizer_loop X_lua_hook_loop  (expected 33 OK of 35, hangs: X_finalizer_loop X_lua_hook_loop)
+natives-windows-x86_64	Run the harnesses (preempt, patterns, cstack, compat, syntax, fixcheck)	2026-11-09T09:33:58.2797771Z == patterns (log: D:/a/CCLuaJIT/CCLuaJIT/natives/build/windows-x86_64/harnesses/results/patterns.txt)
+natives-windows-x86_64	Run the harnesses (preempt, patterns, cstack, compat, syntax, fixcheck)	2026-11-09T09:36:52.1838808Z patterns  PASS  pharness: 74 OK of 74 results (expected 74 OK of 74)
+natives-windows-x86_64	Run the harnesses (preempt, patterns, cstack, compat, syntax, fixcheck)	2026-11-09T09:36:52.1840130Z == cstack (log: D:/a/CCLuaJIT/CCLuaJIT/natives/build/windows-x86_64/harnesses/results/cstack.txt)
+natives-windows-x86_64	Run the harnesses (preempt, patterns, cstack, compat, syntax, fixcheck)	2026-11-09T09:36:54.8635909Z cstack    PASS  31 completed, 0 crashed, 31 results for 31 cases (expected 31 completed, 0 crashed)
+natives-windows-x86_64	Run the harnesses (preempt, patterns, cstack, compat, syntax, fixcheck)	2026-11-09T09:36:54.8637679Z == compat, syntax, fixcheck (logs: D:/a/CCLuaJIT/CCLuaJIT/natives/build/windows-x86_64/harnesses/results/compat.txt, syntax.txt, fixcheck.txt)
+natives-windows-x86_64	Run the harnesses (preempt, patterns, cstack, compat, syntax, fixcheck)	2026-11-09T09:36:55.0341096Z compat    PASS  10 lines equal compat_check.expected
+natives-windows-x86_64	Run the harnesses (preempt, patterns, cstack, compat, syntax, fixcheck)	2026-11-09T09:36:55.1725332Z syntax    PASS  SUMMARY ok=45 bad=0 (LuaJIT 2.1.1794071144) (expected ok=45 bad=0)
+natives-windows-x86_64	Run the harnesses (preempt, patterns, cstack, compat, syntax, fixcheck)	2026-11-09T09:36:55.3202512Z fixcheck  PASS  6 PASS, 0 FAIL (expected 6 PASS, 0 FAIL)
+natives-windows-x86_64	Run the harnesses (preempt, patterns, cstack, compat, syntax, fixcheck)	2026-11-09T09:36:55.3202998Z 
+natives-windows-x86_64	Run the harnesses (preempt, patterns, cstack, compat, syntax, fixcheck)	2026-11-09T09:36:55.3615104Z == summary (windows, LuaJIT 2.1.1794071144)
+natives-windows-x86_64	Run the harnesses (preempt, patterns, cstack, compat, syntax, fixcheck)	2026-11-09T09:36:55.3616378Z preempt   PASS  33 OK of 35 results, hangs: X_finalizer_loop X_lua_hook_loop  (expected 33 OK of 35, hangs: X_finalizer_loop X_lua_hook_loop)
+natives-windows-x86_64	Run the harnesses (preempt, patterns, cstack, compat, syntax, fixcheck)	2026-11-09T09:36:55.3618429Z patterns  PASS  pharness: 74 OK of 74 results (expected 74 OK of 74)
+natives-windows-x86_64	Run the harnesses (preempt, patterns, cstack, compat, syntax, fixcheck)	2026-11-09T09:36:55.3619791Z cstack    PASS  31 completed, 0 crashed, 31 results for 31 cases (expected 31 completed, 0 crashed)
+natives-windows-x86_64	Run the harnesses (preempt, patterns, cstack, compat, syntax, fixcheck)	2026-11-09T09:36:55.3620988Z compat    PASS  10 lines equal compat_check.expected
+natives-windows-x86_64	Run the harnesses (preempt, patterns, cstack, compat, syntax, fixcheck)	2026-11-09T09:36:55.3621788Z syntax    PASS  SUMMARY ok=45 bad=0 (LuaJIT 2.1.1794071144) (expected ok=45 bad=0)
+natives-windows-x86_64	Run the harnesses (preempt, patterns, cstack, compat, syntax, fixcheck)	2026-11-09T09:36:55.3622855Z fixcheck  PASS  6 PASS, 0 FAIL (expected 6 PASS, 0 FAIL)
+natives-windows-x86_64	Run the harnesses (preempt, patterns, cstack, compat, syntax, fixcheck)	2026-11-09T09:36:55.3624916Z ALL PASSED
+natives-windows-x86_64	JVM self-test (NativeProbe, -Xcheck:jni, scanned)	﻿2026-11-09T09:36:55.3913546Z ##[group]Run set -eo pipefail
+natives-windows-x86_64	JVM self-test (NativeProbe, -Xcheck:jni, scanned)	2026-11-09T09:36:55.3914108Z ^[[36;1mset -eo pipefail^[[0m
+natives-windows-x86_64	JVM self-test (NativeProbe, -Xcheck:jni, scanned)	2026-11-09T09:36:55.3914467Z ^[[36;1mjdk=$(cygpath -u "$JAVA_HOME")/bin^[[0m
+natives-windows-x86_64	JVM self-test (NativeProbe, -Xcheck:jni, scanned)	2026-11-09T09:36:55.3914822Z ^[[36;1mout=natives/build/probe^[[0m
+natives-windows-x86_64	JVM self-test (NativeProbe, -Xcheck:jni, scanned)	2026-11-09T09:36:55.3915165Z ^[[36;1mrm -rf "$out"^[[0m
+natives-windows-x86_64	JVM self-test (NativeProbe, -Xcheck:jni, scanned)	2026-11-09T09:36:55.3915494Z ^[[36;1mmkdir -p "$out"^[[0m
+natives-windows-x86_64	JVM self-test (NativeProbe, -Xcheck:jni, scanned)	2026-11-09T09:36:55.3915821Z ^[[36;1m"$jdk/javac" -d "$out/classes" \^[[0m
+natives-windows-x86_64	JVM self-test (NativeProbe, -Xcheck:jni, scanned)	2026-11-09T09:36:55.3916732Z ^[[36;1m  common/src/main/java/io/github/mindbound/cclj/natives/NativeLoader.java \^[[0m
+natives-windows-x86_64	JVM self-test (NativeProbe, -Xcheck:jni, scanned)	2026-11-09T09:36:55.3917364Z ^[[36;1m  common/src/test/java/io/github/mindbound/cclj/natives/NativeProbe.java^[[0m
+natives-windows-x86_64	JVM self-test (NativeProbe, -Xcheck:jni, scanned)	2026-11-09T09:36:55.3917994Z ^[[36;1m"$jdk/java" -Xcheck:jni -cp "$out/classes;natives/build/out" \^[[0m
+natives-windows-x86_64	JVM self-test (NativeProbe, -Xcheck:jni, scanned)	2026-11-09T09:36:55.3918657Z ^[[36;1m  io.github.mindbound.cclj.natives.NativeProbe "$out/cache" 2>&1 | tee "$out/native-probe.log"^[[0m
+natives-windows-x86_64	JVM self-test (NativeProbe, -Xcheck:jni, scanned)	2026-11-09T09:36:55.3919316Z ^[[36;1mbash natives/tests/jni-scan.sh "$out/native-probe.log"^[[0m
+natives-windows-x86_64	JVM self-test (NativeProbe, -Xcheck:jni, scanned)	2026-11-09T09:36:55.3922953Z shell: D:\a\_temp\setup-msys2\msys2.CMD {0}
+natives-windows-x86_64	JVM self-test (NativeProbe, -Xcheck:jni, scanned)	2026-11-09T09:36:55.3923436Z env:
+natives-windows-x86_64	JVM self-test (NativeProbe, -Xcheck:jni, scanned)	2026-11-09T09:36:55.3923823Z   JAVA_HOME: C:\hostedtoolcache\windows\Java_Temurin-Hotspot_jdk\21.0.13-9.0\x64
+natives-windows-x86_64	JVM self-test (NativeProbe, -Xcheck:jni, scanned)	2026-11-09T09:36:55.3924470Z   JAVA_HOME_21_X64: C:\hostedtoolcache\windows\Java_Temurin-Hotspot_jdk\21.0.13-9.0\x64
+natives-windows-x86_64	JVM self-test (NativeProbe, -Xcheck:jni, scanned)	2026-11-09T09:36:55.3924948Z   MAVEN_ARGS: -ntp
+natives-windows-x86_64	JVM self-test (NativeProbe, -Xcheck:jni, scanned)	2026-11-09T09:36:55.3925208Z   MSYSTEM: MINGW64
+natives-windows-x86_64	JVM self-test (NativeProbe, -Xcheck:jni, scanned)	2026-11-09T09:36:55.3925514Z ##[endgroup]
+natives-windows-x86_64	JVM self-test (NativeProbe, -Xcheck:jni, scanned)	2026-11-09T09:36:58.7282829Z java 21.0.13 (OpenJDK 64-Bit Server VM) on Windows Server 2025 amd64
+natives-windows-x86_64	JVM self-test (NativeProbe, -Xcheck:jni, scanned)	2026-11-09T09:36:58.7442988Z resource /natives/windows-x86_64/cclj.dll: file:/D:/a/CCLuaJIT/CCLuaJIT/natives/build/out/natives/windows-x86_64/cclj.dll
+natives-windows-x86_64	JVM self-test (NativeProbe, -Xcheck:jni, scanned)	2026-11-09T09:36:58.9505843Z loaded D:\a\CCLuaJIT\CCLuaJIT\natives\build\probe\cache\94c7c5149bfec68b\cclj.dll in 180.6 ms
+natives-windows-x86_64	JVM self-test (NativeProbe, -Xcheck:jni, scanned)	2026-11-09T09:36:59.0137491Z selfTest() returned in 59.1 ms:
+natives-windows-x86_64	JVM self-test (NativeProbe, -Xcheck:jni, scanned)	2026-11-09T09:36:59.0138172Z   cclj.platform=windows-x86_64
+natives-windows-x86_64	JVM self-test (NativeProbe, -Xcheck:jni, scanned)	2026-11-09T09:36:59.0138897Z   cclj.luajit_commit=047efd3bcbe3331c3b9cb69bf5b217164d80bd5c
+natives-windows-x86_64	JVM self-test (NativeProbe, -Xcheck:jni, scanned)	2026-11-09T09:36:59.0139700Z   state=ok: luaL_newstate and luaL_openlibs
+natives-windows-x86_64	JVM self-test (NativeProbe, -Xcheck:jni, scanned)	2026-11-09T09:36:59.0141286Z   luajit=ok: LuaJIT 2.1.1794071144 (Windows x64)
+natives-windows-x86_64	JVM self-test (NativeProbe, -Xcheck:jni, scanned)	2026-11-09T09:36:59.0143477Z   jit=ok: on SSE3 SSE4.1 BMI2 fold cse dce fwd dse narrow loop abc sink fuse
+natives-windows-x86_64	JVM self-test (NativeProbe, -Xcheck:jni, scanned)	2026-11-09T09:36:59.0144368Z   security=ok: prng=1 strhash=1 strid=1 mcode=1
+natives-windows-x86_64	JVM self-test (NativeProbe, -Xcheck:jni, scanned)	2026-11-09T09:36:59.0145459Z   ffi=ok: the ffi library is absent
+natives-windows-x86_64	JVM self-test (NativeProbe, -Xcheck:jni, scanned)	2026-11-09T09:36:59.0146346Z   compute=ok: sum(i % 7, i = 1..1e6) = 2999998 (expected 2999998), 1 trace(s) compiled
+natives-windows-x86_64	JVM self-test (NativeProbe, -Xcheck:jni, scanned)	2026-11-09T09:36:59.0147523Z   interrupt=ok: luaJIT_interrupt() from a second thread, 50 ms after the loop started, stopped the compiled loop (1 new trace(s)) at iteration 87543898 of 2000000000 with "cclj selftest: interrupted"
+natives-windows-x86_64	JVM self-test (NativeProbe, -Xcheck:jni, scanned)	2026-11-09T09:36:59.0149643Z   cstacklimit=ok: lua_pcall inside a red zone set by luaJIT_setcstacklimit() returned "C stack overflow"; with the zone cleared the same call runs
+natives-windows-x86_64	JVM self-test (NativeProbe, -Xcheck:jni, scanned)	2026-11-09T09:36:59.0150953Z   bytecode=ok: load -> nil, attempt to load a binary chunk; loadstring -> nil
+natives-windows-x86_64	JVM self-test (NativeProbe, -Xcheck:jni, scanned)	2026-11-09T09:36:59.0151825Z   ok=true
+natives-windows-x86_64	JVM self-test (NativeProbe, -Xcheck:jni, scanned)	2026-11-09T09:36:59.0152370Z nativeProbe: OK
+natives-windows-x86_64	JVM self-test (NativeProbe, -Xcheck:jni, scanned)	2026-11-09T09:36:59.1051158Z jni-scan: OK, none of the 4 patterns in 1 log(s): natives/build/probe/native-probe.log
+natives-windows-x86_64	Tier 1 (BridgeProbe, -Xcheck:jni, scanned)	﻿2026-11-09T09:36:59.1395728Z ##[group]Run set -eo pipefail
+natives-windows-x86_64	Tier 1 (BridgeProbe, -Xcheck:jni, scanned)	2026-11-09T09:36:59.1396111Z ^[[36;1mset -eo pipefail^[[0m
+natives-windows-x86_64	Tier 1 (BridgeProbe, -Xcheck:jni, scanned)	2026-11-09T09:36:59.1396361Z ^[[36;1mjdk=$(cygpath -u "$JAVA_HOME")/bin^[[0m
+natives-windows-x86_64	Tier 1 (BridgeProbe, -Xcheck:jni, scanned)	2026-11-09T09:36:59.1396654Z ^[[36;1mout=natives/build/bridge-probe^[[0m
+natives-windows-x86_64	Tier 1 (BridgeProbe, -Xcheck:jni, scanned)	2026-11-09T09:36:59.1396929Z ^[[36;1mrm -rf "$out"^[[0m
+natives-windows-x86_64	Tier 1 (BridgeProbe, -Xcheck:jni, scanned)	2026-11-09T09:36:59.1397148Z ^[[36;1mmkdir -p "$out"^[[0m
+natives-windows-x86_64	Tier 1 (BridgeProbe, -Xcheck:jni, scanned)	2026-11-09T09:36:59.1397379Z ^[[36;1m"$jdk/javac" -d "$out/classes" \^[[0m
+natives-windows-x86_64	Tier 1 (BridgeProbe, -Xcheck:jni, scanned)	2026-11-09T09:36:59.1397738Z ^[[36;1m  common/src/main/java/io/github/mindbound/cclj/natives/*.java \^[[0m
+natives-windows-x86_64	Tier 1 (BridgeProbe, -Xcheck:jni, scanned)	2026-11-09T09:36:59.1398232Z ^[[36;1m  common/src/test/java/io/github/mindbound/cclj/natives/NativeProbe.java \^[[0m
+natives-windows-x86_64	Tier 1 (BridgeProbe, -Xcheck:jni, scanned)	2026-11-09T09:36:59.1398754Z ^[[36;1m  common/src/test/java/io/github/mindbound/cclj/natives/BridgeProbe.java^[[0m
+natives-windows-x86_64	Tier 1 (BridgeProbe, -Xcheck:jni, scanned)	2026-11-09T09:36:59.1399258Z ^[[36;1m"$jdk/java" -Xcheck:jni -Xmx256m -cp "$out/classes;natives/build/out" \^[[0m
+natives-windows-x86_64	Tier 1 (BridgeProbe, -Xcheck:jni, scanned)	2026-11-09T09:36:59.1399831Z ^[[36;1m  io.github.mindbound.cclj.natives.BridgeProbe "$out/cache" 2>&1 | tee "$out/bridge-probe.log"^[[0m
+natives-windows-x86_64	Tier 1 (BridgeProbe, -Xcheck:jni, scanned)	2026-11-09T09:36:59.1400399Z ^[[36;1mbash natives/tests/jni-scan.sh "$out/bridge-probe.log"^[[0m
+natives-windows-x86_64	Tier 1 (BridgeProbe, -Xcheck:jni, scanned)	2026-11-09T09:36:59.1402460Z shell: D:\a\_temp\setup-msys2\msys2.CMD {0}
+natives-windows-x86_64	Tier 1 (BridgeProbe, -Xcheck:jni, scanned)	2026-11-09T09:36:59.1402722Z env:
+natives-windows-x86_64	Tier 1 (BridgeProbe, -Xcheck:jni, scanned)	2026-11-09T09:36:59.1403026Z   JAVA_HOME: C:\hostedtoolcache\windows\Java_Temurin-Hotspot_jdk\21.0.13-9.0\x64
+natives-windows-x86_64	Tier 1 (BridgeProbe, -Xcheck:jni, scanned)	2026-11-09T09:36:59.1403545Z   JAVA_HOME_21_X64: C:\hostedtoolcache\windows\Java_Temurin-Hotspot_jdk\21.0.13-9.0\x64
+natives-windows-x86_64	Tier 1 (BridgeProbe, -Xcheck:jni, scanned)	2026-11-09T09:36:59.1403933Z   MAVEN_ARGS: -ntp
+natives-windows-x86_64	Tier 1 (BridgeProbe, -Xcheck:jni, scanned)	2026-11-09T09:36:59.1404112Z   MSYSTEM: MINGW64
+natives-windows-x86_64	Tier 1 (BridgeProbe, -Xcheck:jni, scanned)	2026-11-09T09:36:59.1404283Z ##[endgroup]
+natives-windows-x86_64	Tier 1 (BridgeProbe, -Xcheck:jni, scanned)	2026-11-09T09:37:01.6301843Z java 21.0.13 (OpenJDK 64-Bit Server VM) on Windows Server 2025 amd64, -Xcheck:jni on, max heap 256 MiB
+natives-windows-x86_64	Tier 1 (BridgeProbe, -Xcheck:jni, scanned)	2026-11-09T09:37:01.6459725Z resource /natives/windows-x86_64/cclj.dll: file:/D:/a/CCLuaJIT/CCLuaJIT/natives/build/out/natives/windows-x86_64/cclj.dll
+natives-windows-x86_64	Tier 1 (BridgeProbe, -Xcheck:jni, scanned)	2026-11-09T09:37:01.6461221Z library build: release
+natives-windows-x86_64	Tier 1 (BridgeProbe, -Xcheck:jni, scanned)	2026-11-09T09:37:01.7567917Z loaded D:\a\CCLuaJIT\CCLuaJIT\natives\build\bridge-probe\cache\94c7c5149bfec68b\cclj.dll in 91.3 ms
+natives-windows-x86_64	Tier 1 (BridgeProbe, -Xcheck:jni, scanned)	2026-11-09T09:37:01.7617387Z ok   ABI: nAbi() = 1, NativeMachine.ABI = 1
+natives-windows-x86_64	Tier 1 (BridgeProbe, -Xcheck:jni, scanned)	2026-11-09T09:37:01.7618221Z ok   NativeLibrary: a second ensureLoaded, with another cache root, returns the first path: returned D:\a\CCLuaJIT\CCLuaJIT\natives\build\bridge-probe\cache\94c7c5149bfec68b\cclj.dll
+natives-windows-x86_64	Tier 1 (BridgeProbe, -Xcheck:jni, scanned)	2026-11-09T09:37:02.0270068Z   child: first call: java.nio.file.NoSuchFileException: D:\a\CCLuaJIT\CCLuaJIT\natives\build\bridge-probe\cache\library-failure\a-file\cache; second call: the same exception object; isLoaded false; usable root created false
+natives-windows-x86_64	Tier 1 (BridgeProbe, -Xcheck:jni, scanned)	2026-11-09T09:37:02.0272198Z ok   NativeLibrary: a failed load is sticky (second JVM: the same exception again, nothing loaded): child exit 0
+natives-windows-x86_64	Tier 1 (BridgeProbe, -Xcheck:jni, scanned)	2026-11-09T09:37:02.0286844Z ok   Wire.decodeArgs: nil, true, false, a string: [null, true, false, "x"]
+natives-windows-x86_64	Tier 1 (BridgeProbe, -Xcheck:jni, scanned)	2026-11-09T09:37:02.0287668Z ok   Wire.decodeArgs: a number is a Double: [-0.5]
+natives-windows-x86_64	Tier 1 (BridgeProbe, -Xcheck:jni, scanned)	2026-11-09T09:37:02.0288216Z ok   Wire.decodeArgs: no values
+natives-windows-x86_64	Tier 1 (BridgeProbe, -Xcheck:jni, scanned)	2026-11-09T09:37:02.0382123Z ok   Wire.decodeArgs: 15 malformed arrays throw IllegalStateException: 15 did
+natives-windows-x86_64	Tier 1 (BridgeProbe, -Xcheck:jni, scanned)	2026-11-09T09:37:02.0421930Z ok   Wire: Latin-1 round trip of bytes 0-255: 00010000000400010000000102030405... (266 bytes)
+natives-windows-x86_64	Tier 1 (BridgeProbe, -Xcheck:jni, scanned)	2026-11-09T09:37:02.0422631Z ok   Wire.values: a char >= 256 is '?'
+natives-windows-x86_64	Tier 1 (BridgeProbe, -Xcheck:jni, scanned)	2026-11-09T09:37:02.0423111Z ok   Wire.values: a surrogate pair is two '?'
+natives-windows-x86_64	Tier 1 (BridgeProbe, -Xcheck:jni, scanned)	2026-11-09T09:37:02.0423413Z ok   Wire.error: a char >= 256 is '?'
+natives-windows-x86_64	Tier 1 (BridgeProbe, -Xcheck:jni, scanned)	2026-11-09T09:37:02.0423674Z ok   Wire.values(null): no values
+natives-windows-x86_64	Tier 1 (BridgeProbe, -Xcheck:jni, scanned)	2026-11-09T09:37:02.0442672Z ok   Wire.values: null, Boolean, Number (Integer, Float, Long, BigDecimal), String, byte[] (copied): 000900000000020103000000000000f03f03000000000000044003000000000000084003000000000000e03f0402000000686904030000000180ff
+natives-windows-x86_64	Tier 1 (BridgeProbe, -Xcheck:jni, scanned)	2026-11-09T09:37:02.0443898Z ok   Wire.values: Map, Collection, Object[] and ByteBuffer throw UnsupportedValue: []
+natives-windows-x86_64	Tier 1 (BridgeProbe, -Xcheck:jni, scanned)	2026-11-09T09:37:02.0451618Z ok   Wire.values: an unknown type calls onUnknown, then becomes nil: 000400000000000000, onUnknown got 4
+natives-windows-x86_64	Tier 1 (BridgeProbe, -Xcheck:jni, scanned)	2026-11-09T09:37:02.0452464Z ok   Wire.values: onUnknown may throw: refused Object
+natives-windows-x86_64	Tier 1 (BridgeProbe, -Xcheck:jni, scanned)	2026-11-09T09:37:02.0455395Z ok   Wire.error: a nil message
+natives-windows-x86_64	Tier 1 (BridgeProbe, -Xcheck:jni, scanned)	2026-11-09T09:37:02.0455841Z ok   Wire.error: a string, level -1
+natives-windows-x86_64	Tier 1 (BridgeProbe, -Xcheck:jni, scanned)	2026-11-09T09:37:02.0462021Z ok   Wire.message(null): "(no message)", no traceback: "(no message)", tracebackAt -1
+natives-windows-x86_64	Tier 1 (BridgeProbe, -Xcheck:jni, scanned)	2026-11-09T09:37:02.0463330Z ok   Wire.message: with a traceback: "bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk", tracebackAt 16
+natives-windows-x86_64	Tier 1 (BridgeProbe, -Xcheck:jni, scanned)	2026-11-09T09:37:02.0464598Z ok   Wire.message: without a traceback (0xFFFFFFFF), Latin-1: "a\xe9", tracebackAt -1
+natives-windows-x86_64	Tier 1 (BridgeProbe, -Xcheck:jni, scanned)	2026-11-09T09:37:02.0465365Z ok   Wire.message: empty: "", tracebackAt -1
+natives-windows-x86_64	Tier 1 (BridgeProbe, -Xcheck:jni, scanned)	2026-11-09T09:37:02.0472330Z ok   Wire.message: malformed arrays throw IllegalStateException: []
+natives-windows-x86_64	Tier 1 (BridgeProbe, -Xcheck:jni, scanned)	2026-11-09T09:37:02.0473344Z ok   Wire.SpecWriter: two APIs, a module, the MAY_YIELD flag: 0200000001000000040000007465726d000100000005000000777269746500020000000100000061010000006201010000006d02000000010000007801010000... (67 bytes)
+natives-windows-x86_64	Tier 1 (BridgeProbe, -Xcheck:jni, scanned)	2026-11-09T09:37:02.0493391Z ok   Wire.SpecWriter: a method before any API: java.lang.IllegalStateException: wire: method x outside an API
+natives-windows-x86_64	Tier 1 (BridgeProbe, -Xcheck:jni, scanned)	2026-11-09T09:37:02.0494698Z ok   Wire.SpecWriter: a 257-byte name: java.lang.IllegalArgumentException: name longer than 256 bytes: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa...
+natives-windows-x86_64	Tier 1 (BridgeProbe, -Xcheck:jni, scanned)	2026-11-09T09:37:02.0507117Z ok   G1: created: live 1, idle
+natives-windows-x86_64	Tier 1 (BridgeProbe, -Xcheck:jni, scanned)	2026-11-09T09:37:02.0518144Z ok   G1: status ERROR: status 3
+natives-windows-x86_64	Tier 1 (BridgeProbe, -Xcheck:jni, scanned)	2026-11-09T09:37:02.0519149Z ok   G1: message: "bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk"
+natives-windows-x86_64	Tier 1 (BridgeProbe, -Xcheck:jni, scanned)	2026-11-09T09:37:02.0527632Z ok   G1: traceback offset 16: tracebackAt 16
+natives-windows-x86_64	Tier 1 (BridgeProbe, -Xcheck:jni, scanned)	2026-11-09T09:37:02.0528371Z ok   G1: not closed while running
+natives-windows-x86_64	Tier 1 (BridgeProbe, -Xcheck:jni, scanned)	2026-11-09T09:37:02.0528911Z ok   G1: term.write("hi") called once: 1 call(s), first ["hi"]
+natives-windows-x86_64	Tier 1 (BridgeProbe, -Xcheck:jni, scanned)	2026-11-09T09:37:02.0530245Z ok   G1: request bytes 01000000 04 02000000 6869: 0100000004020000006869
+natives-windows-x86_64	Tier 1 (BridgeProbe, -Xcheck:jni, scanned)	2026-11-09T09:37:02.0530877Z ok   G1: freed at the error: live 0, closed
+natives-windows-x86_64	Tier 1 (BridgeProbe, -Xcheck:jni, scanned)	2026-11-09T09:37:02.0531577Z ok   G1: resume after the end: java.lang.IllegalStateException: Machine has been closed
+natives-windows-x86_64	Tier 1 (BridgeProbe, -Xcheck:jni, scanned)	2026-11-09T09:37:02.0542243Z ok   G1: two more close() calls do nothing: live 0
+natives-windows-x86_64	Tier 1 (BridgeProbe, -Xcheck:jni, scanned)	2026-11-09T09:37:02.0543232Z ok   G1: checkOpen after the end: java.lang.IllegalStateException: Machine has been closed
+natives-windows-x86_64	Tier 1 (BridgeProbe, -Xcheck:jni, scanned)	2026-11-09T09:37:02.0558149Z ok   yield: status YIELD, no message, machine kept: status 1, idle
+natives-windows-x86_64	Tier 1 (BridgeProbe, -Xcheck:jni, scanned)	2026-11-09T09:37:02.0559718Z ok   yield: second resume runs on to the error: "after\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:4: in main chunk", 2 host calls
+natives-windows-x86_64	Tier 1 (BridgeProbe, -Xcheck:jni, scanned)	2026-11-09T09:37:02.0560909Z ok   return: status RETURNED, freed: status 2, ""
+natives-windows-x86_64	Tier 1 (BridgeProbe, -Xcheck:jni, scanned)	2026-11-09T09:37:02.0573655Z ok   empty bios: RETURNED: status 2
+natives-windows-x86_64	Tier 1 (BridgeProbe, -Xcheck:jni, scanned)	2026-11-09T09:37:02.0574472Z ok   non-null event: INTERNAL with its reason, freed (S1): status 4, "events are not implemented yet (S2)"
+natives-windows-x86_64	Tier 1 (BridgeProbe, -Xcheck:jni, scanned)	2026-11-09T09:37:02.0575498Z ok   non-null event: then closed: java.lang.IllegalStateException: Machine has been closed
+natives-windows-x86_64	Tier 1 (BridgeProbe, -Xcheck:jni, scanned)	2026-11-09T09:37:02.0603270Z ok   event over 16 MiB: INTERNAL with the fallback text of resume(), freed: status 4, "CCLuaJIT: the machine could not be resumed (status 4)"
+natives-windows-x86_64	Tier 1 (BridgeProbe, -Xcheck:jni, scanned)	2026-11-09T09:37:02.0604057Z ok   close() of an idle machine frees it
+natives-windows-x86_64	Tier 1 (BridgeProbe, -Xcheck:jni, scanned)	2026-11-09T09:37:02.0604379Z ok   close() of an idle machine frees it: freed: live 0
+natives-windows-x86_64	Tier 1 (BridgeProbe, -Xcheck:jni, scanned)	2026-11-09T09:37:02.0623758Z ok   load: syntax error: NativeMachineException("bios.lua:1: unexpected symbol near '='"), live 0
+natives-windows-x86_64	Tier 1 (BridgeProbe, -Xcheck:jni, scanned)	2026-11-09T09:37:02.0639628Z ok   load: binary chunk refused: NativeMachineException("attempt to load a binary chunk"), live 0
+natives-windows-x86_64	Tier 1 (BridgeProbe, -Xcheck:jni, scanned)	2026-11-09T09:37:02.0640829Z ok   load: corrupt spec: NativeMachineException("CCLuaJIT: corrupt API table description"), live 0
+natives-windows-x86_64	Tier 1 (BridgeProbe, -Xcheck:jni, scanned)	2026-11-09T09:37:02.0642318Z ok   load: a 257-byte API name: NativeMachineException("CCLuaJIT: corrupt API table description"), live 0
+natives-windows-x86_64	Tier 1 (BridgeProbe, -Xcheck:jni, scanned)	2026-11-09T09:37:02.0643057Z ok   load: memLimit 0: NativeMachineException("not enough memory"), live 0
+natives-windows-x86_64	Tier 1 (BridgeProbe, -Xcheck:jni, scanned)	2026-11-09T09:37:02.0659448Z ok   load: a 1-byte cap (below a fresh state) fails to load: NativeMachineException("not enough memory"), live 0
+natives-windows-x86_64	Tier 1 (BridgeProbe, -Xcheck:jni, scanned)	2026-11-09T09:37:02.0660671Z ok   host error levels 0, 1, 2, -1, 1000 and a nil message: "lvl|bios.lua:1: lvl|bios.lua:2: lvl|lvl|lvl|nil"
+natives-windows-x86_64	Tier 1 (BridgeProbe, -Xcheck:jni, scanned)	2026-11-09T09:37:02.0704013Z ok   Latin-1: bytes 0-255 from Java to Lua and back: ["\x00\x01\x02\x03\x04\x05\x06\x07\x08\t\n\x0b\x0c\x0d\x0e\x0f\x10\x11\x12\x13\x14\x15\x16\x17\x18\x19\x1a\x1b\x1c\x1d\x1e\x1f !"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~\x7f\x80\x81\x82\x83\x84\x85\x86\x87\x88\x89\x8a\x8b\x8c\x8d\x8e\x8f\x90\x91\x92... (256 chars)", 256.0, 0.0, 255.0, true]
+natives-windows-x86_64	Tier 1 (BridgeProbe, -Xcheck:jni, scanned)	2026-11-09T09:37:02.0706660Z ok   Latin-1: a char >= 256 and a surrogate pair reach Lua as '?': [4.0, 233.0, 63.0, 63.0, 63.0]
+natives-windows-x86_64	Tier 1 (BridgeProbe, -Xcheck:jni, scanned)	2026-11-09T09:37:02.0867705Z ok   a 70,000-byte error value is cut to 64 KiB, without a traceback: 65536 chars, tracebackAt -1
+natives-windows-x86_64	Tier 1 (BridgeProbe, -Xcheck:jni, scanned)	2026-11-09T09:37:02.0877517Z ok   a 60,000-byte error value keeps its traceback after it: 60070 chars, tracebackAt 60000
+natives-windows-x86_64	Tier 1 (BridgeProbe, -Xcheck:jni, scanned)	2026-11-09T09:37:02.0887816Z ok   a 100 MiB string.rep hits the 64 MiB cap; the machine goes on: "false not enough memory alive"
+natives-windows-x86_64	Tier 1 (BridgeProbe, -Xcheck:jni, scanned)	2026-11-09T09:37:02.0924417Z note: the RuntimeException and OutOfMemoryError stack traces on stderr are expected: the native side prints them (ExceptionDescribe)
+natives-windows-x86_64	Tier 1 (BridgeProbe, -Xcheck:jni, scanned)	2026-11-09T09:37:02.0925945Z Exception in thread "bridge-section" java.lang.RuntimeException: BridgeProbe: fake host failure (expected)
+natives-windows-x86_64	Tier 1 (BridgeProbe, -Xcheck:jni, scanned)	2026-11-09T09:37:02.0927258Z 	at io.github.mindbound.cclj.natives.BridgeProbe.lambda$testHostFailures$17(BridgeProbe.java:447)
+natives-windows-x86_64	Tier 1 (BridgeProbe, -Xcheck:jni, scanned)	2026-11-09T09:37:02.0928906Z 	at io.github.mindbound.cclj.natives.BridgeProbe$FakeHost.call(BridgeProbe.java:1255)
+natives-windows-x86_64	Tier 1 (BridgeProbe, -Xcheck:jni, scanned)	2026-11-09T09:37:02.0930226Z 	at io.github.mindbound.cclj.natives.NativeMachine.upcall(NativeMachine.java:197)
+natives-windows-x86_64	Tier 1 (BridgeProbe, -Xcheck:jni, scanned)	2026-11-09T09:37:02.0931197Z 	at io.github.mindbound.cclj.natives.NativeMachine.nResume(Native Method)
+natives-windows-x86_64	Tier 1 (BridgeProbe, -Xcheck:jni, scanned)	2026-11-09T09:37:02.0932157Z 	at io.github.mindbound.cclj.natives.NativeMachine.resume(NativeMachine.java:129)
+natives-windows-x86_64	Tier 1 (BridgeProbe, -Xcheck:jni, scanned)	2026-11-09T09:37:02.0934508Z 	at io.github.mindbound.cclj.natives.BridgeProbe.lambda$testHostFailures$22(BridgeProbe.java:467)
+natives-windows-x86_64	Tier 1 (BridgeProbe, -Xcheck:jni, scanned)	2026-11-09T09:37:02.0935730Z 	at io.github.mindbound.cclj.natives.BridgeProbe.captureErr(BridgeProbe.java:1333)
+natives-windows-x86_64	Tier 1 (BridgeProbe, -Xcheck:jni, scanned)	2026-11-09T09:37:02.0936827Z 	at io.github.mindbound.cclj.natives.BridgeProbe.testHostFailures(BridgeProbe.java:467)
+natives-windows-x86_64	Tier 1 (BridgeProbe, -Xcheck:jni, scanned)	2026-11-09T09:37:02.0937930Z 	at io.github.mindbound.cclj.natives.BridgeProbe.lambda$section$58(BridgeProbe.java:1281)
+natives-windows-x86_64	Tier 1 (BridgeProbe, -Xcheck:jni, scanned)	2026-11-09T09:37:02.0939120Z 	at java.base/java.lang.Thread.run(Thread.java:1583)
+natives-windows-x86_64	Tier 1 (BridgeProbe, -Xcheck:jni, scanned)	2026-11-09T09:37:02.0940780Z ok   host throws RuntimeException: uncaught, the fixed level-0 error: "CCLuaJIT: Java exception in host call\nstack traceback:\n\t[C]: in field 'f'\n\tbios.lua:1: in main chunk"
+natives-windows-x86_64	Tier 1 (BridgeProbe, -Xcheck:jni, scanned)	2026-11-09T09:37:02.0952234Z Exception in thread "bridge-section" java.lang.RuntimeException: BridgeProbe: fake host failure (expected)
+natives-windows-x86_64	Tier 1 (BridgeProbe, -Xcheck:jni, scanned)	2026-11-09T09:37:02.0953695Z 	at io.github.mindbound.cclj.natives.BridgeProbe.lambda$testHostFailures$17(BridgeProbe.java:447)
+natives-windows-x86_64	Tier 1 (BridgeProbe, -Xcheck:jni, scanned)	2026-11-09T09:37:02.0955204Z 	at io.github.mindbound.cclj.natives.BridgeProbe$FakeHost.call(BridgeProbe.java:1255)
+natives-windows-x86_64	Tier 1 (BridgeProbe, -Xcheck:jni, scanned)	2026-11-09T09:37:02.0956229Z 	at io.github.mindbound.cclj.natives.NativeMachine.upcall(NativeMachine.java:197)
+natives-windows-x86_64	Tier 1 (BridgeProbe, -Xcheck:jni, scanned)	2026-11-09T09:37:02.0957704Z 	at io.github.mindbound.cclj.natives.NativeMachine.nResume(Native Method)
+natives-windows-x86_64	Tier 1 (BridgeProbe, -Xcheck:jni, scanned)	2026-11-09T09:37:02.0958617Z 	at io.github.mindbound.cclj.natives.NativeMachine.resume(NativeMachine.java:129)
+natives-windows-x86_64	Tier 1 (BridgeProbe, -Xcheck:jni, scanned)	2026-11-09T09:37:02.0959474Z 	at io.github.mindbound.cclj.natives.BridgeProbe.lambda$testHostFailures$23(BridgeProbe.java:472)
+natives-windows-x86_64	Tier 1 (BridgeProbe, -Xcheck:jni, scanned)	2026-11-09T09:37:02.0960182Z 	at io.github.mindbound.cclj.natives.BridgeProbe.captureErr(BridgeProbe.java:1333)
+natives-windows-x86_64	Tier 1 (BridgeProbe, -Xcheck:jni, scanned)	2026-11-09T09:37:02.0961273Z 	at io.github.mindbound.cclj.natives.BridgeProbe.testHostFailures(BridgeProbe.java:471)
+natives-windows-x86_64	Tier 1 (BridgeProbe, -Xcheck:jni, scanned)	2026-11-09T09:37:02.0962849Z 	at io.github.mindbound.cclj.natives.BridgeProbe.lambda$section$58(BridgeProbe.java:1281)
+natives-windows-x86_64	Tier 1 (BridgeProbe, -Xcheck:jni, scanned)	2026-11-09T09:37:02.0963742Z 	at java.base/java.lang.Thread.run(Thread.java:1583)
+natives-windows-x86_64	Tier 1 (BridgeProbe, -Xcheck:jni, scanned)	2026-11-09T09:37:02.0965253Z ok   host throws RuntimeException: under pcall, the machine goes on: "false|CCLuaJIT: Java exception in host call\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk", after() called 1 time(s)
+natives-windows-x86_64	Tier 1 (BridgeProbe, -Xcheck:jni, scanned)	2026-11-09T09:37:02.0994283Z ok   host throws RuntimeException: printed to System.err once per call (ExceptionDescribe): 2 of 2 times, 1830 chars on System.err
+natives-windows-x86_64	Tier 1 (BridgeProbe, -Xcheck:jni, scanned)	2026-11-09T09:37:02.0995640Z Exception in thread "bridge-section" java.lang.OutOfMemoryError: fake
+natives-windows-x86_64	Tier 1 (BridgeProbe, -Xcheck:jni, scanned)	2026-11-09T09:37:02.0996729Z 	at io.github.mindbound.cclj.natives.BridgeProbe.lambda$testHostFailures$18(BridgeProbe.java:450)
+natives-windows-x86_64	Tier 1 (BridgeProbe, -Xcheck:jni, scanned)	2026-11-09T09:37:02.0997853Z 	at io.github.mindbound.cclj.natives.BridgeProbe$FakeHost.call(BridgeProbe.java:1255)
+natives-windows-x86_64	Tier 1 (BridgeProbe, -Xcheck:jni, scanned)	2026-11-09T09:37:02.0998889Z 	at io.github.mindbound.cclj.natives.NativeMachine.upcall(NativeMachine.java:197)
+natives-windows-x86_64	Tier 1 (BridgeProbe, -Xcheck:jni, scanned)	2026-11-09T09:37:02.0999854Z 	at io.github.mindbound.cclj.natives.NativeMachine.nResume(Native Method)
+natives-windows-x86_64	Tier 1 (BridgeProbe, -Xcheck:jni, scanned)	2026-11-09T09:37:02.1000836Z 	at io.github.mindbound.cclj.natives.NativeMachine.resume(NativeMachine.java:129)
+natives-windows-x86_64	Tier 1 (BridgeProbe, -Xcheck:jni, scanned)	2026-11-09T09:37:02.1002208Z 	at io.github.mindbound.cclj.natives.BridgeProbe.lambda$testHostFailures$22(BridgeProbe.java:467)
+natives-windows-x86_64	Tier 1 (BridgeProbe, -Xcheck:jni, scanned)	2026-11-09T09:37:02.1003691Z 	at io.github.mindbound.cclj.natives.BridgeProbe.captureErr(BridgeProbe.java:1333)
+natives-windows-x86_64	Tier 1 (BridgeProbe, -Xcheck:jni, scanned)	2026-11-09T09:37:02.1004786Z 	at io.github.mindbound.cclj.natives.BridgeProbe.testHostFailures(BridgeProbe.java:467)
+natives-windows-x86_64	Tier 1 (BridgeProbe, -Xcheck:jni, scanned)	2026-11-09T09:37:02.1005824Z 	at io.github.mindbound.cclj.natives.BridgeProbe.lambda$section$58(BridgeProbe.java:1281)
+natives-windows-x86_64	Tier 1 (BridgeProbe, -Xcheck:jni, scanned)	2026-11-09T09:37:02.1006653Z 	at java.base/java.lang.Thread.run(Thread.java:1583)
+natives-windows-x86_64	Tier 1 (BridgeProbe, -Xcheck:jni, scanned)	2026-11-09T09:37:02.1007962Z ok   host throws new OutOfMemoryError("fake"): uncaught, the fixed level-0 error: "CCLuaJIT: Java exception in host call\nstack traceback:\n\t[C]: in field 'f'\n\tbios.lua:1: in main chunk"
+natives-windows-x86_64	Tier 1 (BridgeProbe, -Xcheck:jni, scanned)	2026-11-09T09:37:02.1009358Z Exception in thread "bridge-section" java.lang.OutOfMemoryError: fake
+natives-windows-x86_64	Tier 1 (BridgeProbe, -Xcheck:jni, scanned)	2026-11-09T09:37:02.1010320Z 	at io.github.mindbound.cclj.natives.BridgeProbe.lambda$testHostFailures$18(BridgeProbe.java:450)
+natives-windows-x86_64	Tier 1 (BridgeProbe, -Xcheck:jni, scanned)	2026-11-09T09:37:02.1011380Z 	at io.github.mindbound.cclj.natives.BridgeProbe$FakeHost.call(BridgeProbe.java:1255)
+natives-windows-x86_64	Tier 1 (BridgeProbe, -Xcheck:jni, scanned)	2026-11-09T09:37:02.1012579Z 	at io.github.mindbound.cclj.natives.NativeMachine.upcall(NativeMachine.java:197)
+natives-windows-x86_64	Tier 1 (BridgeProbe, -Xcheck:jni, scanned)	2026-11-09T09:37:02.1013490Z 	at io.github.mindbound.cclj.natives.NativeMachine.nResume(Native Method)
+natives-windows-x86_64	Tier 1 (BridgeProbe, -Xcheck:jni, scanned)	2026-11-09T09:37:02.1014356Z 	at io.github.mindbound.cclj.natives.NativeMachine.resume(NativeMachine.java:129)
+natives-windows-x86_64	Tier 1 (BridgeProbe, -Xcheck:jni, scanned)	2026-11-09T09:37:02.1015685Z 	at io.github.mindbound.cclj.natives.BridgeProbe.lambda$testHostFailures$23(BridgeProbe.java:472)
+natives-windows-x86_64	Tier 1 (BridgeProbe, -Xcheck:jni, scanned)	2026-11-09T09:37:02.1016749Z 	at io.github.mindbound.cclj.natives.BridgeProbe.captureErr(BridgeProbe.java:1333)
+natives-windows-x86_64	Tier 1 (BridgeProbe, -Xcheck:jni, scanned)	2026-11-09T09:37:02.1017767Z 	at io.github.mindbound.cclj.natives.BridgeProbe.testHostFailures(BridgeProbe.java:471)
+natives-windows-x86_64	Tier 1 (BridgeProbe, -Xcheck:jni, scanned)	2026-11-09T09:37:02.1018801Z 	at io.github.mindbound.cclj.natives.BridgeProbe.lambda$section$58(BridgeProbe.java:1281)
+natives-windows-x86_64	Tier 1 (BridgeProbe, -Xcheck:jni, scanned)	2026-11-09T09:37:02.1019615Z 	at java.base/java.lang.Thread.run(Thread.java:1583)
+natives-windows-x86_64	Tier 1 (BridgeProbe, -Xcheck:jni, scanned)	2026-11-09T09:37:02.1021089Z ok   host throws new OutOfMemoryError("fake"): under pcall, the machine goes on: "false|CCLuaJIT: Java exception in host call\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk", after() called 1 time(s)
+natives-windows-x86_64	Tier 1 (BridgeProbe, -Xcheck:jni, scanned)	2026-11-09T09:37:02.1023270Z ok   host throws new OutOfMemoryError("fake"): printed to System.err once per call (ExceptionDescribe): 2 of 2 times, 1756 chars on System.err
+natives-windows-x86_64	Tier 1 (BridgeProbe, -Xcheck:jni, scanned)	2026-11-09T09:37:02.1024902Z ok   host returns null: uncaught, the fixed level-0 error: "CCLuaJIT: host call returned null\nstack traceback:\n\t[C]: in field 'f'\n\tbios.lua:1: in main chunk"
+natives-windows-x86_64	Tier 1 (BridgeProbe, -Xcheck:jni, scanned)	2026-11-09T09:37:02.1026777Z ok   host returns null: under pcall, the machine goes on: "false|CCLuaJIT: host call returned null\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk", after() called 1 time(s)
+natives-windows-x86_64	Tier 1 (BridgeProbe, -Xcheck:jni, scanned)	2026-11-09T09:37:02.1028115Z ok   host returns null: nothing printed to System.err: ""
+natives-windows-x86_64	Tier 1 (BridgeProbe, -Xcheck:jni, scanned)	2026-11-09T09:37:02.1053610Z ok   host returns 16 MiB + 1 byte: uncaught, the fixed level-0 error: "CCLuaJIT: host reply too large\nstack traceback:\n\t[C]: in field 'f'\n\tbios.lua:1: in main chunk"
+natives-windows-x86_64	Tier 1 (BridgeProbe, -Xcheck:jni, scanned)	2026-11-09T09:37:02.1073487Z ok   host returns 16 MiB + 1 byte: under pcall, the machine goes on: "false|CCLuaJIT: host reply too large\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk", after() called 1 time(s)
+natives-windows-x86_64	Tier 1 (BridgeProbe, -Xcheck:jni, scanned)	2026-11-09T09:37:02.1075702Z ok   host returns 16 MiB + 1 byte: nothing printed to System.err: ""
+natives-windows-x86_64	Tier 1 (BridgeProbe, -Xcheck:jni, scanned)	2026-11-09T09:37:02.2432451Z ok   random replies: 17 fixed and 10,000 seeded random replies, as the Java model predicts: 10017 reported, 2373 values, 1064 errors, 6580 corrupt, 0 mismatches; machine: "done\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk"
+natives-windows-x86_64	Tier 1 (BridgeProbe, -Xcheck:jni, scanned)	2026-11-09T09:37:02.2446250Z ok   re-entrant resume from the host: IllegalStateException, as a Lua error: "Java Exception Thrown: java.lang.IllegalStateException: Machine is already running"
+natives-windows-x86_64	Tier 1 (BridgeProbe, -Xcheck:jni, scanned)	2026-11-09T09:37:02.2493651Z ok   close() inside an upcall: deferred to the end of the resume: status 1, closedWhileRunning true, live inside 1, after 0
+natives-windows-x86_64	Tier 1 (BridgeProbe, -Xcheck:jni, scanned)	2026-11-09T09:37:02.2602768Z ok   close() from another thread while the host blocks: the free is deferred: live 1 (1 expected), closed
+natives-windows-x86_64	Tier 1 (BridgeProbe, -Xcheck:jni, scanned)	2026-11-09T09:37:02.2771429Z ok   close() while running: a second resume throws: java.lang.IllegalStateException: Machine has been closed
+natives-windows-x86_64	Tier 1 (BridgeProbe, -Xcheck:jni, scanned)	2026-11-09T09:37:02.2772916Z ok   close() while running: the resume returns, closedWhileRunning, freed by the worker: status 1, closedWhileRunning true, error null, live 0
+natives-windows-x86_64	Tier 1 (BridgeProbe, -Xcheck:jni, scanned)	2026-11-09T09:37:02.2774893Z ok   close() while running: LIVE == 0 at the end: live 0
+natives-windows-x86_64	Tier 1 (BridgeProbe, -Xcheck:jni, scanned)	2026-11-09T09:37:02.2914584Z ok   create on thread A, resume on B, close on C: resume status 1, host calls on [bridge-B], live 0
+natives-windows-x86_64	Tier 1 (BridgeProbe, -Xcheck:jni, scanned)	2026-11-09T09:37:02.2939158Z ok   create on A, resume on B, resume to the error (and the free) on C: status 3, host calls on [bridge-B, bridge-C], live 0
+natives-windows-x86_64	Tier 1 (BridgeProbe, -Xcheck:jni, scanned)	2026-11-09T09:37:02.5914554Z ok   close() racing resume, 300 rounds: one free each, no leak; some during the resume, some outside it: close() came before the resume 53 times, during it 239 (closedWhileRunning), after it 8
+natives-windows-x86_64	Tier 1 (BridgeProbe, -Xcheck:jni, scanned)	2026-11-09T09:37:02.8661689Z ok   local references: 100000 upcalls of 4 KiB each way in one resume; heap below baseline + 32 MiB: baseline 1.8 MiB, in the last upcall after System.gc() 1.9 MiB (+0.0 MiB), 100000 calls in 247 ms; machine: "done\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:4: in main chunk"
+natives-windows-x86_64	Tier 1 (BridgeProbe, -Xcheck:jni, scanned)	2026-11-09T09:37:03.7426634Z ok   ns per call measured: 5 runs of 200000 calls
+natives-windows-x86_64	Tier 1 (BridgeProbe, -Xcheck:jni, scanned)	2026-11-09T09:37:03.7427515Z ns per call: 779.0 (median of 5 runs of 200000 calls of t.echo("hello"), a string in and a string out, decoded and encoded by Wire; -Xcheck:jni on; runs: 777.5 783.4 779.0 781.0 774.7)
+natives-windows-x86_64	Tier 1 (BridgeProbe, -Xcheck:jni, scanned)	2026-11-09T09:37:03.8676582Z ok   JNI failure: a request the full Java heap cannot hold gives the fixed level-0 error, uncaught: status 3, "CCLuaJIT: JNI failure in host call\nstack traceback:\n\t[C]: in field 'big'\n\tbios.lua:3: in main chunk"
+natives-windows-x86_64	Tier 1 (BridgeProbe, -Xcheck:jni, scanned)	2026-11-09T09:37:03.9660382Z ok   JNI failure: under pcall, the machine goes on: status 3, "false|CCLuaJIT: JNI failure in host call\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:5: in main chunk"
+natives-windows-x86_64	Tier 1 (BridgeProbe, -Xcheck:jni, scanned)	2026-11-09T09:37:03.9812356Z note: for the 128 host exceptions below, ExceptionDescribe writes "Exception in thread ..." to stderr each time (one long line, expected); their text is captured and counted
+natives-windows-x86_64	Tier 1 (BridgeProbe, -Xcheck:jni, scanned)	2026-11-09T09:37:04.0377387Z ok   local references, null exit: 128 failing upcalls of 448 KiB; heap below baseline + 16 MiB; nothing printed: baseline 18.7 MiB, in the last upcall after System.gc() 18.7 MiB (+0.0 MiB), 128 calls, 0 printed to System.err; machine: "done\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:8: in main chunk"
+natives-windows-x86_64	Tier 1 (BridgeProbe, -Xcheck:jni, scanned)	2026-11-09T09:37:04.0828628Z Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" 
+natives-windows-x86_64	Tier 1 (BridgeProbe, -Xcheck:jni, scanned)	2026-11-09T09:37:04.0853053Z ok   local references, exception exit: 128 failing upcalls of 448 KiB; heap below baseline + 16 MiB; each exception printed once: baseline 18.7 MiB, in the last upcall after System.gc() 18.8 MiB (+0.0 MiB), 128 calls, 128 printed to System.err; machine: "done\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:8: in main chunk"
+natives-windows-x86_64	Tier 1 (BridgeProbe, -Xcheck:jni, scanned)	2026-11-09T09:37:04.1168729Z ok   local references, 16 MiB + 1 byte exit: 128 failing upcalls of 448 KiB; heap below baseline + 16 MiB; nothing printed: baseline 18.7 MiB, in the last upcall after System.gc() 18.7 MiB (+0.0 MiB), 128 calls, 0 printed to System.err; machine: "done\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:8: in main chunk"
+natives-windows-x86_64	Tier 1 (BridgeProbe, -Xcheck:jni, scanned)	2026-11-09T09:37:04.1322864Z ok   no machine left: live 0, leaked 0
+natives-windows-x86_64	Tier 1 (BridgeProbe, -Xcheck:jni, scanned)	2026-11-09T09:37:04.1323472Z bridgeProbe: 88 checks, 0 failed
+natives-windows-x86_64	Tier 1 (BridgeProbe, -Xcheck:jni, scanned)	2026-11-09T09:37:04.1323976Z bridgeProbe: OK
+natives-windows-x86_64	Tier 1 (BridgeProbe, -Xcheck:jni, scanned)	2026-11-09T09:37:04.2441848Z jni-scan: OK, none of the 4 patterns in 1 log(s): natives/build/bridge-probe/bridge-probe.log
+natives-windows-x86_64	Run actions/upload-artifact@v7	﻿2026-11-09T09:37:04.2833491Z ##[group]Run actions/upload-artifact@v7
+natives-windows-x86_64	Run actions/upload-artifact@v7	2026-11-09T09:37:04.2833967Z with:
+natives-windows-x86_64	Run actions/upload-artifact@v7	2026-11-09T09:37:04.2834167Z   name: natives-windows-x86_64
+natives-windows-x86_64	Run actions/upload-artifact@v7	2026-11-09T09:37:04.2834398Z   path: natives/build/out/
+natives-windows-x86_64	Run actions/upload-artifact@v7	2026-11-09T09:37:04.2834607Z   if-no-files-found: error
+natives-windows-x86_64	Run actions/upload-artifact@v7	2026-11-09T09:37:04.2834819Z   compression-level: 6
+natives-windows-x86_64	Run actions/upload-artifact@v7	2026-11-09T09:37:04.2835022Z   overwrite: false
+natives-windows-x86_64	Run actions/upload-artifact@v7	2026-11-09T09:37:04.2835208Z   include-hidden-files: false
+natives-windows-x86_64	Run actions/upload-artifact@v7	2026-11-09T09:37:04.2835415Z   archive: true
+natives-windows-x86_64	Run actions/upload-artifact@v7	2026-11-09T09:37:04.2835578Z env:
+natives-windows-x86_64	Run actions/upload-artifact@v7	2026-11-09T09:37:04.2835873Z   JAVA_HOME: C:\hostedtoolcache\windows\Java_Temurin-Hotspot_jdk\21.0.13-9.0\x64
+natives-windows-x86_64	Run actions/upload-artifact@v7	2026-11-09T09:37:04.2836393Z   JAVA_HOME_21_X64: C:\hostedtoolcache\windows\Java_Temurin-Hotspot_jdk\21.0.13-9.0\x64
+natives-windows-x86_64	Run actions/upload-artifact@v7	2026-11-09T09:37:04.2836777Z   MAVEN_ARGS: -ntp
+natives-windows-x86_64	Run actions/upload-artifact@v7	2026-11-09T09:37:04.2836955Z   MSYSTEM: MINGW64
+natives-windows-x86_64	Run actions/upload-artifact@v7	2026-11-09T09:37:04.2837132Z ##[endgroup]
+natives-windows-x86_64	Run actions/upload-artifact@v7	2026-11-09T09:37:04.4655037Z With the provided path, there will be 3 files uploaded
+natives-windows-x86_64	Run actions/upload-artifact@v7	2026-11-09T09:37:04.4660443Z Artifact name is valid!
+natives-windows-x86_64	Run actions/upload-artifact@v7	2026-11-09T09:37:04.4662193Z Root directory input is valid!
+natives-windows-x86_64	Run actions/upload-artifact@v7	2026-11-09T09:37:04.6909125Z Uploading artifact: natives-windows-x86_64.zip
+natives-windows-x86_64	Run actions/upload-artifact@v7	2026-11-09T09:37:04.6951370Z Beginning upload of artifact content to blob storage
+natives-windows-x86_64	Run actions/upload-artifact@v7	2026-11-09T09:37:04.8367760Z Uploaded bytes 274367
+natives-windows-x86_64	Run actions/upload-artifact@v7	2026-11-09T09:37:04.8489197Z Finished uploading artifact content to blob storage!
+natives-windows-x86_64	Run actions/upload-artifact@v7	2026-11-09T09:37:04.8490522Z SHA256 digest of uploaded artifact is 48b6f1b4ae47d4889338cd81867e02d4b5ea5cda697b6ed6f6773a217a0950cb
+natives-windows-x86_64	Run actions/upload-artifact@v7	2026-11-09T09:37:04.8491644Z Finalizing artifact upload
+natives-windows-x86_64	Run actions/upload-artifact@v7	2026-11-09T09:37:05.2553665Z Artifact natives-windows-x86_64 successfully finalized. Artifact ID 13662229509
+natives-windows-x86_64	Run actions/upload-artifact@v7	2026-11-09T09:37:05.2554692Z Artifact natives-windows-x86_64 has been successfully uploaded! Final size is 274367 bytes. Artifact ID is 13662229509
+natives-windows-x86_64	Run actions/upload-artifact@v7	2026-11-09T09:37:05.2563204Z Artifact download URL: https://github.com/mindbound/CCLuaJIT/actions/runs/42593991784/artifacts/13662229509
+natives-windows-x86_64	Upload logs	﻿2026-11-09T09:37:05.3032020Z ##[group]Run actions/upload-artifact@v7
+natives-windows-x86_64	Upload logs	2026-11-09T09:37:05.3032388Z with:
+natives-windows-x86_64	Upload logs	2026-11-09T09:37:05.3032605Z   name: logs-natives-windows-x86_64
+natives-windows-x86_64	Upload logs	2026-11-09T09:37:05.3033940Z   path: natives/build/windows-x86_64/luajit-build.log
+natives-windows-x86_64	Upload logs	natives/build/windows-x86_64/luajit/cclj-build.txt
+natives-windows-x86_64	Upload logs	natives/build/windows-x86_64/harnesses/results/
+natives-windows-x86_64	Upload logs	natives/build/windows-x86_64/luajit-assert-build.log
+natives-windows-x86_64	Upload logs	natives/build/windows-x86_64/machine-test/*.log
+natives-windows-x86_64	Upload logs	natives/build/probe/*.log
+natives-windows-x86_64	Upload logs	natives/build/bridge-probe/*.log
+natives-windows-x86_64	Upload logs	hs_err_pid*.log
+natives-windows-x86_64	Upload logs	replay_pid*.log
+natives-windows-x86_64	Upload logs	
+natives-windows-x86_64	Upload logs	2026-11-09T09:37:05.3035564Z   if-no-files-found: ignore
+natives-windows-x86_64	Upload logs	2026-11-09T09:37:05.3035788Z   retention-days: 14
+natives-windows-x86_64	Upload logs	2026-11-09T09:37:05.3035996Z   compression-level: 6
+natives-windows-x86_64	Upload logs	2026-11-09T09:37:05.3036283Z   overwrite: false
+natives-windows-x86_64	Upload logs	2026-11-09T09:37:05.3036646Z   include-hidden-files: false
+natives-windows-x86_64	Upload logs	2026-11-09T09:37:05.3036874Z   archive: true
+natives-windows-x86_64	Upload logs	2026-11-09T09:37:05.3037052Z env:
+natives-windows-x86_64	Upload logs	2026-11-09T09:37:05.3037354Z   JAVA_HOME: C:\hostedtoolcache\windows\Java_Temurin-Hotspot_jdk\21.0.13-9.0\x64
+natives-windows-x86_64	Upload logs	2026-11-09T09:37:05.3037885Z   JAVA_HOME_21_X64: C:\hostedtoolcache\windows\Java_Temurin-Hotspot_jdk\21.0.13-9.0\x64
+natives-windows-x86_64	Upload logs	2026-11-09T09:37:05.3038320Z   MAVEN_ARGS: -ntp
+natives-windows-x86_64	Upload logs	2026-11-09T09:37:05.3038502Z   MSYSTEM: MINGW64
+natives-windows-x86_64	Upload logs	2026-11-09T09:37:05.3038676Z ##[endgroup]
+natives-windows-x86_64	Upload logs	2026-11-09T09:37:05.5246413Z With the provided path, there will be 17 files uploaded
+natives-windows-x86_64	Upload logs	2026-11-09T09:37:05.5253162Z Artifact name is valid!
+natives-windows-x86_64	Upload logs	2026-11-09T09:37:05.5254806Z Root directory input is valid!
+natives-windows-x86_64	Upload logs	2026-11-09T09:37:05.7290681Z Uploading artifact: logs-natives-windows-x86_64.zip
+natives-windows-x86_64	Upload logs	2026-11-09T09:37:05.7332710Z Beginning upload of artifact content to blob storage
+natives-windows-x86_64	Upload logs	2026-11-09T09:37:05.8180764Z Uploaded bytes 21107
+natives-windows-x86_64	Upload logs	2026-11-09T09:37:05.8302513Z Finished uploading artifact content to blob storage!
+natives-windows-x86_64	Upload logs	2026-11-09T09:37:05.8303716Z SHA256 digest of uploaded artifact is a40b929932631ab0cea63371bbacc8431399c27445e51fc5f9f1f8ca8acc52d4
+natives-windows-x86_64	Upload logs	2026-11-09T09:37:05.8304817Z Finalizing artifact upload
+natives-windows-x86_64	Upload logs	2026-11-09T09:37:06.2229297Z Artifact logs-natives-windows-x86_64 successfully finalized. Artifact ID 13663410438
+natives-windows-x86_64	Upload logs	2026-11-09T09:37:06.2230366Z Artifact logs-natives-windows-x86_64 has been successfully uploaded! Final size is 21107 bytes. Artifact ID is 13663410438
+natives-windows-x86_64	Upload logs	2026-11-09T09:37:06.2238399Z Artifact download URL: https://github.com/mindbound/CCLuaJIT/actions/runs/42593991784/artifacts/13663410438
+natives-windows-x86_64	Post Run actions/setup-java@v6	﻿2026-11-09T09:37:06.3136037Z Post job cleanup.
+natives-windows-x86_64	Post Run actions/checkout@v7	﻿2026-11-09T09:37:06.4779001Z Post job cleanup.
+natives-windows-x86_64	Post Run actions/checkout@v7	2026-11-09T09:37:06.7081412Z [command]"C:\Program Files\Git\bin\git.exe" version
+natives-windows-x86_64	Post Run actions/checkout@v7	2026-11-09T09:37:06.7442754Z git version 2.56.0.windows.4
+natives-windows-x86_64	Post Run actions/checkout@v7	2026-11-09T09:37:06.7513610Z Temporarily overriding HOME='D:\a\_temp\752dca25-2245-4394-a7ba-0db477d0f597' before making global git config changes
+natives-windows-x86_64	Post Run actions/checkout@v7	2026-11-09T09:37:06.7514804Z Adding repository directory to the temporary git global config as a safe directory
+natives-windows-x86_64	Post Run actions/checkout@v7	2026-11-09T09:37:06.7524778Z [command]"C:\Program Files\Git\bin\git.exe" config --global --add safe.directory D:\a\CCLuaJIT\CCLuaJIT
+natives-windows-x86_64	Post Run actions/checkout@v7	2026-11-09T09:37:06.7911385Z Removing SSH command configuration
+natives-windows-x86_64	Post Run actions/checkout@v7	2026-11-09T09:37:06.7922769Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp core\.sshCommand
+natives-windows-x86_64	Post Run actions/checkout@v7	2026-11-09T09:37:06.8325410Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "sh -c \"git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :\""
+natives-windows-x86_64	Post Run actions/checkout@v7	2026-11-09T09:37:07.4058367Z Entering 'vendor/luajit'
+natives-windows-x86_64	Post Run actions/checkout@v7	2026-11-09T09:37:07.4975254Z Removing HTTP extra header
+natives-windows-x86_64	Post Run actions/checkout@v7	2026-11-09T09:37:07.4985481Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+natives-windows-x86_64	Post Run actions/checkout@v7	2026-11-09T09:37:07.5363553Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "sh -c \"git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :\""
+natives-windows-x86_64	Post Run actions/checkout@v7	2026-11-09T09:37:08.0422617Z Entering 'vendor/luajit'
+natives-windows-x86_64	Post Run actions/checkout@v7	2026-11-09T09:37:08.1335488Z Removing includeIf entries pointing to credentials config files
+natives-windows-x86_64	Post Run actions/checkout@v7	2026-11-09T09:37:08.1346708Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp ^includeIf\.gitdir:
+natives-windows-x86_64	Post Run actions/checkout@v7	2026-11-09T09:37:08.1682180Z includeif.gitdir:D:/a/CCLuaJIT/CCLuaJIT/.git.path
+natives-windows-x86_64	Post Run actions/checkout@v7	2026-11-09T09:37:08.1682816Z includeif.gitdir:D:/a/CCLuaJIT/CCLuaJIT/.git/worktrees/*.path
+natives-windows-x86_64	Post Run actions/checkout@v7	2026-11-09T09:37:08.1684034Z includeif.gitdir:/github/workspace/.git.path
+natives-windows-x86_64	Post Run actions/checkout@v7	2026-11-09T09:37:08.1684514Z includeif.gitdir:/github/workspace/.git/worktrees/*.path
+natives-windows-x86_64	Post Run actions/checkout@v7	2026-11-09T09:37:08.1723050Z [command]"C:\Program Files\Git\bin\git.exe" config --local --get-all includeif.gitdir:D:/a/CCLuaJIT/CCLuaJIT/.git.path
+natives-windows-x86_64	Post Run actions/checkout@v7	2026-11-09T09:37:08.2051225Z D:\a\_temp\git-credentials-c30d09fa-20e0-4dbb-a009-d8a764d2df20.config
+natives-windows-x86_64	Post Run actions/checkout@v7	2026-11-09T09:37:08.2099957Z [command]"C:\Program Files\Git\bin\git.exe" config --local --unset includeif.gitdir:D:/a/CCLuaJIT/CCLuaJIT/.git.path D\:\\a\\_temp\\git\-credentials\-c30d09fa\-20e0\-4dbb\-a009\-d8a764d2df20\.config
+natives-windows-x86_64	Post Run actions/checkout@v7	2026-11-09T09:37:08.2519403Z [command]"C:\Program Files\Git\bin\git.exe" config --local --get-all includeif.gitdir:D:/a/CCLuaJIT/CCLuaJIT/.git/worktrees/*.path
+natives-windows-x86_64	Post Run actions/checkout@v7	2026-11-09T09:37:08.2856869Z D:\a\_temp\git-credentials-c30d09fa-20e0-4dbb-a009-d8a764d2df20.config
+natives-windows-x86_64	Post Run actions/checkout@v7	2026-11-09T09:37:08.2901212Z [command]"C:\Program Files\Git\bin\git.exe" config --local --unset includeif.gitdir:D:/a/CCLuaJIT/CCLuaJIT/.git/worktrees/*.path D\:\\a\\_temp\\git\-credentials\-c30d09fa\-20e0\-4dbb\-a009\-d8a764d2df20\.config
+natives-windows-x86_64	Post Run actions/checkout@v7	2026-11-09T09:37:08.3339349Z [command]"C:\Program Files\Git\bin\git.exe" config --local --get-all includeif.gitdir:/github/workspace/.git.path
+natives-windows-x86_64	Post Run actions/checkout@v7	2026-11-09T09:37:08.3673970Z /github/runner_temp/git-credentials-c30d09fa-20e0-4dbb-a009-d8a764d2df20.config
+natives-windows-x86_64	Post Run actions/checkout@v7	2026-11-09T09:37:08.3718098Z [command]"C:\Program Files\Git\bin\git.exe" config --local --unset includeif.gitdir:/github/workspace/.git.path \/github\/runner_temp\/git\-credentials\-c30d09fa\-20e0\-4dbb\-a009\-d8a764d2df20\.config
+natives-windows-x86_64	Post Run actions/checkout@v7	2026-11-09T09:37:08.4103480Z [command]"C:\Program Files\Git\bin\git.exe" config --local --get-all includeif.gitdir:/github/workspace/.git/worktrees/*.path
+natives-windows-x86_64	Post Run actions/checkout@v7	2026-11-09T09:37:08.4431379Z /github/runner_temp/git-credentials-c30d09fa-20e0-4dbb-a009-d8a764d2df20.config
+natives-windows-x86_64	Post Run actions/checkout@v7	2026-11-09T09:37:08.4473235Z [command]"C:\Program Files\Git\bin\git.exe" config --local --unset includeif.gitdir:/github/workspace/.git/worktrees/*.path \/github\/runner_temp\/git\-credentials\-c30d09fa\-20e0\-4dbb\-a009\-d8a764d2df20\.config
+natives-windows-x86_64	Post Run actions/checkout@v7	2026-11-09T09:37:08.4841676Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "git config --local --show-origin --name-only --get-regexp remote.origin.url"
+natives-windows-x86_64	Post Run actions/checkout@v7	2026-11-09T09:37:09.0270744Z Entering 'vendor/luajit'
+natives-windows-x86_64	Post Run actions/checkout@v7	2026-11-09T09:37:09.0635857Z file:D:/a/CCLuaJIT/CCLuaJIT/.git/modules/luajit/config	remote.origin.url
+natives-windows-x86_64	Post Run actions/checkout@v7	2026-11-09T09:37:09.0898719Z [command]"C:\Program Files\Git\bin\git.exe" config --file D:/a/CCLuaJIT/CCLuaJIT/.git/modules/luajit/config --name-only --get-regexp ^includeIf\.gitdir:
+natives-windows-x86_64	Post Run actions/checkout@v7	2026-11-09T09:37:09.1219586Z includeif.gitdir:D:/a/CCLuaJIT/CCLuaJIT/.git/modules/luajit.path
+natives-windows-x86_64	Post Run actions/checkout@v7	2026-11-09T09:37:09.1220410Z includeif.gitdir:/github/workspace/.git/modules/luajit.path
+natives-windows-x86_64	Post Run actions/checkout@v7	2026-11-09T09:37:09.1259195Z [command]"C:\Program Files\Git\bin\git.exe" config --file D:/a/CCLuaJIT/CCLuaJIT/.git/modules/luajit/config --get-all includeif.gitdir:D:/a/CCLuaJIT/CCLuaJIT/.git/modules/luajit.path
+natives-windows-x86_64	Post Run actions/checkout@v7	2026-11-09T09:37:09.1579117Z D:\a\_temp\git-credentials-c30d09fa-20e0-4dbb-a009-d8a764d2df20.config
+natives-windows-x86_64	Post Run actions/checkout@v7	2026-11-09T09:37:09.1617425Z [command]"C:\Program Files\Git\bin\git.exe" config --file D:/a/CCLuaJIT/CCLuaJIT/.git/modules/luajit/config --unset includeif.gitdir:D:/a/CCLuaJIT/CCLuaJIT/.git/modules/luajit.path D\:\\a\\_temp\\git\-credentials\-c30d09fa\-20e0\-4dbb\-a009\-d8a764d2df20\.config
+natives-windows-x86_64	Post Run actions/checkout@v7	2026-11-09T09:37:09.1983778Z [command]"C:\Program Files\Git\bin\git.exe" config --file D:/a/CCLuaJIT/CCLuaJIT/.git/modules/luajit/config --get-all includeif.gitdir:/github/workspace/.git/modules/luajit.path
+natives-windows-x86_64	Post Run actions/checkout@v7	2026-11-09T09:37:09.2303769Z /github/runner_temp/git-credentials-c30d09fa-20e0-4dbb-a009-d8a764d2df20.config
+natives-windows-x86_64	Post Run actions/checkout@v7	2026-11-09T09:37:09.2343201Z [command]"C:\Program Files\Git\bin\git.exe" config --file D:/a/CCLuaJIT/CCLuaJIT/.git/modules/luajit/config --unset includeif.gitdir:/github/workspace/.git/modules/luajit.path \/github\/runner_temp\/git\-credentials\-c30d09fa\-20e0\-4dbb\-a009\-d8a764d2df20\.config
+natives-windows-x86_64	Post Run actions/checkout@v7	2026-11-09T09:37:09.2701468Z Removing credentials config 'D:\a\_temp\git-credentials-c30d09fa-20e0-4dbb-a009-d8a764d2df20.config'
+natives-windows-x86_64	Complete job	﻿2026-11-09T09:37:09.2896327Z Cleaning up orphan processes

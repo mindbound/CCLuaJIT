@@ -1,0 +1,22 @@
+== lint-natives for linux-x86_64
+   sources: <repo>/natives/src
+   objects: <repo>/natives/build/linux-x86_64/obj
+   library: <repo>/natives/build/out/natives/linux-x86_64/libcclj.so (DEBUG build: <repo>/natives/build/out/natives/linux-x86_64/DEBUG-BUILD.txt)
+== include graph
+  PASS  machine.c does not include jni.h
+  PASS  cclj_machine.h does not include jni.h
+  PASS  jni_machine.c includes none of lua.h, lauxlib.h, lualib.h, luajit.h, lj_*
+  PASS  cclj_machine.h includes only <stddef.h> and <stdint.h>
+== forbidden names (natives/src except cclj.c; comments and literals removed)
+  PASS  none of FindClass, NewGlobalRef, NewWeakGlobalRef, NewStringUTF, GetStringUTFChars, Critical, ThrowNew, lua_pushlightuserdata, luaL_openlibs, lua_sethook, luaL_traceback in cclj_machine.h jni_machine.c machine.c
+== objects
+  PASS  objects are newer than every file in natives/src
+  PASS  no writable static data in machine.o (nm: no b B d D C G S V v symbol, section symbols aside)
+  PASS  no writable static data in jni_machine.o (nm: no b B d D C G S V v symbol, section symbols aside)
+  PASS  no reference to lua_pushlightuserdata, luaL_openlibs, lua_sethook, luaL_traceback in machine.o jni_machine.o (nm)
+== no CCLJ_TEST
+  PASS  no cm_test_ symbol in cclj.o machine.o jni_machine.o
+  PASS  no cm_test_ symbol in libcclj.so
+  PASS  no file of natives/src defines CCLJ_TEST (cclj.c cclj_machine.h jni_machine.c machine.c)
+== 12 checks, 0 failed
+lint-natives: OK

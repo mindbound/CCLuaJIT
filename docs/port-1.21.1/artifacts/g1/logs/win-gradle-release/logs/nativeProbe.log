@@ -1,0 +1,17 @@
+java 21.0.13 (OpenJDK 64-Bit Server VM) on Windows 11 amd64
+resource /natives/windows-x86_64/cclj.dll: file:/<repo>/common/build/resources/main/natives/windows-x86_64/cclj.dll
+loaded <repo>\common\build\nativeProbe\cache\44f151d9dfe06271\cclj.dll in 53.8 ms
+selfTest() returned in 59.9 ms:
+  cclj.platform=windows-x86_64
+  cclj.luajit_commit=047efd3bcbe3331c3b9cb69bf5b217164d80bd5c
+  state=ok: luaL_newstate and luaL_openlibs
+  luajit=ok: LuaJIT 2.1.1794071144 (Windows x64)
+  jit=ok: on SSE3 SSE4.1 BMI2 fold cse dce fwd dse narrow loop abc sink fuse
+  security=ok: prng=1 strhash=1 strid=1 mcode=1
+  ffi=ok: the ffi library is absent
+  compute=ok: sum(i % 7, i = 1..1e6) = 2999998 (expected 2999998), 1 trace(s) compiled
+  interrupt=ok: luaJIT_interrupt() from a second thread, 50 ms after the loop started, stopped the compiled loop (1 new trace(s)) at iteration 257585881 of 2000000000 with "cclj selftest: interrupted"
+  cstacklimit=ok: lua_pcall inside a red zone set by luaJIT_setcstacklimit() returned "C stack overflow"; with the zone cleared the same call runs
+  bytecode=ok: load -> nil, attempt to load a binary chunk; loadstring -> nil
+  ok=true
+nativeProbe: OK

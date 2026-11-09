@@ -1,0 +1,11 @@
+== jni-scan self-test: 4 patterns, 4 dirty fixtures, clean.log
+  PASS  dirty-critical.log fails the scan (1 matching line(s))
+  PASS  dirty-fatal.log fails the scan (1 matching line(s))
+  PASS  dirty-mxcsr.log fails the scan (1 matching line(s))
+  PASS  dirty-warning.log fails the scan (1 matching line(s))
+  PASS  pattern occurs in a dirty fixture: WARNING in native method
+  PASS  pattern occurs in a dirty fixture: FATAL ERROR in native method
+  PASS  pattern occurs in a dirty fixture: Warning: Calling other JNI functions in the scope of Get/Release
+  PASS  pattern occurs in a dirty fixture: MXCSR changed by native JNI code
+  PASS  clean.log passes the scan
+jni-scan: self-test OK

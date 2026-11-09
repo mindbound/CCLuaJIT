@@ -1,0 +1,23 @@
+factory=cobalt http=disabled expected failures=5 (<repo>\common\src\test\resources\headless\expected-failures-cobalt.txt)
+suite: 1407 tests registered
+pending	The gps library -> on fake computers -> locates computers at random positions
+error	The http library -> http.checkURL -> accepts well formed domains	...pec/apis/http_spec.lua:10: attempt to index global 'http' (a nil value)
+error	The http library -> http.checkURL -> rejects local domains	...pec/apis/http_spec.lua:23: attempt to index global 'http' (a nil value)
+error	The http library -> http.checkURL -> rejects malformed URLs	...pec/apis/http_spec.lua:14: attempt to index global 'http' (a nil value)
+error	The http library -> http.requestAsync -> queues an event for immediate failures	...pec/apis/http_spec.lua:49: attempt to index global 'http' (a nil value)
+error	The http library -> http.websocketAsync -> queues an event for immediate failures	...pec/apis/http_spec.lua:37: attempt to index global 'http' (a nil value)
+pending	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_number_-01
+pending	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_number_-2.
+pending	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_number_0.e1
+pending	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_number_2.e+3
+pending	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_number_2.e-3
+pending	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_number_2.e3
+pending	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_number_neg_int_starting_with_zero
+pending	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_number_real_without_fractional_part
+pending	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_number_with_leading_zero
+pending	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_structure_100000_opening_arrays
+pending	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_structure_open_array_object
+suite done=true after 23.7 s; registered=1407 run=1407 counts={error=5, pass=1390, pending=12}
+context closed cleanly: true
+verdict: 0 unexpected failure(s), 5 expected failure(s), 0 stale expected-failure entries
+RESULT: PASS

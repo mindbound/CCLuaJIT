@@ -1,0 +1,29 @@
+== libcclj for linux-x86_64
+   LuaJIT:   <repo>/vendor/luajit at 047efd3bcbe3331c3b9cb69bf5b217164d80bd5c (Don't FOLD ldexp with non-integer exponent.)
+   compiler: gcc (GCC) 8.5.0 20210514 (Red Hat 8.5.0-30)
+   JDK:      /usr/lib/jvm/java-21-openjdk
+== building the patched LuaJIT (log: <scratch>/g1/negctl-lin/natives/build/linux-x86_64/luajit-build.log)
+   8 patches applied: 01-interrupt.patch 02-xpcall-handler-in-hook.patch 03-no-bytecode.patch 04-pattern-nul.patch 05-numfmt-roundtrip.patch 06-goto-contextual.patch 07-interruptible-patterns.patch 08-cstack-guard.patch
+   LuaJIT 2.1.1794071144 -- Copyright (C) 2005-2026 Mike Pall. https://luajit.org/
+== compiling cclj.c machine.c jni_machine.c (objects: <scratch>/g1/negctl-lin/natives/build/linux-x86_64/obj)
+== linking <scratch>/g1/negctl-lin/natives/build/out/natives/linux-x86_64/libcclj.so
+== dependency check
+ldd:
+  	linux-vdso.so.1 (0x0000793bfa42c000)
+  	libm.so.6 => /lib64/libm.so.6 (0x0000793bf9a00000)
+  	libdl.so.2 => /lib64/libdl.so.2 (0x0000793bf9600000)
+  	libpthread.so.0 => /lib64/libpthread.so.0 (0x0000793bf9200000)
+  	libc.so.6 => /lib64/libc.so.6 (0x0000793bf8e00000)
+  	/lib64/ld-linux-x86-64.so.2 (0x0000793bfa000000)
+max GLIBC symbol version (objdump -T): GLIBC_2.14 (allowed: GLIBC_2.28)
+GNU_STACK flags: RW
+exports:
+  Java_io_github_mindbound_cclj_natives_NativeMachine_nAbi
+  Java_io_github_mindbound_cclj_natives_NativeMachine_nFree
+  Java_io_github_mindbound_cclj_natives_NativeMachine_nLoad
+  Java_io_github_mindbound_cclj_natives_NativeMachine_nMessage
+  Java_io_github_mindbound_cclj_natives_NativeMachine_nNew
+  Java_io_github_mindbound_cclj_natives_NativeMachine_nResume
+  Java_io_github_mindbound_cclj_natives_NativeProbe_selfTest
+== OK: <scratch>/g1/negctl-lin/natives/build/out/natives/linux-x86_64/libcclj.so (477856 bytes, sha256 f68b9e5f2f0d1b2b...)
+   with LuaJIT-COPYRIGHT.txt 
