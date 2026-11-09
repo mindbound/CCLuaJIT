@@ -1,0 +1,3 @@
+BridgeProbe: library natives/build/headless/natives/bridgeProbe/windows-x86_64/cclj.dll, ABI 1
+Warning: Calling other JNI functions in the scope of Get/ReleasePrimitiveArrayCritical or Get/ReleaseStringCritical
+PASS 1 happy path

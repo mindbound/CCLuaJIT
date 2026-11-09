@@ -1,0 +1,30 @@
+> Task :common:compileJava UP-TO-DATE
+> Task :common:processResources UP-TO-DATE
+> Task :common:classes UP-TO-DATE
+> Task :common:compileTestJava UP-TO-DATE
+> Task :common:nativeProbe
+WARNING: A restricted method in java.lang.System has been called
+WARNING: java.lang.System::load has been called by io.github.mindbound.cclj.natives.NativeLoader in an unnamed module
+WARNING: Use --enable-native-access=ALL-UNNAMED to avoid a warning for callers in this module
+WARNING: Restricted methods will be blocked in a future release unless native access is enabled
+NativeProbe: loaded natives/build/headless/natives/nativeProbe/windows-x86_64/cclj.dll
+selftest platform=windows-x86_64
+selftest ok=true
+> Task :common:headlessSmoke
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+VM arguments: -Xcheck:jni -Xmx256m -XX:-RestoreMXCSROnJNICall -Dccluajit.nativeDir=build/headless/natives/headlessSmoke
+[main/WARN] [cc.tweaked/]: Error loading mount data/computercraft/lua/rom: java.nio.file.NoSuchFileException
+java.lang.UnsatisfiedLinkError: no cclj in java.library.path
+	at java.base/java.lang.ClassLoader.loadLibrary(ClassLoader.java:2458)
+	at java.base/jdk.internal.loader.NativeLibraries.load(Native Method)
+	at java.base/java.lang.Runtime.loadLibrary0(Runtime.java:916)
+MachineSpecs: 6 java_exception: no warning in native method output, as expected
+MachineSpecs: Fatal error in native method handling is tested in BridgeProbe
+MachineSpecs: warning: calling other JNI functions is not checked here
+headlessSmoke: 1390 of 1407 tests passed, 17 allow-listed
+WARNING: A terminally deprecated method in java.lang.System has been called
+WARNING: System::setSecurityManager has been called by org.gradle.api.internal.tasks.testing.worker.TestWorker
+Deprecated Gradle features were used in this build, making it incompatible with Gradle 10.
+
+BUILD SUCCESSFUL in 41s
+7 actionable tasks: 3 executed, 4 up-to-date

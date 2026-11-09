@@ -1,0 +1,4 @@
+WARNING in native method
+FATAL ERROR in native method
+Warning: Calling other JNI functions in the scope of Get/Release
+MXCSR changed by native JNI code

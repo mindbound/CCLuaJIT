@@ -1,0 +1,10 @@
+BridgeProbe: library natives/build/headless/natives/bridgeProbe/windows-x86_64/cclj.dll, ABI 1
+OpenJDK 64-Bit Server VM warning: MXCSR changed by native JNI code, use -XX:+RestoreMXCSROnJNICall
+#
+# A fatal error has been detected by the Java Runtime Environment:
+#
+#  EXCEPTION_ACCESS_VIOLATION (0xc0000005) at pc=0x00000223517211ae, pid=35444, tid=50584
+#
+# JRE version: OpenJDK Runtime Environment Temurin-21.0.13+9 (21.0.13+9) (build 21.0.13+9-LTS)
+# Problematic frame:
+# v  ~StubRoutines::verify_mxcsr 0x00000223517211ae

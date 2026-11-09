@@ -1,0 +1,6 @@
+BridgeProbe: library natives/build/headless/natives/bridgeProbe/linux-x86_64/libcclj.so, ABI 1
+PASS 1 happy path
+FATAL ERROR in native method: Non-array passed to JNI array operations
+	at io.github.mindbound.cclj.natives.NativeMachine.nLoad(Native Method)
+	at io.github.mindbound.cclj.natives.NativeMachine.load(NativeMachine.java:97)
+	at io.github.mindbound.cclj.natives.BridgeProbe.main(BridgeProbe.java:38)

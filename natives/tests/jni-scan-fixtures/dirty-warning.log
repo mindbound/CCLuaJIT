@@ -1,0 +1,8 @@
+BridgeProbe: library natives/build/headless/natives/bridgeProbe/windows-x86_64/cclj.dll, ABI 1
+PASS 1 happy path
+WARNING in native method: JNI call made without checking exceptions when required to from CallObjectMethod
+	at io.github.mindbound.cclj.natives.NativeMachine.nResume(Native Method)
+	at io.github.mindbound.cclj.natives.NativeMachine.resume(NativeMachine.java:121)
+	at io.github.mindbound.cclj.natives.BridgeProbe.hostThrows(BridgeProbe.java:88)
+	at io.github.mindbound.cclj.natives.BridgeProbe.main(BridgeProbe.java:40)
+PASS 2 host throws RuntimeException

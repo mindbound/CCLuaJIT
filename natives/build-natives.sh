@@ -1,6 +1,7 @@
 #!/bin/bash
 # Build libcclj for one platform: the patched LuaJIT from the vendor/luajit submodule as a static library, then
-# natives/src/cclj.c linked with it into one self-contained JNI library.
+# the C sources in natives/src (SRCS below), each compiled to an object and linked with it into one self-contained
+# JNI library.
 #
 # usage: natives/build-natives.sh <platform-id>
 #   windows-x86_64   Git Bash + MinGW-w64 gcc and mingw32-make        -> cclj.dll
@@ -9,13 +10,20 @@
 # The platform id must match the host; there are no cross builds. macOS is not supported yet.
 #
 # Output:       natives/build/out/natives/<platform-id>/<lib>  (Gradle puts natives/build/out into the mod jar)
-#               natives/build/out/natives/<platform-id>/*.txt  (licence notices of the code linked into <lib>)
+#               natives/build/out/natives/<platform-id>/*.txt  (licence notices of the code linked into <lib>, and
+#                                                               DEBUG-BUILD.txt for a CCLJ_DEBUG=1 build)
 # Intermediate: natives/build/<platform-id>/luajit             (patched LuaJIT tree: src/libluajit.a, the luajit
 #                                                               test executable; input of tests/run-harnesses.sh)
 #               natives/build/<platform-id>/luajit-build.log
+#               natives/build/<platform-id>/obj                (one <source>.o per source; input of
+#                                                               tests/lint-natives.sh)
 # Environment:  JAVA_HOME   JDK for jni.h (default: derived from javac on PATH)
 #               LUAJIT_SRC  LuaJIT git tree (default: the vendor/luajit submodule, HEAD = cclj/v2.1)
 #               GLIBC_MAX   Linux: highest allowed GLIBC_ symbol version (default 2.28, the manylinux_2_28 floor)
+#               CCLJ_DEBUG  1: debug build, for local testing only (CI never sets it). LuaJIT gets
+#                           -DLUA_USE_ASSERT -DLUA_USE_APICHECK; the sources in natives/src are compiled with
+#                           -g -O1 -DCCLJ_DEBUG instead of -O2; the library is not stripped; DEBUG-BUILD.txt is
+#                           written next to it. Unset, empty or 0: release build.
 # The script ends with a dependency check and fails if the library imports, needs or exports anything unexpected.
 set -euo pipefail
 
@@ -45,8 +53,21 @@ NATIVES=$(cd "$(dirname "$0")" && pwd)
 ROOT=$(dirname "$NATIVES")
 LUAJIT_SRC=${LUAJIT_SRC:-$ROOT/vendor/luajit}
 WORK=$NATIVES/build/$PLATFORM
+OBJDIR=$WORK/obj
 OUTDIR=$NATIVES/build/out/natives/$PLATFORM
 LIB=$OUTDIR/$LIBNAME
+
+# The sources in natives/src that go into the library, in link order. Each one becomes $OBJDIR/<name>.o.
+SRCS=(cclj.c machine.c jni_machine.c)
+missing=()
+for s in "${SRCS[@]}"; do [ -f "$NATIVES/src/$s" ] || missing+=("natives/src/$s"); done
+[ ${#missing[@]} = 0 ] || die "missing source file(s): ${missing[*]} (SRCS in build-natives.sh: ${SRCS[*]})"
+
+case "${CCLJ_DEBUG:-}" in
+  ""|0) DEBUG=0 ;;
+  1) DEBUG=1 ;;
+  *) die "CCLJ_DEBUG must be 1 (debug build), 0 or unset (release build), not '$CCLJ_DEBUG'" ;;
+esac
 
 # The top of a LuaJIT git checkout. An uninitialized submodule is an empty directory inside CCLuaJIT's own work
 # tree, where plain git commands would silently use the CCLuaJIT repository instead.
@@ -68,16 +89,24 @@ echo "== libcclj for $PLATFORM"
 echo "   LuaJIT:   $LUAJIT_SRC at $(git -C "$LUAJIT_SRC" rev-parse HEAD) ($(git -C "$LUAJIT_SRC" log -1 --format=%s HEAD))"
 echo "   compiler: $(gcc --version | head -1)"
 echo "   JDK:      $JAVA_HOME"
+if [ "$DEBUG" = 1 ]; then
+  echo "=================================================================================================="
+  echo "== DEBUG BUILD (CCLJ_DEBUG=1): for local testing only. Do not ship it or build a mod jar with it."
+  echo "== LuaJIT: -DLUA_USE_ASSERT -DLUA_USE_APICHECK. natives/src: -g -O1 -DCCLJ_DEBUG. Not stripped."
+  echo "=================================================================================================="
+fi
 
 # 1. Patched LuaJIT, static. On Linux its objects must be position-independent to go into a shared object;
-#    TARGET_CFLAGS reaches the target objects only, not the host build tools (minilua, buildvm).
-# A failed build must not leave an older library behind for Gradle to package.
-rm -rf "$OUTDIR"
+#    TARGET_CFLAGS reaches the target objects only, not the host build tools (minilua, buildvm). A debug build
+#    adds LuaJIT's internal assertions and API checks (build-patched-luajit.sh's third argument goes to XCFLAGS).
+# A failed build must not leave an older library, or older objects for tests/lint-natives.sh, behind.
+rm -rf "$OUTDIR" "$OBJDIR"
 mkdir -p "$WORK"
 TCFLAGS=; [ "$HOST_OS" = linux ] && TCFLAGS=-fPIC
+LJ_EXTRA=; [ "$DEBUG" = 1 ] && LJ_EXTRA="-DLUA_USE_ASSERT -DLUA_USE_APICHECK"
 echo "== building the patched LuaJIT (log: $WORK/luajit-build.log)"
 if ! TARGET_CFLAGS="$TCFLAGS" bash "$NATIVES/luajit-patches/build-patched-luajit.sh" "$LUAJIT_SRC" "$WORK/luajit" \
-     > "$WORK/luajit-build.log" 2>&1; then
+     "$LJ_EXTRA" > "$WORK/luajit-build.log" 2>&1; then
   tail -30 "$WORK/luajit-build.log" >&2
   die "LuaJIT build failed"
 fi
@@ -89,10 +118,25 @@ echo "   $("$LJ/luajit" -v)"
 
 # 2. libcclj. -fvisibility=hidden + JNIEXPORT: only the Java_* functions are exported. LuaJIT is linked from
 #    libluajit.a, and the C runtime support from static libgcc, so the library needs only system libraries.
+#    Each source is compiled to its own object first: tests/lint-natives.sh checks the objects with nm.
+#    -fno-common: a tentative definition ("int x;") becomes a B symbol, not C (GCC 8's default is -fcommon), so
+#    the lint sees it as a writable static.
 read -r -a XCFLAGS <<< "$(info xcflags)"
-CFLAGS=(-std=gnu99 -O2 -Wall -Wextra -funwind-tables "${XCFLAGS[@]}"
+if [ "$DEBUG" = 1 ]; then OPT=(-g -O1 -DCCLJ_DEBUG); STRIP=(); else OPT=(-O2); STRIP=(-s); fi
+CFLAGS=(-std=gnu99 "${OPT[@]}" -Wall -Wextra -funwind-tables "${XCFLAGS[@]}"
         -I"$JAVA_HOME/include" -I"$JAVA_HOME/include/$JNI_OS" -I"$LJ"
         -DCCLJ_PLATFORM="\"$PLATFORM\"" -DCCLJ_LUAJIT_COMMIT="\"$(info luajit_commit)\"")
+case "$HOST_OS" in
+  windows) CCFLAGS=(-fno-common) ;;
+  linux) CCFLAGS=(-fno-common -pthread -fPIC -fvisibility=hidden) ;;
+esac
+mkdir -p "$OBJDIR"
+OBJS=()
+echo "== compiling ${SRCS[*]} (objects: $OBJDIR)"
+for s in "${SRCS[@]}"; do
+  OBJS+=("$OBJDIR/${s%.c}.o")
+  gcc "${CFLAGS[@]}" "${CCFLAGS[@]}" -c -o "$OBJDIR/${s%.c}.o" "$NATIVES/src/$s"
+done
 mkdir -p "$OUTDIR"
 echo "== linking $LIB"
 case "$HOST_OS" in
@@ -101,17 +145,17 @@ case "$HOST_OS" in
     # links libgcc and the mingw-w64 runtime support in, so the DLL imports only KERNEL32 and the C runtime (msvcrt
     # or UCRT). No timestamp and a fixed preferred base (ld derives one from the output path otherwise), so the
     # same sources and toolchain give the same bytes; ASLR still relocates the DLL at load time.
-    gcc "${CFLAGS[@]}" -shared -o "$LIB" "$NATIVES/src/cclj.c" "$LJ/libluajit.a" \
+    gcc "${CFLAGS[@]}" -shared -o "$LIB" "${OBJS[@]}" "$LJ/libluajit.a" \
       -static -static-libgcc -Wl,--no-undefined -Wl,--exclude-all-symbols \
-      -Wl,--no-insert-timestamp -Wl,--image-base=0x180000000 -s ;;
+      -Wl,--no-insert-timestamp -Wl,--image-base=0x180000000 "${STRIP[@]}" ;;
   linux)
     # --exclude-libs,ALL hides the symbols of libluajit.a and libgcc, so two Lua copies in one JVM cannot clash.
     # The version script also hides the linker's own __bss_start, _edata and _end (binutils 2.30 exports them).
     # -pthread: the self-test starts a thread (glibc 2.28 keeps pthread_create in libpthread.so.0).
     printf '{\n  global: Java_*; JNI_OnLoad; JNI_OnUnload;\n  local: *;\n};\n' > "$WORK/libcclj.map"
-    gcc "${CFLAGS[@]}" -pthread -fPIC -fvisibility=hidden -shared -o "$LIB" "$NATIVES/src/cclj.c" \
+    gcc "${CFLAGS[@]}" -pthread -fPIC -fvisibility=hidden -shared -o "$LIB" "${OBJS[@]}" \
       "$LJ/libluajit.a" -static-libgcc -Wl,--exclude-libs,ALL -Wl,--version-script="$WORK/libcclj.map" \
-      -Wl,-z,noexecstack -Wl,-z,relro,-z,now -Wl,--no-undefined -lm -ldl -s ;;
+      -Wl,-z,noexecstack -Wl,-z,relro,-z,now -Wl,--no-undefined -lm -ldl "${STRIP[@]}" ;;
 esac
 
 # Licence notices, next to the library wherever it goes (CI artifact, mod jar). LuaJIT's COPYRIGHT (LuaJIT, Lua
@@ -122,6 +166,16 @@ tr -d '\r' < "$WORK/luajit/COPYRIGHT" > "$OUTDIR/LuaJIT-COPYRIGHT.txt"
 [ "$HOST_OS" = windows ] && tr -d '\r' < "$ROOT/LICENSES/MinGW-w64-runtime.txt" > "$OUTDIR/MinGW-w64-runtime.txt"
 tr -d '\r' < "$ROOT/LICENSES/LuaJIT-COPYRIGHT.txt" | cmp -s - "$OUTDIR/LuaJIT-COPYRIGHT.txt" \
   || echo "warning: LICENSES/LuaJIT-COPYRIGHT.txt differs from COPYRIGHT of the LuaJIT that was built; update it" >&2
+
+# A debug library carries its marker wherever it goes, so it cannot pass for a release build.
+if [ "$DEBUG" = 1 ]; then
+  {
+    echo "DEBUG BUILD of $LIBNAME (CCLJ_DEBUG=1): for local testing only. Do not ship it."
+    echo "LuaJIT:      $(info luajit_commit), XCFLAGS: $(info xcflags)"
+    echo "natives/src: ${SRCS[*]}, compiled with ${OPT[*]} -fno-common"
+    echo "not stripped; built by build-natives.sh $PLATFORM with $(gcc --version | head -1)"
+  } > "$OUTDIR/DEBUG-BUILD.txt"
+fi
 
 # 3. Dependency check.
 echo "== dependency check"
@@ -162,3 +216,4 @@ if [ "$fail" != 0 ]; then
 fi
 echo "== OK: $LIB ($(wc -c < "$LIB" | tr -d ' ') bytes, sha256 $(sha256sum "$LIB" | cut -c1-16)...)"
 echo "   with $(cd "$OUTDIR" && ls | grep -v -x "$LIBNAME" | tr '\n' ' ')"
+[ "$DEBUG" = 0 ] || echo "== DEBUG BUILD (CCLJ_DEBUG=1): see $OUTDIR/DEBUG-BUILD.txt. Do not ship it."
