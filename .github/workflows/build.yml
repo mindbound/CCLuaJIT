@@ -1,14 +1,16 @@
 # CI for the 1.21.1 port: PLAN.md WP G (week-1 CI) and the M0 gate G0, DESIGN.md section 2 ("CI").
 # Docs: docs/port-1.21.1/PLAN.md, docs/port-1.21.1/DESIGN.md, natives/README.md, natives/tests/README.md.
 #
-#   natives-linux-x86_64    required   libcclj.so built in manylinux_2_28 (glibc 2.28 floor), harnesses, JVM self-test
-#   natives-windows-x86_64  required   cclj.dll built with MSYS2 MinGW64, harnesses, JVM self-test
+#   natives-linux-x86_64    required   libcclj.so built in manylinux_2_28 (glibc 2.28 floor), lint, Tier 0 machine
+#                                      test, harnesses, JVM self-test and Tier 1 BridgeProbe under -Xcheck:jni
+#   natives-windows-x86_64  required   cclj.dll built with MSYS2 MinGW64, the same tests
 #   harness-informational   NOT required (continue-on-error): patched LuaJIT and harnesses only (no JNI) on arm64
 #                           Linux and macOS arm64. PLAN.md decision 4: these platforms come later (M4)
 #   mod                     required   mod jar with both natives, :common:nativeProbe, headless CC:T smoke and suite
 #
 # Every job calls the repository's own scripts and Gradle tasks, so a CI failure reproduces locally with the same
-# command: natives/build-natives.sh, natives/tests/run-harnesses.sh, natives/luajit-patches/build-patched-luajit.sh.
+# command: natives/build-natives.sh, natives/tests/run-harnesses.sh, natives/luajit-patches/build-patched-luajit.sh,
+# and natives/tests/lint-natives.sh, machine-test.sh and jni-scan.sh (the commands: natives/tests/README.md).
 #
 # Actions are pinned to major tags. Later (WP G, before any public build): pin each one to a full commit SHA, with
 # the tag in a trailing comment, and let Dependabot propose the bumps.
@@ -75,20 +77,62 @@ jobs:
       - name: Build libcclj (checks GLIBC_ max <= 2.28, NEEDED and exports)
         run: bash natives/build-natives.sh linux-x86_64
 
+      # Rules of the machine bridge that the compiler does not check, on the sources and on the objects that the
+      # build step just compiled: include graph, forbidden calls, no writable statics (nm), no CCLJ_TEST.
+      - name: Lint the native sources and objects (lint-natives.sh)
+        run: bash natives/tests/lint-natives.sh linux-x86_64
+
+      # Tier 0: machine.c without a JVM, linked with an assert and API-check build of the patched LuaJIT. The script
+      # first tries -fsanitize=address,undefined and drops the sanitizers, with a note in the log, only when that
+      # build does not compile or link (a gcc-toolset without libasan). The install step adds no libasan: ASan with
+      # LuaJIT's GC64 mode was verified on Ubuntu 26.04 only, where Tier 0 runs sanitized locally (M1.md section 6).
+      - name: Tier 0 machine test (machine-test.sh, assert LuaJIT)
+        run: bash natives/tests/machine-test.sh linux-x86_64
+
+      # Before the scans in the probe steps: the scan must fail on the verified -Xcheck:jni texts and pass on clean
+      # output, or a reworded message would pass every scan unnoticed.
+      - name: Self-test of the -Xcheck:jni scan (jni-scan.sh --self-test)
+        run: bash natives/tests/jni-scan.sh --self-test
+
       - name: Run the harnesses (preempt, patterns, cstack, compat, syntax, fixcheck)
         run: bash natives/tests/run-harnesses.sh natives/build/linux-x86_64/luajit/src
 
       # The mod job runs ./gradlew :common:nativeProbe on ubuntu-24.04 (glibc 2.39). This runs the same probe at the
       # glibc 2.28 floor, without Gradle: NativeLoader extracts the library from natives/build/out on the classpath.
-      - name: JVM self-test at glibc 2.28 (NativeProbe, -Xcheck:jni)
+      # Most -Xcheck:jni messages leave the exit code at 0, and the MXCSR one goes to stderr, so the log takes both
+      # streams and jni-scan.sh reads it. pipefail keeps java's exit code, not tee's: a FATAL ERROR exits 134 here
+      # (M1.md F13).
+      - name: JVM self-test at glibc 2.28 (NativeProbe, -Xcheck:jni, scanned)
         run: |
+          set -eo pipefail
           out=natives/build/probe
           rm -rf "$out"
+          mkdir -p "$out"
           "$JAVA_HOME/bin/javac" -d "$out/classes" \
             common/src/main/java/io/github/mindbound/cclj/natives/NativeLoader.java \
             common/src/test/java/io/github/mindbound/cclj/natives/NativeProbe.java
           "$JAVA_HOME/bin/java" -Xcheck:jni -cp "$out/classes:natives/build/out" \
-            io.github.mindbound.cclj.natives.NativeProbe "$out/cache"
+            io.github.mindbound.cclj.natives.NativeProbe "$out/cache" 2>&1 | tee "$out/native-probe.log"
+          bash natives/tests/jni-scan.sh "$out/native-probe.log"
+
+      # Tier 1 (M1.md section 3.15): the production natives package (NativeLibrary, NativeMachine, Wire) against a
+      # fake host, at the glibc 2.28 floor. javac compiles every class of the package with no classpath, so a class
+      # that needs anything beyond the JDK fails here (F17). -Xmx256m bounds the heap of the local-ref leak test.
+      # Exit codes: 1 a check failed or the watchdog fired, 2 no library for this platform, 3 not loadable or ABI
+      # mismatch; any non-zero exit fails the step. Logged and scanned like NativeProbe.
+      - name: Tier 1 at glibc 2.28 (BridgeProbe, -Xcheck:jni, scanned)
+        run: |
+          set -eo pipefail
+          out=natives/build/bridge-probe
+          rm -rf "$out"
+          mkdir -p "$out"
+          "$JAVA_HOME/bin/javac" -d "$out/classes" \
+            common/src/main/java/io/github/mindbound/cclj/natives/*.java \
+            common/src/test/java/io/github/mindbound/cclj/natives/NativeProbe.java \
+            common/src/test/java/io/github/mindbound/cclj/natives/BridgeProbe.java
+          "$JAVA_HOME/bin/java" -Xcheck:jni -Xmx256m -cp "$out/classes:natives/build/out" \
+            io.github.mindbound.cclj.natives.BridgeProbe "$out/cache" 2>&1 | tee "$out/bridge-probe.log"
+          bash natives/tests/jni-scan.sh "$out/bridge-probe.log"
 
       - uses: actions/upload-artifact@v7
         with:
@@ -96,6 +140,8 @@ jobs:
           path: natives/build/out/   # natives/linux-x86_64/: libcclj.so and LuaJIT-COPYRIGHT.txt
           if-no-files-found: error
 
+      # machine-test/ also holds the test program; only its logs are uploaded. A JVM crash writes hs_err_pid*.log
+      # (and a JIT compiler crash replay_pid*.log) into the working directory, the workspace root.
       - name: Upload logs
         if: ${{ !cancelled() }}
         uses: actions/upload-artifact@v7
@@ -105,6 +151,12 @@ jobs:
             natives/build/linux-x86_64/luajit-build.log
             natives/build/linux-x86_64/luajit/cclj-build.txt
             natives/build/linux-x86_64/harnesses/results/
+            natives/build/linux-x86_64/luajit-assert-build.log
+            natives/build/linux-x86_64/machine-test/*.log
+            natives/build/probe/*.log
+            natives/build/bridge-probe/*.log
+            hs_err_pid*.log
+            replay_pid*.log
           if-no-files-found: ignore
           retention-days: 14
 
@@ -156,20 +208,53 @@ jobs:
       - name: Build libcclj (checks imports and exports)
         run: bash natives/build-natives.sh windows-x86_64
 
+      # The same lint as in the Linux job, with MinGW's nm and objdump (mingw-w64-x86_64-binutils).
+      - name: Lint the native sources and objects (lint-natives.sh)
+        run: bash natives/tests/lint-natives.sh windows-x86_64
+
+      # Tier 0 as in the Linux job. MinGW has no ASan, so it runs without sanitizers; timeout is MSYS2's coreutils.
+      - name: Tier 0 machine test (machine-test.sh, assert LuaJIT)
+        run: bash natives/tests/machine-test.sh windows-x86_64
+
+      # The fixtures arrive CRLF here (core.autocrlf); the scan ignores a CR at a line end.
+      - name: Self-test of the -Xcheck:jni scan (jni-scan.sh --self-test)
+        run: bash natives/tests/jni-scan.sh --self-test
+
       - name: Run the harnesses (preempt, patterns, cstack, compat, syntax, fixcheck)
         run: bash natives/tests/run-harnesses.sh natives/build/windows-x86_64/luajit/src
 
-      # G0 requires the JVM load on Windows x64 too; the mod job only covers Linux. Same probe as in the Linux job.
-      - name: JVM self-test (NativeProbe, -Xcheck:jni)
+      # G0 requires the JVM load on Windows x64 too; the mod job only covers Linux. Same probe, log and scan as in the
+      # Linux job. Here the MXCSR message comes with a crash (exit code 1), and a FATAL ERROR exits 1 (M1.md F13).
+      - name: JVM self-test (NativeProbe, -Xcheck:jni, scanned)
         run: |
+          set -eo pipefail
           jdk=$(cygpath -u "$JAVA_HOME")/bin
           out=natives/build/probe
           rm -rf "$out"
+          mkdir -p "$out"
           "$jdk/javac" -d "$out/classes" \
             common/src/main/java/io/github/mindbound/cclj/natives/NativeLoader.java \
             common/src/test/java/io/github/mindbound/cclj/natives/NativeProbe.java
           "$jdk/java" -Xcheck:jni -cp "$out/classes;natives/build/out" \
-            io.github.mindbound.cclj.natives.NativeProbe "$out/cache"
+            io.github.mindbound.cclj.natives.NativeProbe "$out/cache" 2>&1 | tee "$out/native-probe.log"
+          bash natives/tests/jni-scan.sh "$out/native-probe.log"
+
+      # Tier 1 as in the Linux job. On Windows x64 it also covers the Lua errors raised right after a JNI upcall,
+      # which unwind with SEH while HotSpot's handler is installed (M1.md section 6). Classpath separator: ';'.
+      - name: Tier 1 (BridgeProbe, -Xcheck:jni, scanned)
+        run: |
+          set -eo pipefail
+          jdk=$(cygpath -u "$JAVA_HOME")/bin
+          out=natives/build/bridge-probe
+          rm -rf "$out"
+          mkdir -p "$out"
+          "$jdk/javac" -d "$out/classes" \
+            common/src/main/java/io/github/mindbound/cclj/natives/*.java \
+            common/src/test/java/io/github/mindbound/cclj/natives/NativeProbe.java \
+            common/src/test/java/io/github/mindbound/cclj/natives/BridgeProbe.java
+          "$jdk/java" -Xcheck:jni -Xmx256m -cp "$out/classes;natives/build/out" \
+            io.github.mindbound.cclj.natives.BridgeProbe "$out/cache" 2>&1 | tee "$out/bridge-probe.log"
+          bash natives/tests/jni-scan.sh "$out/bridge-probe.log"
 
       - uses: actions/upload-artifact@v7
         with:
@@ -177,6 +262,7 @@ jobs:
           path: natives/build/out/   # natives/windows-x86_64/: cclj.dll, LuaJIT-COPYRIGHT.txt, MinGW-w64-runtime.txt
           if-no-files-found: error
 
+      # As in the Linux job: the logs of machine-test/, and a JVM crash's hs_err_pid*.log from the workspace root.
       - name: Upload logs
         if: ${{ !cancelled() }}
         uses: actions/upload-artifact@v7
@@ -186,6 +272,12 @@ jobs:
             natives/build/windows-x86_64/luajit-build.log
             natives/build/windows-x86_64/luajit/cclj-build.txt
             natives/build/windows-x86_64/harnesses/results/
+            natives/build/windows-x86_64/luajit-assert-build.log
+            natives/build/windows-x86_64/machine-test/*.log
+            natives/build/probe/*.log
+            natives/build/bridge-probe/*.log
+            hs_err_pid*.log
+            replay_pid*.log
           if-no-files-found: ignore
           retention-days: 14
 

@@ -1,13 +1,15 @@
 # libcclj: the native library
 
-`libcclj` is one self-contained JNI library per platform: the JNI glue in `src/` (plain C) with the patched LuaJIT linked in statically. See DESIGN.md §2 (`docs/port-1.21.1/DESIGN.md`). For M0 it only contains the self-test that `./gradlew :common:nativeProbe` runs. The machine bridge comes later.
+`libcclj` is one self-contained JNI library per platform: the JNI glue in `src/` (plain C) with the patched LuaJIT linked in statically. See DESIGN.md §2 (`docs/port-1.21.1/DESIGN.md`). It contains the M0 self-test that `./gradlew :common:nativeProbe` runs, and the machine bridge of S1 (`docs/port-1.21.1/M1.md` §3), which `common/src/main/java/io/github/mindbound/cclj/natives/NativeMachine.java` calls.
 
 | Path | What |
 |---|---|
-| `build-natives.sh <platform-id>` | Builds the patched LuaJIT from `vendor/luajit`, then `libcclj`, then checks its imports and exports |
+| `build-natives.sh <platform-id>` | Builds the patched LuaJIT from `vendor/luajit`, then compiles each source in `src/` to an object and links `libcclj`, then checks its imports and exports. `CCLJ_DEBUG=1`: debug build |
 | `src/cclj.c` | JNI glue. M0: `NativeProbe.selfTest()` |
+| `src/cclj_machine.h`, `src/machine.c` | The machine core: one capped LuaJIT state per computer, the API tables, the wire codec, resume and error rendering. No JNI |
+| `src/jni_machine.c` | The native methods of `NativeMachine` and the host call back into Java. No Lua header |
 | `luajit-patches/` | LuaJIT patches 01-08 and `build-patched-luajit.sh` (canonical copy) |
-| `tests/` | LuaJIT regression harnesses and `run-harnesses.sh` |
+| `tests/` | LuaJIT regression harnesses and `run-harnesses.sh`; `lint-natives.sh`; `jni-scan.sh` with its pattern list and fixtures; Tier 0 of the machine (`machine-test.sh`, `machine/machine_test.c`); the commands for Tier 1 (`BridgeProbe`) ([tests/README.md](tests/README.md)) |
 | `build/` | Build output, ignored by git |
 
 ## Building
@@ -29,6 +31,12 @@ bash natives/tests/run-harnesses.sh natives/build/windows-x86_64/luajit/src
 
 `build-natives.sh` needs `JAVA_HOME` (a JDK, for `jni.h`); without it, the JDK is found from `javac` on `PATH`. The library goes to `natives/build/out/natives/<platform-id>/`. `:common` uses `natives/build/out` as a resource directory, so the mod jar carries whatever has been built there. A jar built without natives is valid: computers then run on Cobalt.
 
+The script compiles each source of its `SRCS` list (`cclj.c`, `machine.c`, `jni_machine.c`) with `-c` into `natives/build/<platform-id>/obj/<name>.o`, then links the objects with `libluajit.a`. A missing source stops the build. The objects stay there for `tests/lint-natives.sh`, which checks the include graph of the sources, forbidden JNI and Lua calls, and with `nm` that `machine.o` and `jni_machine.o` have no writable static data (M1.md section 3.14). Run it after the build:
+
+```
+bash natives/tests/lint-natives.sh windows-x86_64
+```
+
 The script fails unless the library has only the expected dependencies:
 
 - Windows: imports only `KERNEL32.dll` and the C runtime (`msvcrt.dll`, or UCRT). Linking uses `-static -static-libgcc`.
@@ -39,9 +47,24 @@ A library that fails the check is deleted, so Gradle cannot package it.
 
 The Windows DLL is linked without a timestamp and with a fixed preferred base address, so the same sources and toolchain give the same bytes (the Linux library already did).
 
-CI (`.github/workflows/build.yml`) builds `linux-x86_64` in the `quay.io/pypa/manylinux_2_28_x86_64` container and `windows-x86_64` with MSYS2 MINGW64, runs `tests/run-harnesses.sh` and the `NativeProbe` self-test on both, and passes the libraries to the `mod` job as the artifacts `natives-linux-x86_64` and `natives-windows-x86_64`. That job puts both into `natives/build/out` and builds the mod jar.
+CI (`.github/workflows/build.yml`) builds `linux-x86_64` in the `quay.io/pypa/manylinux_2_28_x86_64` container and `windows-x86_64` with MSYS2 MINGW64, runs the lint, Tier 0 (`tests/machine-test.sh`), the scan self-test, `tests/run-harnesses.sh`, the `NativeProbe` self-test and Tier 1 (`BridgeProbe` under `-Xcheck:jni`, scanned) on both ([tests/README.md](tests/README.md), "What CI runs"), and passes the libraries to the `mod` job as the artifacts `natives-linux-x86_64` and `natives-windows-x86_64`. That job puts both into `natives/build/out` and builds the mod jar.
 
 Build Linux natives in AlmaLinux 8 or `manylinux_2_28`, not on a current distro: a library built against a new glibc does not load on older servers (`docs/port-1.21.1/reports/port-mechanics.md`). The `manylinux_2_28` CI image uses a `gcc-toolset` compiler; AlmaLinux 8's own gcc 8.5 also works.
+
+## Debug build
+
+```
+CCLJ_DEBUG=1 bash natives/build-natives.sh windows-x86_64
+```
+
+`CCLJ_DEBUG=1` builds a library for local testing (M1.md section 3.14). CI never sets it.
+
+- LuaJIT is built with `-DLUA_USE_ASSERT -DLUA_USE_APICHECK`: its internal assertions and the checks of the Lua C API arguments are on, and a failed one aborts the process.
+- The sources in `src/` are compiled with `-g -O1 -DCCLJ_DEBUG` instead of `-O2`. `CCLJ_DEBUG` turns on the stack-balance checks of `machine.c` (`CM_CHECK`): a failed one prints a line and aborts the process.
+- The library is not stripped.
+- The script prints a banner at the start and at the end, and writes `DEBUG-BUILD.txt` next to the library.
+
+The import, export and glibc checks are the same as for a release build. The debug library replaces the release one in `natives/build/out`, so a mod jar built now would contain it, with `DEBUG-BUILD.txt` next to it. Run `build-natives.sh` again without `CCLJ_DEBUG` before you build a jar. `CCLJ_DEBUG` accepts only `1`, `0` or empty.
 
 ## Licence notices
 

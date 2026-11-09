@@ -2,6 +2,8 @@
 
 These are the harnesses that CI runs against every patched LuaJIT build (PLAN.md §5.2, gate G0), promoted from `docs/port-1.21.1/artifacts/` into the build tree. `run-harnesses.sh` builds them against a LuaJIT tree from `natives/luajit-patches/build-patched-luajit.sh`, runs them, parses the counts and exits non-zero on any deviation.
 
+This directory also holds the lint of the native sources (`lint-natives.sh`), the scan for `-Xcheck:jni` messages (`jni-scan.sh`) and Tier 0 of the machine bridge (`machine-test.sh` with `machine/machine_test.c`). They have their own sections at the end, followed by Tier 1 (`BridgeProbe`, a Java program in `common/src/test`) and a table of the CI steps that run them.
+
 ```
 bash natives/build-natives.sh windows-x86_64          # or linux-x86_64; leaves natives/build/<platform-id>/luajit
 bash natives/tests/run-harnesses.sh natives/build/windows-x86_64/luajit/src
@@ -39,7 +41,7 @@ The harnesses that read `G(L)->vmstate` include LuaJIT's internal `lj_obj.h`, so
 
 ## Provenance
 
-Every file except `run-harnesses.sh`, `lua/compat_check.expected` and this README is a verbatim copy, made on 2026-11-07 from commit `c48cace`. The git blob ids are identical to those of the sources. The sources in `docs/` stay as the historical record. Fix the harnesses here.
+Every file in `preempt/`, `patterns/`, `cstack/` and `lua/` except `lua/compat_check.expected` is a verbatim copy, made on 2026-11-07 from commit `c48cace`. The git blob ids are identical to those of the sources. The sources in `docs/` stay as the historical record. Fix the harnesses here.
 
 | File | Copied from (`docs/port-1.21.1/artifacts/...`) | Blob |
 |---|---|---|
@@ -66,3 +68,149 @@ Every file except `run-harnesses.sh`, `lua/compat_check.expected` and this READM
 - `fixcheck.lua`.
 
 The background for each harness is in `docs/port-1.21.1/reports/preempt-patch.md` and `docs/port-1.21.1/reports/proto-patterns-cstack.md`, and in `docs/port-1.21.1/artifacts/harnesses/patterns-cstack/README.md`.
+
+## Lint: `lint-natives.sh`
+
+```
+bash natives/build-natives.sh windows-x86_64          # leaves the objects in natives/build/<platform-id>/obj
+bash natives/tests/lint-natives.sh windows-x86_64
+```
+
+The lint reads `natives/src`, the objects and the library, and fails on any of these (M1.md §3.14):
+
+| Check | Rule |
+|---|---|
+| Include graph | `machine.c` and `cclj_machine.h` do not include `jni.h`. `jni_machine.c` includes none of `lua.h`, `lauxlib.h`, `lualib.h`, `luajit.h`, `lj_*`. `cclj_machine.h` includes only `<stddef.h>` and `<stdint.h>`. Includes of headers in `natives/src` are followed. A computed `#include` fails. |
+| Forbidden names | `FindClass`, `NewGlobalRef`, `NewWeakGlobalRef`, `NewStringUTF`, `GetStringUTFChars`, `Critical`, `ThrowNew`, `lua_pushlightuserdata`, `luaL_openlibs`, `lua_sethook`, `luaL_traceback`, in `natives/src/*.c` and `*.h` except `cclj.c`, and in any other file of `natives/src` that `machine.c`, `jni_machine.c` or `cclj_machine.h` includes (a `.inc`, for example). Comments and the contents of string and character literals are removed first. An identifier that contains a name fails, so `Critical` catches every `Get/Release*Critical`. `nm` also checks that `machine.o` and `jni_machine.o` reference none of the four Lua functions, whatever the spelling in the source (a macro, token pasting). |
+| Writable statics | `nm` shows no `b`, `B`, `d`, `D`, `C`, `G`, `S`, `V` or `v` symbol in `machine.o` and `jni_machine.o` (`V` and `v` are weak data). Section symbols such as `.bss` are ignored: only names that `objdump -h` lists as sections of the object, so MinGW's `.weak.<name>.<default>` data symbol still fails. On Linux (`-fPIC`), a `static const char *const` table is a `d` symbol: its pointers need relocations, so it is in `.data.rel.ro`. Use a `char` array table or a `switch` instead. |
+| Objects up to date | No file in `natives/src` is newer than the objects. |
+| No `CCLJ_TEST` | No `cm_test_` symbol in the objects or the library, and no file of `natives/src` (the files of the forbidden-names check, and `cclj.c`) defines `CCLJ_TEST`. This applies to release and `CCLJ_DEBUG=1` builds. |
+
+Exit 0: every check passed. 1: a check failed. 2: a usage error, or a source, object or library is missing.
+
+## JNI warning scan: `jni-scan.sh`
+
+```
+set -o pipefail
+java -Xcheck:jni ... 2>&1 | tee probe.log
+bash natives/tests/jni-scan.sh probe.log
+bash natives/tests/jni-scan.sh --self-test
+```
+
+`jni-warnings.txt` lists the messages of `-Xcheck:jni` that fail a run, one per line. The `jniScan` task that S1 step 4 adds to `common/build.gradle` is to read the same file. `jni-scan.sh <log>...` matches each one as a fixed string, case-sensitive, and prints the number of matching lines and the first 100 of them in each log (a broken native method can print a warning on every JNI call, a million lines). Exit 0: no match. 1: a match. 2: a missing log or pattern file.
+
+| Pattern | JDK 21 prints it to | JVM exit code |
+|---|---|---|
+| `WARNING in native method` | stdout | 0 |
+| `FATAL ERROR in native method` | stdout | Windows 1, Linux 134 (SIGABRT) |
+| `Warning: Calling other JNI functions in the scope of Get/Release` | stdout | 0 |
+| `MXCSR changed by native JNI code` | stderr | Windows: a crash (`hs_err`), 1. Linux: 0 |
+
+So the log must hold stdout and stderr, and the exit code must still be checked (F13): any non-zero exit fails the run, since FATAL ERROR gives 1 on Windows but 134 on Linux. Leaked local refs print nothing.
+
+`--self-test` checks the scanner and the list against `jni-scan-fixtures/`: every `dirty-*.log` must fail the scan, every pattern must occur in a dirty fixture, and `clean.log` must pass. `clean.log` is ordinary JVM and Gradle output with near misses (`warning in native method` in lower case, `WARNING: A restricted method`, `-XX:-RestoreMXCSROnJNICall`). The message lines in the dirty fixtures, and the table above, come from a small JNI program that provokes each message, run on 2026-11-09 with Temurin 21.0.13 (Windows) and Red Hat OpenJDK 21.0.13 (AlmaLinux 8). The other lines and the stack frames are adapted to this project. Check the texts again on every JDK upgrade.
+
+## Tier 0: `machine-test.sh`
+
+```
+bash natives/tests/machine-test.sh windows-x86_64     # or linux-x86_64 (linux-aarch64 on arm64): the host's platform id
+```
+
+Tier 0 tests the native machine core, `natives/src/machine.c`, without a JVM (M1.md §3.15, items 1-10): the allow-lists of the Lua state, loading, a fuzzer of the API table description, resume outcomes, error rendering and tracebacks, host round trips, a fuzzer of host replies, out-of-memory handling, re-entrancy, and threads and churn. `machine/machine_test.c` plays the host with its own codec of wire format v1, written from the format description, so the codec of `machine.c` is checked against an independent implementation too. It does not need `build-natives.sh` first, and it needs no JDK.
+
+The script:
+
+1. Builds an assert and API-check LuaJIT (`-DLUA_USE_ASSERT -DLUA_USE_APICHECK`) from `vendor/luajit` with the patches, into `natives/build/<platform-id>/luajit-assert`, with the log in `natives/build/<platform-id>/luajit-assert-build.log`. A tree built earlier is reused while the LuaJIT commit, the flags, the patches, the build script, the compiler and (on Linux) the C library stay the same.
+2. Compiles `machine.c` and `machine/machine_test.c` with `-g -O1 -DCCLJ_TEST -DCCLJ_DEBUG -Wall -Wextra` and the xcflags of that tree, and links them with its `libluajit.a`. `CCLJ_TEST` compiles in the `cm_test_*` hooks of `machine.c` (such as `cm_test_fail_after(n)`, which makes a buffer growth fail), and `CCLJ_DEBUG` its stack-balance checks (`CM_CHECK`, which print one line and abort). Any compiler or linker warning fails the run.
+3. Runs the program under `timeout`. It prints one line per check (`ok   <name>` or `FAIL <name>: <detail>`) and a summary; the script ends with `machine-test: OK` or `machine-test: FAILED`.
+
+**Sanitizers.** On Linux the script first builds with `-fsanitize=address,undefined -fno-sanitize-recover=all` and runs that program with `--smoke` (one machine end to end):
+
+- The sanitized build does not compile or link (no `libasan`, as on AlmaLinux 8 with its gcc 8.5): the script prints a note and the reason, and builds and runs the test without sanitizers.
+- It builds, but the smoke run fails: the script fails and prints the sanitizer report. A script cannot tell a bug in `machine.c` from a problem of ASan with LuaJIT's GC64 mode (M1.md §6). Only when a person has found that the report is such a problem, and not a bug, rerun with `MACHINE_TEST_SANITIZE=0`.
+- It builds and the smoke run passes: the whole test runs sanitized, and any report fails it.
+
+ASan and UBSan with LuaJIT's GC64 mode are verified on Ubuntu 26.04 (gcc 15), so that is where Tier 0 runs sanitized. MinGW has no ASan: on Windows the script builds without sanitizers directly. The Linux CI job installs no `libasan`, so whether Tier 0 runs sanitized there depends on the gcc-toolset of the `manylinux_2_28` image; the log says which build ran.
+
+| Variable | Default | Effect |
+|---|---|---|
+| `MACHINE_TEST_SANITIZE` | `1` | `0`: no sanitized build on Linux |
+| `MACHINE_TEST_TIMEOUT` | `900` | Seconds the test program may run. A timeout fails the run. |
+| `LUAJIT_SRC` | `vendor/luajit` | The LuaJIT git checkout to build |
+
+It needs gcc (MinGW-w64 with `mingw32-make` on Windows, run from Git Bash or an MSYS2 MINGW64 shell; `make` on Linux), git, and `timeout` and `sha256sum` from coreutils. The platform id must match the host. Output goes to `natives/build/<platform-id>/machine-test/`: the program, its compiler output (`machine_test.log`, on Windows `machine_test.exe.log`; empty when clean), `smoke.log` (the sanitized smoke run) and `machine-test.log` (the run).
+
+Exit 0: every check passed. 1: a check failed, the sanitized smoke run failed, or the test did not finish in time. 2: a usage error, a build failure or a compiler warning.
+
+## Tier 1: `BridgeProbe`
+
+`common/src/test/java/io/github/mindbound/cclj/natives/BridgeProbe.java` tests the JNI layer (`natives/src/jni_machine.c`) and the production `natives` Java package (`NativeLibrary`, `NativeMachine`, `Wire`) against a fake host, under `-Xcheck:jni` (M1.md §3.15). It uses only the JDK. It is compiled with plain `javac` and no classpath, together with every class of the `natives` package, so a class of that package that needs anything beyond the JDK fails the compile (M1.md F17).
+
+| # | Check |
+|---|---|
+| 1 | Happy path, and the ABI check of `NativeLibrary` |
+| 2 | The host throws `RuntimeException` and `new OutOfMemoryError("fake")`: the first line of the error text is fixed, and `nResume` leaves no exception pending |
+| 3 | The host returns null |
+| 4 | 10k seeded random replies |
+| 5 | A re-entrant `resume` from the host gives `IllegalStateException`, which becomes a Lua error |
+| 6 | `close()` from another thread while the host blocks on a latch: the free is deferred, `closedWhileRunning` is true, and `LIVE == 0` at the end |
+| 7 | Create on thread A, resume on B, close on C |
+| 8 | Local-ref leaks: one resume with 100k upcalls of 4 KiB each, under `-Xmx256m`. Inside the last upcall, after `System.gc()`, the used heap must be below the baseline + 32 MiB. `-Xcheck:jni` prints nothing for leaked local refs (F13), so this test catches them through the heap. |
+| 9 | Prints the ns per call |
+
+The class comment of `BridgeProbe` lists every check in detail. Beyond the table, it also checks the other exits of the host call (a JNI failure, provoked by filling the Java heap, and the local frames of the failing exits), that the host's exception is printed, that `NativeLibrary` loads once, and, in a second JVM, that a failed load stays failed. It prints one line per check (`ok   ...` or `FAIL ...`), the ns per call and a summary line. On stderr, the stack traces of the fake `RuntimeException` and `OutOfMemoryError`, and one long line of `Exception in thread "bridge-section"` prefixes, are expected (the probe prints a note before them). Exit 0: every check passed. 1: a check failed, or its watchdog stopped the run. 2: no library is bundled for this platform. 3: the library could not be loaded, or its ABI does not match. It loads the library from `natives/build/out` on the classpath and extracts it into the cache directory given as its argument. The second JVM is the same `java` with the same class path and `-Xmx64m`; its output goes into the probe's log.
+
+Run it as CI does: stdout and stderr into one log, then the scan of that log. A non-zero exit code of `java` is a failure even when the scan passes; CI runs these lines under `set -eo pipefail`, so the step stops there. Run by hand, check the `java exit` line.
+
+Windows (Git Bash or MSYS2 MINGW64; the classpath separator is `;`):
+
+```
+bash natives/build-natives.sh windows-x86_64
+set -o pipefail
+jdk=$(cygpath -u "$JAVA_HOME")/bin
+out=natives/build/bridge-probe
+rm -rf "$out"; mkdir -p "$out"
+"$jdk/javac" -d "$out/classes" \
+  common/src/main/java/io/github/mindbound/cclj/natives/*.java \
+  common/src/test/java/io/github/mindbound/cclj/natives/NativeProbe.java \
+  common/src/test/java/io/github/mindbound/cclj/natives/BridgeProbe.java
+"$jdk/java" -Xcheck:jni -Xmx256m -cp "$out/classes;natives/build/out" \
+  io.github.mindbound.cclj.natives.BridgeProbe "$out/cache" 2>&1 | tee "$out/bridge-probe.log"
+echo "java exit: $?"
+bash natives/tests/jni-scan.sh "$out/bridge-probe.log"
+```
+
+Linux (the classpath separator is `:`): build the library in AlmaLinux 8, at the glibc 2.28 floor, then run the probe there (`JAVA_HOME=/usr/lib/jvm/java-21-openjdk`, as in CI) or on a current distro, such as Ubuntu 26.04 (`JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64`). Under WSL both work on the Windows checkout (`/mnt/c/...`).
+
+```
+bash natives/build-natives.sh linux-x86_64            # in AlmaLinux 8
+set -o pipefail
+out=natives/build/bridge-probe
+rm -rf "$out"; mkdir -p "$out"
+"$JAVA_HOME/bin/javac" -d "$out/classes" \
+  common/src/main/java/io/github/mindbound/cclj/natives/*.java \
+  common/src/test/java/io/github/mindbound/cclj/natives/NativeProbe.java \
+  common/src/test/java/io/github/mindbound/cclj/natives/BridgeProbe.java
+"$JAVA_HOME/bin/java" -Xcheck:jni -Xmx256m -cp "$out/classes:natives/build/out" \
+  io.github.mindbound.cclj.natives.BridgeProbe "$out/cache" 2>&1 | tee "$out/bridge-probe.log"
+echo "java exit: $?"
+bash natives/tests/jni-scan.sh "$out/bridge-probe.log"
+```
+
+The ns per call printed here includes the cost of `-Xcheck:jni`. The figure for G1 (M1.md §3.16, item 8) is measured without it: drop `-Xcheck:jni` from the `java` line.
+
+## What CI runs
+
+Both natives jobs of `.github/workflows/build.yml` run these steps in this order: `natives-linux-x86_64` in the `manylinux_2_28` container (bash), `natives-windows-x86_64` in MSYS2 MINGW64. A failing step stops its job. The logs are uploaded as `logs-natives-<platform-id>` whether the job passed or failed: the LuaJIT build logs, `harnesses/results/`, the `*.log` files of `machine-test/`, `natives/build/probe/native-probe.log`, `natives/build/bridge-probe/bridge-probe.log`, and the `hs_err_pid*.log` of a JVM crash.
+
+| Step | Runs |
+|---|---|
+| Build libcclj | `bash natives/build-natives.sh <platform-id>` |
+| Lint | `bash natives/tests/lint-natives.sh <platform-id>` |
+| Tier 0 | `bash natives/tests/machine-test.sh <platform-id>`. On Windows without sanitizers; in the container sanitized only if the image's gcc-toolset can link `-fsanitize=address,undefined` (the job installs no `libasan`) |
+| Scan self-test | `bash natives/tests/jni-scan.sh --self-test` |
+| Harnesses | `bash natives/tests/run-harnesses.sh natives/build/<platform-id>/luajit/src` |
+| NativeProbe | `javac` of `NativeLoader.java` and `NativeProbe.java`; `java -Xcheck:jni ... NativeProbe natives/build/probe/cache 2>&1 \| tee natives/build/probe/native-probe.log`; `jni-scan.sh` of that log |
+| Tier 1 | `javac` of `natives/*.java`, `NativeProbe.java` and `BridgeProbe.java`; `java -Xcheck:jni -Xmx256m ... BridgeProbe natives/build/bridge-probe/cache 2>&1 \| tee natives/build/bridge-probe/bridge-probe.log`; `jni-scan.sh` of that log |
+
+The probe steps run under `set -eo pipefail`, so the exit code of the pipeline is the one of `java`, not of `tee`: a FATAL ERROR of `-Xcheck:jni` exits 1 on Windows and 134 on Linux, and either fails the step before the scan.
