@@ -1,0 +1,36 @@
+machine_test: CCLJ_ABI 2, 16 host functions, spec 260 bytes
+ok   smoke: the G1 bios end to end: load 0 resume 3 free 0 "bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk"
+ok   1 allow-lists: state inspected: load 0, inspection 0
+ok   1 allow-lists: keys of _G: got "_G _VERSION alias1 alias2 assert coroutine empty error getfenv getmetatable ipairs load loadstring math next pairs pcall rawequal rawget rawlen rawset select setfenv setmetatable string t table term tonumber tostring type unpack xpcall" (0 non-string keys)
+ok   1 allow-lists: keys of _LOADED: got "_G aliasmod bit coroutine emptymod math string t table" (0 non-string keys)
+ok   1 allow-lists: each _LOADED entry is the table that _G has: entries that differ: none
+ok   1 allow-lists: string keys of the registry: got "_LOADED _PRELOAD"
+ok   1 allow-lists: _PRELOAD is an empty table: type 5, 0 entries
+ok   1 allow-lists: the JIT is on and maxmcode is 256 KiB: JIT on, maxmcode 256
+ok   1 allow-lists: removed globals and string.dump are absent: load 0, resume 3 (want 3), free 0, message "present:\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:6: in main chunk"
+ok   1 allow-lists: API tables, aliases and an empty API: load 0, resume 3 (want 3), free 0, message "true function function nil true\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:1: in main chunk"
+ok   2 load: a bios loads: load 0 (want 0), msg_tb none, message ""
+ok   2 load: syntax error: load 3 (want 3), msg_tb none, message "bios.lua:1: unexpected symbol near '='"
+ok   2 load: a chunk starting with ESC is refused: load 3 (want 3), msg_tb none, message "attempt to load a binary chunk"
+ok   2 load: real bytecode is refused: load 3 (want 3), msg_tb none, message "attempt to load a binary chunk"
+ok   2 load: a 0-byte bios loads: load 0 (want 0), msg_tb none, message ""
+ok   2 load: a 0-byte bios returns RETURNED: load 0, resume 2, message ""
+ok   2 load: an empty spec is corrupt: load 3 (want 3), msg_tb none, message "CCLuaJIT: corrupt API table description"
+ok   2 load: a truncated spec is corrupt: load 3 (want 3), msg_tb none, message "CCLuaJIT: corrupt API table description"
+ok   2 load: a spec with 65,536 methods loads: load 0 (want 0), msg_tb none, message ""
+ok   2 load: a spec with 65,537 methods is corrupt: load 3 (want 3), msg_tb none, message "CCLuaJIT: corrupt API table description"
+ok   2 load: a spec with 70,000 methods is corrupt: load 3 (want 3), msg_tb none, message "CCLuaJIT: corrupt API table description"
+ok   2 load: unknown method flag bits are corrupt: load 3 (want 3), msg_tb none, message "CCLuaJIT: corrupt API table description"
+ok   2 load: hasModule 2 is corrupt: load 3 (want 3), msg_tb none, message "CCLuaJIT: corrupt API table description"
+ok   2 load: a 257-byte name is corrupt: load 3 (want 3), msg_tb none, message "CCLuaJIT: corrupt API table description"
+ok   2 load: a 256-byte name loads: load 0 (want 0), msg_tb none, message ""
+ok   2 load: a trailing byte after the spec is corrupt: load 3 (want 3), msg_tb none, message "CCLuaJIT: corrupt API table description"
+ok   2 load: napi 0xFFFFFFFF is corrupt: load 3 (want 3), msg_tb none, message "CCLuaJIT: corrupt API table description"
+ok   2 load: a second load is INTERNAL: first 0, second 4 "bios is already loaded"
+ok   2 load: freed after a second load
+ok   2 load: a load after a failed load is INTERNAL: first 3, second 4 "machine is dead"
+ok   2 load: a resume after a failed load is INTERNAL: resume 4 "machine is dead"
+ok   2 load: NULL inputs with a length are INTERNAL: 4, 4 "bad load arguments"
+ok   2 load: a spec above CM_WIRE_MAX is INTERNAL: 4
+ok   2 load: the machine still loads after refused calls: 0
+ok   2 load: a NULL machine

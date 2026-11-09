@@ -14,7 +14,8 @@
 **   allows. J4: no exception is pending when a native method returns. J5: every jsize conversion is bounded by
 **   CM_WIRE_MAX (or CM_MSG_MAX + 4).
 ** - The jlong handle is the cm_machine pointer. Java passes it only while it owns the machine (NativeMachine's
-**   lock and its running flag); cm_* calls check the busy flag again.
+**   lock and its running flag); cm_* calls check the busy flag again and return CM_ST_BUSY, which these functions
+**   pass on as it is, without reading the message (cclj_machine.h, thread rules).
 */
 #include <stdint.h>
 #include <stdlib.h>
@@ -27,7 +28,7 @@
 /* What jni_host_call needs: one per nResume, on its stack (J6). */
 typedef struct JniHost {
   JNIEnv *env;
-  jobject self;        /* the NativeMachine; a local reference of nResume's caller frame */
+  jobject self;        /* the NativeMachine: nResume's own local reference, valid until nResume returns */
   jmethodID upcall;    /* NativeMachine.upcall(int, byte[]): byte[] */
 } JniHost;
 
@@ -149,8 +150,9 @@ JNIEXPORT jlong JNICALL Java_io_github_mindbound_cclj_natives_NativeMachine_nNew
   return (jlong)(intptr_t)cm_new(limit, (uint64_t)idKey);
 }
 
-/* NO_LUA. NativeMachine.nLoad(h, spec, bios): copies both arrays and calls cm_load. CM_ST_INTERNAL for a zero
-** handle, a null array, an array longer than CM_WIRE_MAX, or a failed copy (the message is then left as it was).
+/* NO_LUA. NativeMachine.nLoad(h, spec, bios): copies both arrays and calls cm_load, and returns its status
+** (CM_ST_BUSY included). CM_ST_INTERNAL for a zero handle, a null array, an array longer than CM_WIRE_MAX, or a
+** failed copy (the message is then left as it was).
 */
 JNIEXPORT jint JNICALL Java_io_github_mindbound_cclj_natives_NativeMachine_nLoad(JNIEnv *env, jclass cls, jlong h,
                                                                                 jbyteArray spec, jbyteArray bios)
@@ -169,8 +171,8 @@ JNIEXPORT jint JNICALL Java_io_github_mindbound_cclj_natives_NativeMachine_nLoad
 
 /* NO_LUA. NativeMachine.nResume(h, event): resumes the bios coroutine. Its host calls go to this.upcall through
 ** jni_host_call. A non-null event is copied and passed on: in S1, cm_resume refuses it with CM_ST_INTERNAL and the
-** message "events are not implemented yet (S2)". CM_ST_INTERNAL with the message left as it was for a zero handle,
-** or when the event cannot be copied.
+** message "events are not implemented yet (S2)". Returns cm_resume's status (CM_ST_BUSY included), or
+** CM_ST_INTERNAL with the message left as it was for a zero handle, or when the event cannot be copied.
 */
 JNIEXPORT jint JNICALL Java_io_github_mindbound_cclj_natives_NativeMachine_nResume(JNIEnv *env, jobject self,
                                                                                   jlong h, jbyteArray event)
@@ -209,9 +211,9 @@ JNIEXPORT jint JNICALL Java_io_github_mindbound_cclj_natives_NativeMachine_nResu
   return st;
 }
 
-/* NO_LUA. NativeMachine.nMessage(h): the text of the last cm_load or cm_resume, as a byte[] of a 4-byte
-** little-endian traceback offset (0xFFFFFFFF for none) and then the message bytes. NULL, with no exception
-** pending, if the array cannot be made; Java then shows "(no message)".
+/* NO_LUA. NativeMachine.nMessage(h): the text of the last cm_load or cm_resume that did not return CM_ST_BUSY, as a
+** byte[] of a 4-byte little-endian traceback offset (0xFFFFFFFF for none) and then the message bytes. NULL, with no
+** exception pending, if the array cannot be made; Java then shows "(no message)".
 */
 JNIEXPORT jbyteArray JNICALL Java_io_github_mindbound_cclj_natives_NativeMachine_nMessage(JNIEnv *env, jclass cls,
                                                                                          jlong h)
@@ -247,8 +249,8 @@ fail:
   return NULL;
 }
 
-/* NO_LUA. NativeMachine.nFree(h): cm_free. CM_ST_OK, or CM_ST_INTERNAL when the machine is busy (then it is not
-** freed and Java logs a leak). No JNI call.
+/* NO_LUA. NativeMachine.nFree(h): cm_free. CM_ST_OK (also for a zero handle); CM_ST_BUSY when the machine is busy,
+** or CM_ST_INTERNAL for a wrong magic (a test tripwire): then it is not freed and Java logs a leak. No JNI call.
 */
 JNIEXPORT jint JNICALL Java_io_github_mindbound_cclj_natives_NativeMachine_nFree(JNIEnv *env, jclass cls, jlong h)
 {

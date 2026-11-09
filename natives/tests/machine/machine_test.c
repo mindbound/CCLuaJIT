@@ -497,12 +497,16 @@ static int h_reenter(host *h, cm_buf *rep)
   const unsigned char *msg;
   tval v[4];
   h->re_resume = cm_resume(h->m, host_call, h, NULL, 0);
+  h->re_load = cm_load(h->m, g_spec.data, g_spec.len, (const unsigned char *)"", 0);
+  h->re_free = cm_free(h->m);
+  /* White box: the header does not let a caller read the message after CM_ST_BUSY. Here it is race-free (the
+  ** owner's own thread, and nothing writes the message during a host call), and it shows that the three refused
+  ** calls wrote nothing.
+  */
   msg = cm_message(h->m, &len, NULL);
   if (len > sizeof(h->re_msg)) len = sizeof(h->re_msg);
   memcpy(h->re_msg, msg, len);
   h->re_msglen = len;
-  h->re_load = cm_load(h->m, g_spec.data, g_spec.len, (const unsigned char *)"", 0);
-  h->re_free = cm_free(h->m);
   v[0] = tv_num(h->re_resume);
   v[1] = tv_str(h->re_msg, h->re_msglen);
   v[2] = tv_num(h->re_load);
@@ -518,9 +522,9 @@ static int h_f(host *h, cm_buf *rep) { (void)h; reply_error(rep, 1, "f failed", 
 /* t.block(): waits (up to 20 s) until another thread opens the gate. */
 static int h_block(host *h, cm_buf *rep)
 {
-  int i;
+  double t0 = now_s();
   __atomic_store_n(&h->blocked, 1, __ATOMIC_SEQ_CST);
-  for (i = 0; i < 20000 && !__atomic_load_n(&h->gate, __ATOMIC_SEQ_CST); i++) sleep_ms(1);
+  while (!__atomic_load_n(&h->gate, __ATOMIC_SEQ_CST) && now_s() - t0 < 20) sleep_ms(1);
   reply_none(rep);
   return CM_HOST_OK;
 }
@@ -2126,6 +2130,61 @@ static void test_oom(void)
 typedef struct busy_run { cm_machine *m; host *h; int st; } busy_run;
 static void busy_thread(void *p) { busy_run *r = (busy_run *)p; r->st = cm_resume(r->m, host_call, r->h, NULL, 0); }
 
+/* The hammer: refused calls from a second thread while the owner renders its error message. Each round starts with
+** the gate closed. The bios calls t.block(), which waits for the gate while the owner holds the busy flag. The
+** hammer waits until the owner is blocked there, makes 1,000 rounds of three refused calls, then opens the gate and
+** goes on: the owner leaves t.block() and renders its error and traceback while the hammer calls (on a host with 2
+** or more CPUs), until the owner's leave hook stops the hammer. Every call must be refused with CM_ST_BUSY: the
+** hammer calls only while the owner holds the flag (it starts once the owner is blocked, and the hook waits for it
+** to stop before the owner releases the flag), so it never owns the machine.
+*/
+typedef struct hammer { cm_machine *m; host *h; int stop, done; long refused, other, at_leave; } hammer;
+
+static void hammer_thread(void *p)
+{
+  hammer *x = (hammer *)p;
+  double t0 = now_s();
+  long n = 0;
+  while (!__atomic_load_n(&x->h->blocked, __ATOMIC_SEQ_CST) && now_s() - t0 < 20) sleep_ms(1);
+  if (!__atomic_load_n(&x->h->blocked, __ATOMIC_SEQ_CST)) {   /* the owner never got there: no cm_* call */
+    __atomic_store_n(&x->h->gate, 1, __ATOMIC_SEQ_CST);        /* so that a late owner does not wait */
+    __atomic_store_n(&x->done, 1, __ATOMIC_SEQ_CST);
+    return;
+  }
+  while (!__atomic_load_n(&x->stop, __ATOMIC_SEQ_CST)) {
+    int a = cm_resume(x->m, host_call, x->h, NULL, 0);
+    int b = cm_load(x->m, g_spec.data, g_spec.len, (const unsigned char *)"", 0);
+    int c = cm_free(x->m);
+    if (a == CM_ST_BUSY && b == CM_ST_BUSY && c == CM_ST_BUSY) __atomic_add_fetch(&x->refused, 3, __ATOMIC_SEQ_CST);
+    else __atomic_add_fetch(&x->other, 1, __ATOMIC_SEQ_CST);
+    if (++n == 1000) __atomic_store_n(&x->h->gate, 1, __ATOMIC_SEQ_CST);   /* the owner goes on and renders */
+  }
+  __atomic_store_n(&x->done, 1, __ATOMIC_SEQ_CST);
+}
+
+/* The owner's leave hook (cm_test_on_leave): its message is written. It lets the hammer make 3,000 more refused
+** calls (at most 5 s), then stops it and waits until it has stopped. A hammer that does not stop within 60 s would
+** own the machine next, so the test ends the process then.
+*/
+static void hammer_leave(void *p)
+{
+  hammer *x = (hammer *)p;
+  long base = __atomic_load_n(&x->refused, __ATOMIC_SEQ_CST);
+  double t0 = now_s();
+  x->at_leave = base;
+  while (__atomic_load_n(&x->refused, __ATOMIC_SEQ_CST) < base + 3000 &&
+         __atomic_load_n(&x->other, __ATOMIC_SEQ_CST) == 0 && !__atomic_load_n(&x->done, __ATOMIC_SEQ_CST) &&
+         now_s() - t0 < 5)
+    sleep_ms(1);
+  __atomic_store_n(&x->stop, 1, __ATOMIC_SEQ_CST);
+  t0 = now_s();
+  while (!__atomic_load_n(&x->done, __ATOMIC_SEQ_CST) && now_s() - t0 < 60) sleep_ms(1);
+  if (!__atomic_load_n(&x->done, __ATOMIC_SEQ_CST)) {
+    fprintf(stderr, "machine-test: the hammer thread did not stop in 60 s\n");
+    abort();
+  }
+}
+
 static void test_reentry(void)
 {
   host h;
@@ -2144,16 +2203,19 @@ static void test_reentry(void)
   load_z(m, "local a, b, c, d = t.reenter()\ncoroutine.yield()\nerror(a .. '|' .. b .. '|' .. c .. '|' .. d, 0)");
   st1 = cm_resume(m, host_call, &h, NULL, 0);
   out_msg(&o, m);
-  check(st1 == CM_ST_YIELD && h.re_resume == CM_ST_INTERNAL && h.re_msglen == 15 &&
-        memcmp(h.re_msg, "machine is busy", 15) == 0 && h.re_load == CM_ST_INTERNAL && h.re_free == CM_ST_INTERNAL,
-        "9 re-entrancy: cm_resume, cm_load and cm_free from the host are refused",
+  /* The host reads the message after its refused cm_resume, cm_load and cm_free (white box, see h_reenter): it
+  ** must still be the one cm_load left (empty).
+  */
+  check(st1 == CM_ST_YIELD && h.re_resume == CM_ST_BUSY && h.re_msglen == 0 && h.re_load == CM_ST_BUSY &&
+        h.re_free == CM_ST_BUSY,
+        "9 re-entrancy: cm_resume, cm_load and cm_free from the host get CM_ST_BUSY and leave the message alone",
         "outer %d; inner resume %d \"%.*s\", load %d, free %d", st1, h.re_resume, (int)h.re_msglen, h.re_msg,
         h.re_load, h.re_free);
-  check(o.len == 0 && o.tb == SIZE_MAX, "9 re-entrancy: the owner's YIELD replaces the \"machine is busy\" message",
+  check(o.len == 0 && o.tb == SIZE_MAX, "9 re-entrancy: the owner's YIELD gives its own (empty) message",
         "\"%s\"", show(&o, b, sizeof(b)));
   st2 = cm_resume(m, host_call, &h, NULL, 0);
   out_msg(&o, m);
-  check(st2 == CM_ST_ERROR && head_is(&o, "4|machine is busy|4|4"),
+  check(st2 == CM_ST_ERROR && head_is(&o, "5||5|5"),
         "9 re-entrancy: the machine was not freed or changed",
         "%d \"%s\"", st2, show(&o, b, sizeof(b)));
   check(cm_free(m) == CM_ST_OK, "9 re-entrancy: freed afterwards", NULL);
@@ -2170,22 +2232,88 @@ static void test_reentry(void)
     check(0, "9 re-entrancy: second thread", "cannot start a thread");
   } else {
     int fr, rs, ld;
-    for (i = 0; i < 10000 && !__atomic_load_n(&h.blocked, __ATOMIC_SEQ_CST); i++) sleep_ms(1);
-    fr = cm_free(m);
-    rs = cm_resume(m, host_call, &h, NULL, 0);
-    out_msg(&o, m);
-    ld = cm_load(m, g_spec.data, g_spec.len, (const unsigned char *)"", 0);
-    __atomic_store_n(&h.gate, 1, __ATOMIC_SEQ_CST);
-    thr_join(th);
-    check(fr == CM_ST_INTERNAL && rs == CM_ST_INTERNAL && msg_is(&o, "machine is busy") && ld == CM_ST_INTERNAL &&
-          br.st == CM_ST_YIELD, "9 re-entrancy: cm_free, cm_resume and cm_load from another thread while busy",
-          "free %d, resume %d \"%s\", load %d; owner %d", fr, rs, show(&o, b, sizeof(b)), ld, br.st);
-    st1 = cm_resume(m, host_call, &h, NULL, 0);
-    out_msg(&o, m);
-    check(st1 == CM_ST_ERROR && head_is(&o, "end") && cm_free(m) == CM_ST_OK,
-          "9 re-entrancy: the machine works and frees afterwards", "%d \"%s\"", st1, show(&o, b, sizeof(b)));
+    double t0 = now_s();
+    while (!__atomic_load_n(&h.blocked, __ATOMIC_SEQ_CST) && now_s() - t0 < 10) sleep_ms(1);
+    if (!__atomic_load_n(&h.blocked, __ATOMIC_SEQ_CST)) {   /* the owner never got there: no cm_* call before join */
+      __atomic_store_n(&h.gate, 1, __ATOMIC_SEQ_CST);
+      thr_join(th);
+      check(0, "9 re-entrancy: cm_free, cm_resume and cm_load from another thread while busy",
+            "the owner never reached t.block() (owner %d)", br.st);
+      cm_free(m);
+    } else {
+      fr = cm_free(m);
+      rs = cm_resume(m, host_call, &h, NULL, 0);
+      ld = cm_load(m, g_spec.data, g_spec.len, (const unsigned char *)"", 0);
+      __atomic_store_n(&h.gate, 1, __ATOMIC_SEQ_CST);
+      thr_join(th);
+      check(fr == CM_ST_BUSY && rs == CM_ST_BUSY && ld == CM_ST_BUSY && br.st == CM_ST_YIELD,
+            "9 re-entrancy: cm_free, cm_resume and cm_load from another thread while busy",
+            "free %d, resume %d, load %d; owner %d", fr, rs, ld, br.st);
+      st1 = cm_resume(m, host_call, &h, NULL, 0);
+      out_msg(&o, m);
+      check(st1 == CM_ST_ERROR && head_is(&o, "end") && cm_free(m) == CM_ST_OK,
+            "9 re-entrancy: the machine works and frees afterwards", "%d \"%s\"", st1, show(&o, b, sizeof(b)));
+    }
   }
   out_free(&o);
+
+  /* Refused calls from another thread while the owner renders a 60,000-byte error and its traceback (see
+  ** hammer_thread), 10 rounds. Before S1 step 7, each refused cm_resume and cm_load wrote "machine is busy" into
+  ** the message the owner was writing.
+  */
+  {
+    static const char race_bios[] =
+      "t.block()\n"
+      "local function f(n) if n == 0 then error(string.rep('e', 60000), 0) end return (f(n - 1)) end\n"
+      "f(30)";
+    static const char tb_head[] = "\nstack traceback:\n\t[C]: in function 'error'";
+    static const char tb_tail[] = "in main chunk";
+    hammer x;
+    long refused = 0, other = 0, before = 0;
+    int rounds = 0, good = 0;
+    char first[200] = "";
+    for (i = 0; i < 10; i++) {
+      size_t k;
+      int ok, st;
+      m = cm_new(LIMIT, KEY);
+      h.m = m;
+      h.gate = 0; h.blocked = 0;   /* the hammer opens the gate (hammer_thread) */
+      load_z(m, race_bios);
+      memset(&x, 0, sizeof(x));
+      x.m = m; x.h = &h;
+      box.fn = hammer_thread; box.arg = &x;
+      if (!thr_start(&th, &box)) {
+        cm_free(m);
+        break;
+      }
+      cm_test_on_leave(m, hammer_leave, &x);
+      st = cm_resume(m, host_call, &h, NULL, 0);
+      cm_test_on_leave(m, NULL, NULL);
+      thr_join(th);
+      rounds++;
+      refused += x.refused;
+      other += x.other;
+      before += x.at_leave;
+      out_msg(&o, m);
+      /* at_leave: the refused calls made before the owner's message was complete; 3,000 come before the gate opens */
+      ok = st == CM_ST_ERROR && o.len > 60000 + sizeof(tb_head) && o.tb == 60000 && x.other == 0 &&
+           x.at_leave >= 3000 && x.refused > x.at_leave;
+      for (k = 0; ok && k < 60000; k++) ok = o.msg[k] == 'e';
+      ok = ok && memcmp(o.msg + 60000, tb_head, sizeof(tb_head) - 1) == 0 &&
+           memcmp(o.msg + o.len - (sizeof(tb_tail) - 1), tb_tail, sizeof(tb_tail) - 1) == 0;
+      if (ok) good++;
+      else if (!first[0])
+        snprintf(first, sizeof(first), "; round %d: status %d, %lu bytes, tb %ld, hammer %ld refused (%ld before "
+                 "the message was complete), %ld other", i, st, (unsigned long)o.len,
+                 o.tb == SIZE_MAX ? -1L : (long)o.tb, x.refused, x.at_leave, x.other);
+      out_free(&o);
+      if (cm_free(m) != CM_ST_OK) other++;
+    }
+    check(rounds == 10 && good == 10 && other == 0,
+          "9 re-entrancy: refused calls from another thread while the owner renders its error change nothing",
+          "%d of %d rounds intact, %ld refused calls (%ld before the messages were complete), %ld not refused%s",
+          good, rounds, refused, before, other, first);
+  }
   host_done(&h);
 }
 

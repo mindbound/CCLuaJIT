@@ -1,0 +1,282 @@
+==================
+WARNING: ThreadSanitizer: data race (pid=2594)
+  Write of size 8 at 0x72c400000148 by main thread:
+    #0 memcpy ../../../../src/libsanitizer/sanitizer_common/sanitizer_common_interceptors_memintrinsics.inc:117 (libtsan.so.2+0x8edad) (BuildId: 66d37dc704b813df6c813b77217284deb43a0042)
+    #1 memcpy ../../../../src/libsanitizer/sanitizer_common/sanitizer_common_interceptors_memintrinsics.inc:109 (libtsan.so.2+0x8edad)
+    #2 memcpy /usr/include/x86_64-linux-gnu/bits/string_fortified.h:29 (tsan_race+0x5de3) (BuildId: 82128781e535cf995fe65b1a4a8c37e5b3671868)
+    #3 msg_set <scratch>/g7/negr1/natives/src/machine.c:159 (tsan_race+0x5de3)
+    #4 render_error <scratch>/g7/negr1/natives/src/machine.c:824 (tsan_race+0x6f61) (BuildId: 82128781e535cf995fe65b1a4a8c37e5b3671868)
+    #5 resume_body <scratch>/g7/negr1/natives/src/machine.c:967 (tsan_race+0x6f61)
+    #6 lj_BC_FUNCC <null> (tsan_race+0x33ba2) (BuildId: 82128781e535cf995fe65b1a4a8c37e5b3671868)
+    #7 main <scratch>/g7/tsan_race.c:84 (tsan_race+0x98f0) (BuildId: 82128781e535cf995fe65b1a4a8c37e5b3671868)
+
+  Previous write of size 8 at 0x72c400000148 by thread T1:
+    #0 memcpy ../../../../src/libsanitizer/sanitizer_common/sanitizer_common_interceptors_memintrinsics.inc:117 (libtsan.so.2+0x8edad) (BuildId: 66d37dc704b813df6c813b77217284deb43a0042)
+    #1 memcpy ../../../../src/libsanitizer/sanitizer_common/sanitizer_common_interceptors_memintrinsics.inc:109 (libtsan.so.2+0x8edad)
+    #2 memcpy /usr/include/x86_64-linux-gnu/bits/string_fortified.h:29 (tsan_race+0x5de3) (BuildId: 82128781e535cf995fe65b1a4a8c37e5b3671868)
+    #3 msg_set <scratch>/g7/negr1/natives/src/machine.c:159 (tsan_race+0x5de3)
+    #4 msg_setz <scratch>/g7/negr1/natives/src/machine.c:167 (tsan_race+0x62d1) (BuildId: 82128781e535cf995fe65b1a4a8c37e5b3671868)
+    #5 cm_load <scratch>/g7/negr1/natives/src/machine.c:758 (tsan_race+0x8c47) (BuildId: 82128781e535cf995fe65b1a4a8c37e5b3671868)
+    #6 hammer <scratch>/g7/tsan_race.c:49 (tsan_race+0x9655) (BuildId: 82128781e535cf995fe65b1a4a8c37e5b3671868)
+
+  Location is heap block of size 65896 at 0x72c400000000 allocated by main thread:
+    #0 calloc ../../../../src/libsanitizer/tsan/tsan_interceptors_posix.cpp:692 (libtsan.so.2+0x8c9af) (BuildId: 66d37dc704b813df6c813b77217284deb43a0042)
+    #1 cm_new <scratch>/g7/negr1/natives/src/machine.c:1025 (tsan_race+0x906a) (BuildId: 82128781e535cf995fe65b1a4a8c37e5b3671868)
+    #2 main <scratch>/g7/tsan_race.c:76 (tsan_race+0x97fd) (BuildId: 82128781e535cf995fe65b1a4a8c37e5b3671868)
+
+  Thread T1 (tid=2596, running) created by main thread at:
+    #0 pthread_create ../../../../src/libsanitizer/tsan/tsan_interceptors_posix.cpp:1078 (libtsan.so.2+0x5cb02) (BuildId: 66d37dc704b813df6c813b77217284deb43a0042)
+    #1 main <scratch>/g7/tsan_race.c:82 (tsan_race+0x989d) (BuildId: 82128781e535cf995fe65b1a4a8c37e5b3671868)
+
+SUMMARY: ThreadSanitizer: data race /usr/include/x86_64-linux-gnu/bits/string_fortified.h:29 in memcpy
+==================
+==================
+WARNING: ThreadSanitizer: data race (pid=2594)
+  Write of size 8 at 0x72c400000138 by main thread:
+    #0 msg_set <scratch>/g7/negr1/natives/src/machine.c:160 (tsan_race+0x5def) (BuildId: 82128781e535cf995fe65b1a4a8c37e5b3671868)
+    #1 render_error <scratch>/g7/negr1/natives/src/machine.c:824 (tsan_race+0x6f61) (BuildId: 82128781e535cf995fe65b1a4a8c37e5b3671868)
+    #2 resume_body <scratch>/g7/negr1/natives/src/machine.c:967 (tsan_race+0x6f61)
+    #3 lj_BC_FUNCC <null> (tsan_race+0x33ba2) (BuildId: 82128781e535cf995fe65b1a4a8c37e5b3671868)
+    #4 main <scratch>/g7/tsan_race.c:84 (tsan_race+0x98f0) (BuildId: 82128781e535cf995fe65b1a4a8c37e5b3671868)
+
+  Previous write of size 8 at 0x72c400000138 by thread T1:
+    #0 msg_set <scratch>/g7/negr1/natives/src/machine.c:160 (tsan_race+0x5def) (BuildId: 82128781e535cf995fe65b1a4a8c37e5b3671868)
+    #1 msg_setz <scratch>/g7/negr1/natives/src/machine.c:167 (tsan_race+0x62d1) (BuildId: 82128781e535cf995fe65b1a4a8c37e5b3671868)
+    #2 cm_resume <scratch>/g7/negr1/natives/src/machine.c:988 (tsan_race+0x8ec5) (BuildId: 82128781e535cf995fe65b1a4a8c37e5b3671868)
+    #3 hammer <scratch>/g7/tsan_race.c:48 (tsan_race+0x9625) (BuildId: 82128781e535cf995fe65b1a4a8c37e5b3671868)
+
+  Location is heap block of size 65896 at 0x72c400000000 allocated by main thread:
+    #0 calloc ../../../../src/libsanitizer/tsan/tsan_interceptors_posix.cpp:692 (libtsan.so.2+0x8c9af) (BuildId: 66d37dc704b813df6c813b77217284deb43a0042)
+    #1 cm_new <scratch>/g7/negr1/natives/src/machine.c:1025 (tsan_race+0x906a) (BuildId: 82128781e535cf995fe65b1a4a8c37e5b3671868)
+    #2 main <scratch>/g7/tsan_race.c:76 (tsan_race+0x97fd) (BuildId: 82128781e535cf995fe65b1a4a8c37e5b3671868)
+
+  Thread T1 (tid=2596, running) created by main thread at:
+    #0 pthread_create ../../../../src/libsanitizer/tsan/tsan_interceptors_posix.cpp:1078 (libtsan.so.2+0x5cb02) (BuildId: 66d37dc704b813df6c813b77217284deb43a0042)
+    #1 main <scratch>/g7/tsan_race.c:82 (tsan_race+0x989d) (BuildId: 82128781e535cf995fe65b1a4a8c37e5b3671868)
+
+SUMMARY: ThreadSanitizer: data race <scratch>/g7/negr1/natives/src/machine.c:160 in msg_set
+==================
+==================
+WARNING: ThreadSanitizer: data race (pid=2594)
+  Write of size 8 at 0x72c400000140 by main thread:
+    #0 msg_set <scratch>/g7/negr1/natives/src/machine.c:161 (tsan_race+0x5e02) (BuildId: 82128781e535cf995fe65b1a4a8c37e5b3671868)
+    #1 render_error <scratch>/g7/negr1/natives/src/machine.c:824 (tsan_race+0x6f61) (BuildId: 82128781e535cf995fe65b1a4a8c37e5b3671868)
+    #2 resume_body <scratch>/g7/negr1/natives/src/machine.c:967 (tsan_race+0x6f61)
+    #3 lj_BC_FUNCC <null> (tsan_race+0x33ba2) (BuildId: 82128781e535cf995fe65b1a4a8c37e5b3671868)
+    #4 main <scratch>/g7/tsan_race.c:84 (tsan_race+0x98f0) (BuildId: 82128781e535cf995fe65b1a4a8c37e5b3671868)
+
+  Previous write of size 8 at 0x72c400000140 by thread T1:
+    #0 msg_set <scratch>/g7/negr1/natives/src/machine.c:161 (tsan_race+0x5e02) (BuildId: 82128781e535cf995fe65b1a4a8c37e5b3671868)
+    #1 msg_setz <scratch>/g7/negr1/natives/src/machine.c:167 (tsan_race+0x62d1) (BuildId: 82128781e535cf995fe65b1a4a8c37e5b3671868)
+    #2 cm_resume <scratch>/g7/negr1/natives/src/machine.c:988 (tsan_race+0x8ec5) (BuildId: 82128781e535cf995fe65b1a4a8c37e5b3671868)
+    #3 hammer <scratch>/g7/tsan_race.c:48 (tsan_race+0x9625) (BuildId: 82128781e535cf995fe65b1a4a8c37e5b3671868)
+
+  Location is heap block of size 65896 at 0x72c400000000 allocated by main thread:
+    #0 calloc ../../../../src/libsanitizer/tsan/tsan_interceptors_posix.cpp:692 (libtsan.so.2+0x8c9af) (BuildId: 66d37dc704b813df6c813b77217284deb43a0042)
+    #1 cm_new <scratch>/g7/negr1/natives/src/machine.c:1025 (tsan_race+0x906a) (BuildId: 82128781e535cf995fe65b1a4a8c37e5b3671868)
+    #2 main <scratch>/g7/tsan_race.c:76 (tsan_race+0x97fd) (BuildId: 82128781e535cf995fe65b1a4a8c37e5b3671868)
+
+  Thread T1 (tid=2596, running) created by main thread at:
+    #0 pthread_create ../../../../src/libsanitizer/tsan/tsan_interceptors_posix.cpp:1078 (libtsan.so.2+0x5cb02) (BuildId: 66d37dc704b813df6c813b77217284deb43a0042)
+    #1 main <scratch>/g7/tsan_race.c:82 (tsan_race+0x989d) (BuildId: 82128781e535cf995fe65b1a4a8c37e5b3671868)
+
+SUMMARY: ThreadSanitizer: data race <scratch>/g7/negr1/natives/src/machine.c:161 in msg_set
+==================
+==================
+WARNING: ThreadSanitizer: data race (pid=2594)
+  Write of size 8 at 0x72c400000138 by thread T1:
+    #0 msg_set <scratch>/g7/negr1/natives/src/machine.c:160 (tsan_race+0x5def) (BuildId: 82128781e535cf995fe65b1a4a8c37e5b3671868)
+    #1 msg_setz <scratch>/g7/negr1/natives/src/machine.c:167 (tsan_race+0x62d1) (BuildId: 82128781e535cf995fe65b1a4a8c37e5b3671868)
+    #2 cm_load <scratch>/g7/negr1/natives/src/machine.c:758 (tsan_race+0x8c47) (BuildId: 82128781e535cf995fe65b1a4a8c37e5b3671868)
+    #3 hammer <scratch>/g7/tsan_race.c:49 (tsan_race+0x9655) (BuildId: 82128781e535cf995fe65b1a4a8c37e5b3671868)
+
+  Previous write of size 8 at 0x72c400000138 by main thread:
+    #0 msg_append <scratch>/g7/negr1/natives/src/machine.c:175 (tsan_race+0x5eb2) (BuildId: 82128781e535cf995fe65b1a4a8c37e5b3671868)
+    #1 append_traceback <scratch>/g7/negr1/natives/src/machine.c:919 (tsan_race+0x6a43) (BuildId: 82128781e535cf995fe65b1a4a8c37e5b3671868)
+    #2 resume_body <scratch>/g7/negr1/natives/src/machine.c:972 (tsan_race+0x6f9b) (BuildId: 82128781e535cf995fe65b1a4a8c37e5b3671868)
+    #3 lj_BC_FUNCC <null> (tsan_race+0x33ba2) (BuildId: 82128781e535cf995fe65b1a4a8c37e5b3671868)
+    #4 main <scratch>/g7/tsan_race.c:84 (tsan_race+0x98f0) (BuildId: 82128781e535cf995fe65b1a4a8c37e5b3671868)
+
+  Location is heap block of size 65896 at 0x72c400000000 allocated by main thread:
+    #0 calloc ../../../../src/libsanitizer/tsan/tsan_interceptors_posix.cpp:692 (libtsan.so.2+0x8c9af) (BuildId: 66d37dc704b813df6c813b77217284deb43a0042)
+    #1 cm_new <scratch>/g7/negr1/natives/src/machine.c:1025 (tsan_race+0x906a) (BuildId: 82128781e535cf995fe65b1a4a8c37e5b3671868)
+    #2 main <scratch>/g7/tsan_race.c:76 (tsan_race+0x97fd) (BuildId: 82128781e535cf995fe65b1a4a8c37e5b3671868)
+
+  Thread T1 (tid=2596, running) created by main thread at:
+    #0 pthread_create ../../../../src/libsanitizer/tsan/tsan_interceptors_posix.cpp:1078 (libtsan.so.2+0x5cb02) (BuildId: 66d37dc704b813df6c813b77217284deb43a0042)
+    #1 main <scratch>/g7/tsan_race.c:82 (tsan_race+0x989d) (BuildId: 82128781e535cf995fe65b1a4a8c37e5b3671868)
+
+SUMMARY: ThreadSanitizer: data race <scratch>/g7/negr1/natives/src/machine.c:160 in msg_set
+==================
+==================
+WARNING: ThreadSanitizer: data race (pid=2594)
+  Write of size 8 at 0x72c400000140 by thread T1:
+    #0 msg_set <scratch>/g7/negr1/natives/src/machine.c:161 (tsan_race+0x5e02) (BuildId: 82128781e535cf995fe65b1a4a8c37e5b3671868)
+    #1 msg_setz <scratch>/g7/negr1/natives/src/machine.c:167 (tsan_race+0x62d1) (BuildId: 82128781e535cf995fe65b1a4a8c37e5b3671868)
+    #2 cm_load <scratch>/g7/negr1/natives/src/machine.c:758 (tsan_race+0x8c47) (BuildId: 82128781e535cf995fe65b1a4a8c37e5b3671868)
+    #3 hammer <scratch>/g7/tsan_race.c:49 (tsan_race+0x9655) (BuildId: 82128781e535cf995fe65b1a4a8c37e5b3671868)
+
+  Previous write of size 8 at 0x72c400000140 by main thread:
+    #0 append_traceback <scratch>/g7/negr1/natives/src/machine.c:899 (tsan_race+0x66aa) (BuildId: 82128781e535cf995fe65b1a4a8c37e5b3671868)
+    #1 resume_body <scratch>/g7/negr1/natives/src/machine.c:972 (tsan_race+0x6f9b) (BuildId: 82128781e535cf995fe65b1a4a8c37e5b3671868)
+    #2 lj_BC_FUNCC <null> (tsan_race+0x33ba2) (BuildId: 82128781e535cf995fe65b1a4a8c37e5b3671868)
+    #3 main <scratch>/g7/tsan_race.c:84 (tsan_race+0x98f0) (BuildId: 82128781e535cf995fe65b1a4a8c37e5b3671868)
+
+  Location is heap block of size 65896 at 0x72c400000000 allocated by main thread:
+    #0 calloc ../../../../src/libsanitizer/tsan/tsan_interceptors_posix.cpp:692 (libtsan.so.2+0x8c9af) (BuildId: 66d37dc704b813df6c813b77217284deb43a0042)
+    #1 cm_new <scratch>/g7/negr1/natives/src/machine.c:1025 (tsan_race+0x906a) (BuildId: 82128781e535cf995fe65b1a4a8c37e5b3671868)
+    #2 main <scratch>/g7/tsan_race.c:76 (tsan_race+0x97fd) (BuildId: 82128781e535cf995fe65b1a4a8c37e5b3671868)
+
+  Thread T1 (tid=2596, running) created by main thread at:
+    #0 pthread_create ../../../../src/libsanitizer/tsan/tsan_interceptors_posix.cpp:1078 (libtsan.so.2+0x5cb02) (BuildId: 66d37dc704b813df6c813b77217284deb43a0042)
+    #1 main <scratch>/g7/tsan_race.c:82 (tsan_race+0x989d) (BuildId: 82128781e535cf995fe65b1a4a8c37e5b3671868)
+
+SUMMARY: ThreadSanitizer: data race <scratch>/g7/negr1/natives/src/machine.c:161 in msg_set
+==================
+==================
+WARNING: ThreadSanitizer: data race (pid=2594)
+  Write of size 8 at 0x72c400000138 by thread T1:
+    #0 msg_set <scratch>/g7/negr1/natives/src/machine.c:160 (tsan_race+0x5def) (BuildId: 82128781e535cf995fe65b1a4a8c37e5b3671868)
+    #1 msg_setz <scratch>/g7/negr1/natives/src/machine.c:167 (tsan_race+0x62d1) (BuildId: 82128781e535cf995fe65b1a4a8c37e5b3671868)
+    #2 cm_resume <scratch>/g7/negr1/natives/src/machine.c:988 (tsan_race+0x8ec5) (BuildId: 82128781e535cf995fe65b1a4a8c37e5b3671868)
+    #3 hammer <scratch>/g7/tsan_race.c:48 (tsan_race+0x9625) (BuildId: 82128781e535cf995fe65b1a4a8c37e5b3671868)
+
+  Previous write of size 8 at 0x72c400000138 by main thread:
+    #0 msg_append <scratch>/g7/negr1/natives/src/machine.c:175 (tsan_race+0x5eb2) (BuildId: 82128781e535cf995fe65b1a4a8c37e5b3671868)
+    #1 append_traceback <scratch>/g7/negr1/natives/src/machine.c:919 (tsan_race+0x6a43) (BuildId: 82128781e535cf995fe65b1a4a8c37e5b3671868)
+    #2 resume_body <scratch>/g7/negr1/natives/src/machine.c:972 (tsan_race+0x6f9b) (BuildId: 82128781e535cf995fe65b1a4a8c37e5b3671868)
+    #3 lj_BC_FUNCC <null> (tsan_race+0x33ba2) (BuildId: 82128781e535cf995fe65b1a4a8c37e5b3671868)
+    #4 main <scratch>/g7/tsan_race.c:84 (tsan_race+0x98f0) (BuildId: 82128781e535cf995fe65b1a4a8c37e5b3671868)
+
+  Location is heap block of size 65896 at 0x72c400000000 allocated by main thread:
+    #0 calloc ../../../../src/libsanitizer/tsan/tsan_interceptors_posix.cpp:692 (libtsan.so.2+0x8c9af) (BuildId: 66d37dc704b813df6c813b77217284deb43a0042)
+    #1 cm_new <scratch>/g7/negr1/natives/src/machine.c:1025 (tsan_race+0x906a) (BuildId: 82128781e535cf995fe65b1a4a8c37e5b3671868)
+    #2 main <scratch>/g7/tsan_race.c:76 (tsan_race+0x97fd) (BuildId: 82128781e535cf995fe65b1a4a8c37e5b3671868)
+
+  Thread T1 (tid=2596, running) created by main thread at:
+    #0 pthread_create ../../../../src/libsanitizer/tsan/tsan_interceptors_posix.cpp:1078 (libtsan.so.2+0x5cb02) (BuildId: 66d37dc704b813df6c813b77217284deb43a0042)
+    #1 main <scratch>/g7/tsan_race.c:82 (tsan_race+0x989d) (BuildId: 82128781e535cf995fe65b1a4a8c37e5b3671868)
+
+SUMMARY: ThreadSanitizer: data race <scratch>/g7/negr1/natives/src/machine.c:160 in msg_set
+==================
+==================
+WARNING: ThreadSanitizer: data race (pid=2594)
+  Write of size 8 at 0x72c400000148 by main thread:
+    #0 memcpy ../../../../src/libsanitizer/sanitizer_common/sanitizer_common_interceptors_memintrinsics.inc:117 (libtsan.so.2+0x8edad) (BuildId: 66d37dc704b813df6c813b77217284deb43a0042)
+    #1 memcpy ../../../../src/libsanitizer/sanitizer_common/sanitizer_common_interceptors_memintrinsics.inc:109 (libtsan.so.2+0x8edad)
+    #2 memcpy /usr/include/x86_64-linux-gnu/bits/string_fortified.h:29 (tsan_race+0x5de3) (BuildId: 82128781e535cf995fe65b1a4a8c37e5b3671868)
+    #3 msg_set <scratch>/g7/negr1/natives/src/machine.c:159 (tsan_race+0x5de3)
+    #4 render_error <scratch>/g7/negr1/natives/src/machine.c:824 (tsan_race+0x6f61) (BuildId: 82128781e535cf995fe65b1a4a8c37e5b3671868)
+    #5 resume_body <scratch>/g7/negr1/natives/src/machine.c:967 (tsan_race+0x6f61)
+    #6 lj_BC_FUNCC <null> (tsan_race+0x33ba2) (BuildId: 82128781e535cf995fe65b1a4a8c37e5b3671868)
+    #7 main <scratch>/g7/tsan_race.c:84 (tsan_race+0x98f0) (BuildId: 82128781e535cf995fe65b1a4a8c37e5b3671868)
+
+  Previous write of size 8 at 0x72c400000148 by thread T2:
+    #0 memcpy ../../../../src/libsanitizer/sanitizer_common/sanitizer_common_interceptors_memintrinsics.inc:117 (libtsan.so.2+0x8edad) (BuildId: 66d37dc704b813df6c813b77217284deb43a0042)
+    #1 memcpy ../../../../src/libsanitizer/sanitizer_common/sanitizer_common_interceptors_memintrinsics.inc:109 (libtsan.so.2+0x8edad)
+    #2 memcpy /usr/include/x86_64-linux-gnu/bits/string_fortified.h:29 (tsan_race+0x5de3) (BuildId: 82128781e535cf995fe65b1a4a8c37e5b3671868)
+    #3 msg_set <scratch>/g7/negr1/natives/src/machine.c:159 (tsan_race+0x5de3)
+    #4 msg_setz <scratch>/g7/negr1/natives/src/machine.c:167 (tsan_race+0x62d1) (BuildId: 82128781e535cf995fe65b1a4a8c37e5b3671868)
+    #5 cm_resume <scratch>/g7/negr1/natives/src/machine.c:988 (tsan_race+0x8ec5) (BuildId: 82128781e535cf995fe65b1a4a8c37e5b3671868)
+    #6 hammer <scratch>/g7/tsan_race.c:48 (tsan_race+0x9625) (BuildId: 82128781e535cf995fe65b1a4a8c37e5b3671868)
+
+  Location is heap block of size 65896 at 0x72c400000000 allocated by main thread:
+    #0 calloc ../../../../src/libsanitizer/tsan/tsan_interceptors_posix.cpp:692 (libtsan.so.2+0x8c9af) (BuildId: 66d37dc704b813df6c813b77217284deb43a0042)
+    #1 cm_new <scratch>/g7/negr1/natives/src/machine.c:1025 (tsan_race+0x906a) (BuildId: 82128781e535cf995fe65b1a4a8c37e5b3671868)
+    #2 main <scratch>/g7/tsan_race.c:76 (tsan_race+0x97fd) (BuildId: 82128781e535cf995fe65b1a4a8c37e5b3671868)
+
+  Thread T2 (tid=2597, running) created by main thread at:
+    #0 pthread_create ../../../../src/libsanitizer/tsan/tsan_interceptors_posix.cpp:1078 (libtsan.so.2+0x5cb02) (BuildId: 66d37dc704b813df6c813b77217284deb43a0042)
+    #1 main <scratch>/g7/tsan_race.c:82 (tsan_race+0x989d) (BuildId: 82128781e535cf995fe65b1a4a8c37e5b3671868)
+
+SUMMARY: ThreadSanitizer: data race /usr/include/x86_64-linux-gnu/bits/string_fortified.h:29 in memcpy
+==================
+==================
+WARNING: ThreadSanitizer: data race (pid=2594)
+  Write of size 8 at 0x72c400000138 by thread T2:
+    #0 msg_set <scratch>/g7/negr1/natives/src/machine.c:160 (tsan_race+0x5def) (BuildId: 82128781e535cf995fe65b1a4a8c37e5b3671868)
+    #1 msg_setz <scratch>/g7/negr1/natives/src/machine.c:167 (tsan_race+0x62d1) (BuildId: 82128781e535cf995fe65b1a4a8c37e5b3671868)
+    #2 cm_resume <scratch>/g7/negr1/natives/src/machine.c:988 (tsan_race+0x8ec5) (BuildId: 82128781e535cf995fe65b1a4a8c37e5b3671868)
+    #3 hammer <scratch>/g7/tsan_race.c:48 (tsan_race+0x9625) (BuildId: 82128781e535cf995fe65b1a4a8c37e5b3671868)
+
+  Previous write of size 8 at 0x72c400000138 by main thread:
+    #0 msg_append <scratch>/g7/negr1/natives/src/machine.c:175 (tsan_race+0x5eb2) (BuildId: 82128781e535cf995fe65b1a4a8c37e5b3671868)
+    #1 append_traceback <scratch>/g7/negr1/natives/src/machine.c:900 (tsan_race+0x66c9) (BuildId: 82128781e535cf995fe65b1a4a8c37e5b3671868)
+    #2 resume_body <scratch>/g7/negr1/natives/src/machine.c:972 (tsan_race+0x6f9b) (BuildId: 82128781e535cf995fe65b1a4a8c37e5b3671868)
+    #3 lj_BC_FUNCC <null> (tsan_race+0x33ba2) (BuildId: 82128781e535cf995fe65b1a4a8c37e5b3671868)
+    #4 main <scratch>/g7/tsan_race.c:84 (tsan_race+0x98f0) (BuildId: 82128781e535cf995fe65b1a4a8c37e5b3671868)
+
+  Location is heap block of size 65896 at 0x72c400000000 allocated by main thread:
+    #0 calloc ../../../../src/libsanitizer/tsan/tsan_interceptors_posix.cpp:692 (libtsan.so.2+0x8c9af) (BuildId: 66d37dc704b813df6c813b77217284deb43a0042)
+    #1 cm_new <scratch>/g7/negr1/natives/src/machine.c:1025 (tsan_race+0x906a) (BuildId: 82128781e535cf995fe65b1a4a8c37e5b3671868)
+    #2 main <scratch>/g7/tsan_race.c:76 (tsan_race+0x97fd) (BuildId: 82128781e535cf995fe65b1a4a8c37e5b3671868)
+
+  Thread T2 (tid=2597, running) created by main thread at:
+    #0 pthread_create ../../../../src/libsanitizer/tsan/tsan_interceptors_posix.cpp:1078 (libtsan.so.2+0x5cb02) (BuildId: 66d37dc704b813df6c813b77217284deb43a0042)
+    #1 main <scratch>/g7/tsan_race.c:82 (tsan_race+0x989d) (BuildId: 82128781e535cf995fe65b1a4a8c37e5b3671868)
+
+SUMMARY: ThreadSanitizer: data race <scratch>/g7/negr1/natives/src/machine.c:160 in msg_set
+==================
+==================
+WARNING: ThreadSanitizer: data race (pid=2594)
+  Write of size 8 at 0x72c400000140 by thread T2:
+    #0 msg_set <scratch>/g7/negr1/natives/src/machine.c:161 (tsan_race+0x5e02) (BuildId: 82128781e535cf995fe65b1a4a8c37e5b3671868)
+    #1 msg_setz <scratch>/g7/negr1/natives/src/machine.c:167 (tsan_race+0x62d1) (BuildId: 82128781e535cf995fe65b1a4a8c37e5b3671868)
+    #2 cm_resume <scratch>/g7/negr1/natives/src/machine.c:988 (tsan_race+0x8ec5) (BuildId: 82128781e535cf995fe65b1a4a8c37e5b3671868)
+    #3 hammer <scratch>/g7/tsan_race.c:48 (tsan_race+0x9625) (BuildId: 82128781e535cf995fe65b1a4a8c37e5b3671868)
+
+  Previous write of size 8 at 0x72c400000140 by main thread:
+    #0 append_traceback <scratch>/g7/negr1/natives/src/machine.c:899 (tsan_race+0x66aa) (BuildId: 82128781e535cf995fe65b1a4a8c37e5b3671868)
+    #1 resume_body <scratch>/g7/negr1/natives/src/machine.c:972 (tsan_race+0x6f9b) (BuildId: 82128781e535cf995fe65b1a4a8c37e5b3671868)
+    #2 lj_BC_FUNCC <null> (tsan_race+0x33ba2) (BuildId: 82128781e535cf995fe65b1a4a8c37e5b3671868)
+    #3 main <scratch>/g7/tsan_race.c:84 (tsan_race+0x98f0) (BuildId: 82128781e535cf995fe65b1a4a8c37e5b3671868)
+
+  Location is heap block of size 65896 at 0x72c400000000 allocated by main thread:
+    #0 calloc ../../../../src/libsanitizer/tsan/tsan_interceptors_posix.cpp:692 (libtsan.so.2+0x8c9af) (BuildId: 66d37dc704b813df6c813b77217284deb43a0042)
+    #1 cm_new <scratch>/g7/negr1/natives/src/machine.c:1025 (tsan_race+0x906a) (BuildId: 82128781e535cf995fe65b1a4a8c37e5b3671868)
+    #2 main <scratch>/g7/tsan_race.c:76 (tsan_race+0x97fd) (BuildId: 82128781e535cf995fe65b1a4a8c37e5b3671868)
+
+  Thread T2 (tid=2597, running) created by main thread at:
+    #0 pthread_create ../../../../src/libsanitizer/tsan/tsan_interceptors_posix.cpp:1078 (libtsan.so.2+0x5cb02) (BuildId: 66d37dc704b813df6c813b77217284deb43a0042)
+    #1 main <scratch>/g7/tsan_race.c:82 (tsan_race+0x989d) (BuildId: 82128781e535cf995fe65b1a4a8c37e5b3671868)
+
+SUMMARY: ThreadSanitizer: data race <scratch>/g7/negr1/natives/src/machine.c:161 in msg_set
+==================
+==================
+WARNING: ThreadSanitizer: data race (pid=2594)
+  Write of size 8 at 0x72c400000138 by thread T7:
+    #0 msg_set <scratch>/g7/negr1/natives/src/machine.c:160 (tsan_race+0x5def) (BuildId: 82128781e535cf995fe65b1a4a8c37e5b3671868)
+    #1 msg_setz <scratch>/g7/negr1/natives/src/machine.c:167 (tsan_race+0x62d1) (BuildId: 82128781e535cf995fe65b1a4a8c37e5b3671868)
+    #2 cm_load <scratch>/g7/negr1/natives/src/machine.c:758 (tsan_race+0x8c47) (BuildId: 82128781e535cf995fe65b1a4a8c37e5b3671868)
+    #3 hammer <scratch>/g7/tsan_race.c:49 (tsan_race+0x9655) (BuildId: 82128781e535cf995fe65b1a4a8c37e5b3671868)
+
+  Previous write of size 8 at 0x72c400000138 by main thread:
+    #0 msg_append <scratch>/g7/negr1/natives/src/machine.c:175 (tsan_race+0x5eb2) (BuildId: 82128781e535cf995fe65b1a4a8c37e5b3671868)
+    #1 append_traceback <scratch>/g7/negr1/natives/src/machine.c:900 (tsan_race+0x66c9) (BuildId: 82128781e535cf995fe65b1a4a8c37e5b3671868)
+    #2 resume_body <scratch>/g7/negr1/natives/src/machine.c:972 (tsan_race+0x6f9b) (BuildId: 82128781e535cf995fe65b1a4a8c37e5b3671868)
+    #3 lj_BC_FUNCC <null> (tsan_race+0x33ba2) (BuildId: 82128781e535cf995fe65b1a4a8c37e5b3671868)
+    #4 main <scratch>/g7/tsan_race.c:84 (tsan_race+0x98f0) (BuildId: 82128781e535cf995fe65b1a4a8c37e5b3671868)
+
+  Location is heap block of size 65896 at 0x72c400000000 allocated by main thread:
+    #0 calloc ../../../../src/libsanitizer/tsan/tsan_interceptors_posix.cpp:692 (libtsan.so.2+0x8c9af) (BuildId: 66d37dc704b813df6c813b77217284deb43a0042)
+    #1 cm_new <scratch>/g7/negr1/natives/src/machine.c:1025 (tsan_race+0x906a) (BuildId: 82128781e535cf995fe65b1a4a8c37e5b3671868)
+    #2 main <scratch>/g7/tsan_race.c:76 (tsan_race+0x97fd) (BuildId: 82128781e535cf995fe65b1a4a8c37e5b3671868)
+
+  Thread T7 (tid=2602, running) created by main thread at:
+    #0 pthread_create ../../../../src/libsanitizer/tsan/tsan_interceptors_posix.cpp:1078 (libtsan.so.2+0x5cb02) (BuildId: 66d37dc704b813df6c813b77217284deb43a0042)
+    #1 main <scratch>/g7/tsan_race.c:82 (tsan_race+0x989d) (BuildId: 82128781e535cf995fe65b1a4a8c37e5b3671868)
+
+SUMMARY: ThreadSanitizer: data race <scratch>/g7/negr1/natives/src/machine.c:160 in msg_set
+==================
+ThreadSanitizer: reported 10 warnings
+round 0: status 3, 15 bytes, tb -1
+round 1: status 3, 15 bytes, tb -1
+round 2: status 3, 15 bytes, tb -1
+round 3: status 3, 15 bytes, tb -1
+round 4: status 3, 15 bytes, tb -1
+round 5: status 3, 15 bytes, tb -1
+round 6: status 3, 15 bytes, tb -1
+round 7: status 3, 15 bytes, tb -1
+round 8: status 3, 15 bytes, tb -1
+round 9: status 3, 15 bytes, tb -1
+tsan_race: 0 of 10 rounds intact, 144309 refused calls, 0 not refused

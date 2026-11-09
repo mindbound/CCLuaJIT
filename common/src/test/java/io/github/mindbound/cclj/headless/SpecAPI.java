@@ -2,11 +2,15 @@ package io.github.mindbound.cclj.headless;
 
 import dan200.computercraft.api.lua.IArguments;
 import dan200.computercraft.api.lua.ILuaAPI;
+import dan200.computercraft.api.lua.ILuaFunction;
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.lua.LuaFunction;
+import dan200.computercraft.api.lua.MethodResult;
 import dan200.computercraft.core.lua.ILuaMachine;
 import dan200.computercraft.core.lua.MachineResult;
 
+import java.nio.ByteBuffer;
+import java.util.Map;
 import java.util.StringJoiner;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -21,7 +25,10 @@ public final class SpecAPI implements ILuaAPI {
     final AtomicInteger marks = new AtomicInteger();
     /** {@code t.block()} counts this down when it starts, then waits for {@link #release} (at most 10 s). */
     final CountDownLatch blocked = new CountDownLatch(1), release = new CountDownLatch(1);
-    /** Set only when {@code t.block()} ended because the test counted {@link #release} down (no timeout, no interrupt). */
+    /**
+     * Set only when {@code t.block()} ended because the test counted {@link #release} down (no timeout, no
+     * interrupt).
+     */
     volatile boolean released;
     /** The machine that {@code t.reenter()} resumes from inside its own host call. */
     volatile ILuaMachine machine;
@@ -112,5 +119,53 @@ public final class SpecAPI implements ILuaAPI {
     @LuaFunction
     public final void mark() {
         marks.incrementAndGet();
+    }
+
+    /** A result type that no scenario returns before scenario 27: its WARN (D9) is the first for the class. */
+    @LuaFunction
+    public final Object unseen() {
+        return new Unseen();
+    }
+
+    /** The result of {@link #unseen}. */
+    static final class Unseen {
+    }
+
+    /** A yielding result ({@code pullEvent}): LuaJIT refuses it until S5. */
+    @LuaFunction
+    public final MethodResult pull() {
+        return MethodResult.pullEvent("spec", args -> MethodResult.of());
+    }
+
+    /** A table result: LuaJIT refuses it until S3. */
+    @LuaFunction
+    public final Object tbl() {
+        return Map.of("a", 1);
+    }
+
+    /** A {@link ByteBuffer} result: LuaJIT refuses it until S3. */
+    @LuaFunction
+    public final Object buf() {
+        return ByteBuffer.allocate(1);
+    }
+
+    /** An object with {@code @LuaFunction} methods: LuaJIT refuses it until S3. */
+    @LuaFunction
+    public final Object obj() {
+        return new Obj();
+    }
+
+    /** An {@link ILuaFunction}: LuaJIT refuses it until S3. */
+    @LuaFunction
+    public final Object fn() {
+        return (ILuaFunction) args -> MethodResult.of();
+    }
+
+    /** The result of {@link #obj}. */
+    public static final class Obj {
+        @LuaFunction
+        public final int one() {
+            return 1;
+        }
     }
 }

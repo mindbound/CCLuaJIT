@@ -29,12 +29,12 @@ public final class CCLuaJITCommon {
      *                not into java.io.tmpdir (often noexec on Linux servers).
      */
     public static synchronized void init(Path gameDir) {
-        nativeCache = gameDir.resolve(".ccluajit").resolve("natives");
         // CC:T reads this field in the ServerContext constructor, i.e. on server start (dedicated and integrated),
         // which is always after mod construction / onInitialize. No Mixin or access widener is needed: the field
         // is public, static and non-final (annotated @VisibleForTesting).
         var previous = ServerContext.luaMachine;
-        if (previous != null && previous == installed) return;
+        if (previous != null && previous == installed) return;   // the first call's cache directory stays too
+        nativeCache = gameDir.resolve(".ccluajit").resolve("natives");
         // Delegate to whatever factory was installed before ours (normally CC:T's default, Cobalt), so that an
         // unsupported platform or a failed native load keeps computers working.
         ILuaMachine.Factory fallback = previous != null ? previous : CobaltLuaMachine::new;

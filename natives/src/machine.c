@@ -6,13 +6,16 @@
 ** - Never include jni.h. Java is reached only through the cm_host_fn that jni_machine.c passes to cm_resume, and
 **   only in phase 2 of api_call, where no Lua call happens.
 ** - Each function carries its run-context tag (cclj_machine.h): UNPROTECTED functions make only calls that
-**   cannot raise (M1.md section 3.8), PROTECTED functions are lua_cpcall bodies, LUA_CFUNCTION is api_call.
+**   cannot raise (M1.md section 3.8); PROTECTED functions are lua_cpcall bodies or run only inside one;
+**   LUA_CFUNCTION functions are api_call or run only when api_call calls them. raise_text carries both of the
+**   last two tags, because both kinds of function call it.
 ** - The ud of every lua_cpcall is the heap cm_machine (F3). No light userdata is ever pushed: Lua sees no C
 **   pointer, and C code finds the machine through the allocator's ud (machine_of).
 ** - lua_checkstack(to, n + 1) comes before every lua_xmove(from, to, n) (F1).
 ** - The bios coroutine "co" is touched outside lua_resume only through the calls of the "rule for co" (M1.md
-**   section 3.7): lua_status, lua_gettop, a shrinking lua_settop, lua_xmove after the check above, lua_resume
-**   while the machine is not dead, lua_getstack, and lua_getinfo with "Sln" only.
+**   section 3.7): lua_status, lua_gettop, a shrinking lua_settop, lua_type, lua_tolstring on a LUA_TSTRING only,
+**   lua_checkstack (a failed growth resets co's status, F19), lua_xmove after the check above, lua_resume while
+**   the machine is not dead, lua_getstack, and lua_getinfo with "Sln" only.
 ** - No mutable static state (release builds), no exit, and no output except cm_panic's one line. Debug and test
 **   builds add CM_CHECK, which prints one line and aborts.
 ** - Every copy is bounded; wire decoders use size_t arithmetic and check every length.
@@ -85,6 +88,8 @@ struct cm_machine {
 #ifdef CCLJ_TEST
   int test_cotop_before, test_cotop_after;   /* lua_gettop(co) around append_traceback (cm_test_cotop) */
   int test_cotop_resume;                     /* lua_gettop(co) just before lua_resume (cm_test_cotop_resume) */
+  void (*test_leave_fn)(void *);             /* cm_test_on_leave */
+  void *test_leave_ud;
 #endif
 };
 
@@ -134,6 +139,13 @@ void cm_test_cotop(const cm_machine *m, int *before, int *after)
 
 /* UNPROTECTED. */
 int cm_test_cotop_resume(const cm_machine *m) { return m->test_cotop_resume; }
+
+/* UNPROTECTED. Between calls only. */
+void cm_test_on_leave(cm_machine *m, void (*fn)(void *), void *ud)
+{
+  m->test_leave_fn = fn;
+  m->test_leave_ud = ud;
+}
 #else
 #define test_alloc_ok() 1
 #endif
@@ -233,27 +245,31 @@ static uint32_t mix32(uint64_t x)
 
 /* -- Busy flag --------------------------------------------------------------- */
 
-/* UNPROTECTED. Takes the busy flag of a live machine. 0 = NULL, freed, or busy (then the message says so). */
+/* UNPROTECTED. Takes the busy flag of a live machine: CM_ST_OK, CM_ST_INTERNAL for NULL or a wrong magic, or
+** CM_ST_BUSY when another call owns it. Writes nothing into the machine unless it returns CM_ST_OK: a refused call
+** may run while the owner writes the message on another thread (cclj_machine.h, thread rules).
+*/
 static int machine_enter(cm_machine *m)
 {
   int expected = 0;
-  if (m == NULL || m->magic != CM_MAGIC) return 0;
-  if (!__atomic_compare_exchange_n(&m->busy, &expected, 1, 0, __ATOMIC_ACQUIRE, __ATOMIC_RELAXED)) {
-    msg_setz(m, "machine is busy");
-    return 0;
-  }
-  return 1;
+  if (m == NULL || m->magic != CM_MAGIC) return CM_ST_INTERNAL;
+  if (!__atomic_compare_exchange_n(&m->busy, &expected, 1, 0, __ATOMIC_ACQUIRE, __ATOMIC_RELAXED))
+    return CM_ST_BUSY;
+  return CM_ST_OK;
 }
 
-/* UNPROTECTED. */
+/* UNPROTECTED. Releases the busy flag that machine_enter took. */
 static void machine_leave(cm_machine *m)
 {
+#ifdef CCLJ_TEST
+  if (m->test_leave_fn != NULL) m->test_leave_fn(m->test_leave_ud);
+#endif
   __atomic_store_n(&m->busy, 0, __ATOMIC_RELEASE);
 }
 
 /* -- Wire codec ------------------------------------------------------------- */
 
-/* A bounded reader: p is the next byte, left the bytes after it. */
+/* A bounded reader: p is the next byte, left the number of bytes from p on (p[0] included). */
 typedef struct wire_rd {
   const unsigned char *p;
   size_t left;
@@ -450,7 +466,9 @@ static const char *host_error_text(int rc)
   }
 }
 
-/* PROTECTED or LUA_CFUNCTION (phases 1 and 3): raises s as it is, without a position. Never returns. */
+/* PROTECTED or LUA_CFUNCTION (phases 1 and 3): both kinds of function call it. Raises s as it is, without a
+** position. Never returns.
+*/
 static int raise_text(lua_State *L, const char *s)
 {
   lua_pushstring(L, s);
@@ -736,7 +754,7 @@ static int load_body(lua_State *L)
 int cm_load(cm_machine *m, const unsigned char *spec, size_t spec_len, const unsigned char *bios, size_t bios_len)
 {
   int st, res;
-  if (!machine_enter(m)) return CM_ST_INTERNAL;
+  if ((res = machine_enter(m)) != CM_ST_OK) return res;
   if (m->state == CM_DEAD) {
     msg_setz(m, "machine is dead");
     res = CM_ST_INTERNAL;
@@ -963,7 +981,7 @@ int cm_resume(cm_machine *m, cm_host_fn fn, void *host, const unsigned char *eve
 {
   int st, res;
   (void)event_len;
-  if (!machine_enter(m)) return CM_ST_INTERNAL;
+  if ((res = machine_enter(m)) != CM_ST_OK) return res;
   if (m->state == CM_DEAD) {
     msg_setz(m, "machine is dead");
     res = CM_ST_INTERNAL;
@@ -1039,14 +1057,14 @@ const unsigned char *cm_message(const cm_machine *m, size_t *len, size_t *tb_off
   return m->msg;
 }
 
-/* UNPROTECTED. lua_close runs no Lua code in M1: no newproxy, no userdata with __gc, no FFI. */
+/* UNPROTECTED. lua_close runs no Lua code in M1: no newproxy, no userdata with __gc, no FFI. The busy flag is
+** taken and never released: nothing may use the machine after this.
+*/
 int cm_free(cm_machine *m)
 {
-  int expected = 0;
+  int st;
   if (m == NULL) return CM_ST_OK;
-  if (m->magic != CM_MAGIC) return CM_ST_INTERNAL;
-  if (!__atomic_compare_exchange_n(&m->busy, &expected, 1, 0, __ATOMIC_ACQUIRE, __ATOMIC_RELAXED))
-    return CM_ST_INTERNAL;   /* busy: not freed; Java logs a leak */
+  if ((st = machine_enter(m)) != CM_ST_OK) return st;   /* busy or wrong magic: not freed; Java logs a leak */
   lua_setallocf(m->L, m->orig_alloc, m->orig_ud);   /* so that lua_close destroys LuaJIT's arena at once */
   lua_close(m->L);
   free(m->req_buf.data);

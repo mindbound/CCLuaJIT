@@ -2,6 +2,7 @@ package io.github.mindbound.cclj.headless;
 
 import dan200.computercraft.api.filesystem.Mount;
 import dan200.computercraft.api.filesystem.WritableMount;
+import dan200.computercraft.api.lua.ILuaAPI;
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.core.ComputerContext;
 import dan200.computercraft.core.apis.IAPIEnvironment;
@@ -23,6 +24,7 @@ import dan200.computercraft.core.methods.LuaMethod;
 import dan200.computercraft.core.methods.MethodSupplier;
 import dan200.computercraft.core.metrics.MetricsObserver;
 import dan200.computercraft.core.terminal.Terminal;
+import io.github.mindbound.cclj.computer.LogFormatChecks;
 import io.github.mindbound.cclj.computer.LuaJITMachine;
 import io.github.mindbound.cclj.natives.NativeLibrary;
 import io.github.mindbound.cclj.natives.NativeMachine;
@@ -38,14 +40,17 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiPredicate;
@@ -130,6 +135,7 @@ public final class MachineSpecs {
         String extra = "";                       // scenario-specific detail for the report
         String warnTag;                          // if set, the report counts the WARN lines that name it
         String fault;                            // set by a scenario body that saw its precondition fail
+        final Set<Integer> noTraceback = new HashSet<>();   // steps whose error is not a Lua error (no traceback)
 
         Run(String machine) {
             this.machine = machine;
@@ -163,7 +169,7 @@ public final class MachineSpecs {
         };
         final MachineEnvironment env;
 
-        Env() {
+        Env(ILuaAPI... more) {
             IAPIEnvironment proxy = (IAPIEnvironment) Proxy.newProxyInstance(MachineSpecs.class.getClassLoader(),
                 new Class<?>[]{ IAPIEnvironment.class }, (self, method, args) -> switch (method.getName()) {
                     case "getTerminal" -> terminal;
@@ -173,9 +179,11 @@ public final class MachineSpecs {
                     default -> throw new UnsupportedOperationException("MachineSpecs: IAPIEnvironment."
                         + method.getName());
                 });
+            List<ILuaAPI> apis = new ArrayList<>(List.of(new TermAPI(proxy), api));
+            apis.addAll(List.of(more));
             env = new MachineEnvironment(task -> {
                 throw new LuaException("MachineSpecs: no main thread");
-            }, MetricsObserver.discard(), timeout, List.of(new TermAPI(proxy), api), METHODS, HOST);
+            }, MetricsObserver.discard(), timeout, apis, METHODS, HOST);
         }
 
         ILuaMachine create(ILuaMachine.Factory factory, String bios) throws IOException, MachineException {
@@ -186,11 +194,16 @@ public final class MachineSpecs {
 
         /** One {@code handleEvent(null, null)}, timed, after the timer calls CC:T makes before each work unit. */
         Step event(ILuaMachine m, Run r) {
+            return event(m, r, null, null);
+        }
+
+        /** One {@code handleEvent(name, args)}, as {@link #event(ILuaMachine, Run)} does it. */
+        Step event(ILuaMachine m, Run r, String name, Object[] args) {
             timeout.startTimer(TimeoutState.TIMEOUT);
             timeout.setRemainingTime(TimeoutState.TIMEOUT);
             long t0 = System.nanoTime();
             try {
-                return step(m.handleEvent(null, null));
+                return step(m.handleEvent(name, args));
             } catch (RuntimeException e) {
                 return new Step("throws", e.toString());
             } finally {
@@ -398,7 +411,218 @@ public final class MachineSpecs {
             r.extra = String.format("%.0f ns per call (100,000 calls, one resume)", r.eventNanos / 1e5);
             return r;
         }, errorLine("done"), null));
+        // 23-28: LuaJITMachine's own branches (S1 step 7: guide findings 1-3 and 7-9, review R3 and R4).
+        l.add(new Scenario("23", "event", true, MachineSpecs::eventScenario, MachineSpecs::eventExpect, null));
+        l.add(new Scenario("24", "yields", true, bios("t.pull()\n"),
+            errorLine("CCLuaJIT: pull yields; not supported yet (S5)"), null));
+        l.add(new Scenario("25", "s3_results", true, bios("local m = {}\n"
+            + "for _, f in ipairs({t.tbl, t.buf, t.obj, t.fn}) do local ok, e = pcall(f) m[#m + 1] = e end\n"
+            + "error(table.concat(m, \"|\"), 0)\n"),
+            errorLine("CCLuaJIT: tables are not supported yet (S3)|CCLuaJIT: ByteBuffer values are not supported "
+                + "yet (S3)|CCLuaJIT: obj returned a Lua object; not supported yet (S3)|CCLuaJIT: fn returned a Lua "
+                + "object; not supported yet (S3)"), null));
+        l.add(new Scenario("26", "log_text", true, MachineSpecs::logText, MachineSpecs::logTextExpect, null));
+        l.add(new Scenario("27", "log_failure", true, MachineSpecs::logFailure,
+            both(errorLine("false|Java Exception Thrown: java.lang.RuntimeException: kaboom|nil"), r -> r.fault),
+            null));
+        l.add(new Scenario("28", "constructor_failures", true, MachineSpecs::constructorFailures,
+            MachineSpecs::constructorExpect, null));
         return l;
+    }
+
+    /** Scenario 23: an event after a YIELD closes the machine with an error; the next resume throws. */
+    static Run eventScenario(String machine, ILuaMachine.Factory factory) throws Exception {
+        Env e = new Env();
+        Run r = new Run(machine);
+        ILuaMachine m = e.create(factory, "coroutine.yield()\nerror(\"not reached\", 0)\n");
+        try {
+            r.steps.add(e.event(m, r));
+            r.steps.add(e.event(m, r, "char", new Object[]{"a"}));
+            r.noTraceback.add(1);   // not a Lua error: S1 refuses events before any Lua code runs
+            r.steps.add(e.event(m, r));
+        } finally {
+            m.close();
+        }
+        e.finish(r);
+        return r;
+    }
+
+    static String eventExpect(Run r) {
+        if (r.exception != null) return "MachineException: " + esc(r.exception);
+        List<String> want = List.of("OK", "error: CCLuaJIT: events are not implemented yet (S2)",
+            "throws: java.lang.IllegalStateException: Machine has been closed");
+        List<String> got = new ArrayList<>();
+        for (Step s : r.steps) got.add(s.message() == null ? s.kind() : s.kind() + ": " + s.message());
+        return got.equals(want) ? null : "expected " + want + ", got " + got;
+    }
+
+    /**
+     * Scenario 26: the WARN line of an error with control characters, longer than the 1 KiB the log keeps of an
+     * error value (LuaJITMachine.forLog); and the cut paths no run reaches ({@link LogFormatChecks}).
+     */
+    static Run logText(String machine, ILuaMachine.Factory factory) throws Exception {
+        Run r = run(machine, factory, "error(string.rep(\"a\\1\", 600), 0)\n", 1);
+        r.fault = LogFormatChecks.run();
+        return r;
+    }
+
+    static String logTextExpect(Run r) {
+        if (r.fault != null) return r.fault;
+        String x = errorMatches(Pattern.compile("^a\u0001a\u0001")).apply(r);
+        if (x != null) return x;
+        String msg = r.last().message();
+        String want = "Top level coroutine errored: " + LogFormatChecks.forLog(msg, msg.indexOf("\nstack traceback:"));
+        if (!want.contains("a\\x01a\\x01") || !want.contains("...\\nstack traceback:")) {
+            return "unexpected expectation (no escape, or no cut): " + esc(want.substring(0, 80));
+        }
+        for (String line : r.log.split("\n")) {
+            if (line.contains(" WARN ") && line.stripTrailing().endsWith(want)) return null;
+        }
+        return "no WARN line ends with '" + esc(want.substring(0, 60)) + "...'";
+    }
+
+    /**
+     * Scenario 27: every write to System.err throws (a failing logger) while the constructor and handleEvent run.
+     * The log calls that then throw: the WARN for an API without methods (constructor), the ERROR of a method that
+     * throws ({@code call}), the WARN for a result type not seen before ({@code unknown}) and the WARN of the Lua
+     * error ({@code handleEvent}). The machine must still be made, and the result must still be the Lua error
+     * (review R4). The window has a PrintStream of its own, dropped afterwards: a write that throws leaves text in
+     * the stream's buffers, which must not reach a later scenario's log.
+     */
+    static Run logFailure(String machine, ILuaMachine.Factory factory) throws Exception {
+        Env e = new Env(new EmptyApi());
+        Run r = new Run(machine);
+        int before = tee.injected();
+        PrintStream saved = System.err;
+        System.setErr(new PrintStream(tee, true, saved.charset()));   // slf4j-simple reads System.err on each call
+        tee.failWrites(true);
+        try {
+            ILuaMachine m;
+            try {
+                m = e.create(factory, "local ok, x = pcall(t.boom)\nlocal u = t.unseen()\n"
+                    + "error(tostring(ok) .. \"|\" .. x .. \"|\" .. tostring(u), 0)\n");
+            } catch (MachineException x) {
+                r.exception = x.getMessage();
+                return r;
+            }
+            try {
+                r.steps.add(e.event(m, r));
+            } finally {
+                m.close();
+            }
+        } finally {
+            tee.failWrites(false);
+            System.setErr(saved);
+            e.finish(r);
+        }
+        int injected = tee.injected() - before;
+        r.extra = injected + " failed write(s)";
+        if (injected < 4) {
+            r.fault = "expected 4 log calls to fail (constructor, call, unknown, handleEvent), got " + injected;
+        }
+        return r;
+    }
+
+    /** An API without methods: the constructor logs a WARN for it (as Cobalt does). */
+    static final class EmptyApi implements ILuaAPI {
+        @Override
+        public String[] getNames() {
+            return new String[]{ "empty" };
+        }
+    }
+
+    /**
+     * Scenario 28: constructors that fail in ways addon code or a bios stream can cause. Only IOException and
+     * MachineException may leave the constructor (F15; guide findings 1 and 2, review R3). All four fail before
+     * NativeMachine.create, so no native machine is made; the free after a failed create is tested by scenarios 14
+     * and 15.
+     */
+    static Run constructorFailures(String machine, ILuaMachine.Factory factory) {
+        Run r = new Run(machine);
+        List<String> got = new ArrayList<>();
+        got.add(construct(factory, new Env(), failing(new IOException("injected"))));
+        got.add(construct(factory, new Env(), failing(new RuntimeException("injected"))));
+        got.add(construct(factory, new Env(new ThrowingApi(new Nasty())), G1_BIOS));
+        got.add(construct(factory, new Env(new ThrowingApi(new TimeoutException("injected"))), G1_BIOS));
+        r.extra = String.join(" | ", got);
+        r.steps.add(new Step("constructors", null));
+        return r;
+    }
+
+    static String constructorExpect(Run r) {
+        String want = String.join(" | ", "IOException: injected",
+            "MachineException: CCLuaJIT could not start: java.lang.RuntimeException: injected",
+            "MachineException: CCLuaJIT could not start: " + Nasty.class.getName(),
+            "MachineException: CCLuaJIT could not start: java.util.concurrent.TimeoutException: injected");
+        return r.extra.equals(want) ? null : "expected '" + want + "'";
+    }
+
+    /** What one constructor call threw, for scenario 28. */
+    static String construct(ILuaMachine.Factory factory, Env e, Object bios) {
+        InputStream in = bios instanceof InputStream s ? s
+            : new ByteArrayInputStream(((String) bios).getBytes(StandardCharsets.ISO_8859_1));
+        try {
+            factory.create(e.env, in).close();
+            return "created";
+        } catch (IOException x) {
+            return "IOException: " + x.getMessage();
+        } catch (MachineException x) {
+            return "MachineException: " + x.getMessage();
+        } catch (Throwable t) {
+            return "threw " + t.getClass().getName();
+        }
+    }
+
+    /** A bios stream whose every read throws {@code t}. */
+    static InputStream failing(Throwable t) {
+        return new InputStream() {
+            @Override
+            public int read() throws IOException {
+                throw MachineSpecs.<IOException>sneaky(t);
+            }
+
+            @Override
+            public int read(byte[] b, int off, int len) throws IOException {
+                throw MachineSpecs.<IOException>sneaky(t);
+            }
+        };
+    }
+
+    /** Throws {@code t}, checked or not, without declaring it: what Kotlin or Lombok addon code can do. */
+    @SuppressWarnings("unchecked")
+    static <T extends Throwable> RuntimeException sneaky(Throwable t) throws T {
+        throw (T) t;
+    }
+
+    /** An addon API whose {@code getNames} throws. */
+    static final class ThrowingApi implements ILuaAPI {
+        private final Throwable t;
+
+        ThrowingApi(Throwable t) {
+            this.t = t;
+        }
+
+        @Override
+        public String[] getNames() {
+            throw MachineSpecs.<RuntimeException>sneaky(t);
+        }
+
+        @Override
+        public String toString() {
+            return "MachineSpecs.ThrowingApi";
+        }
+    }
+
+    /** An exception whose {@code toString} throws. */
+    static final class Nasty extends RuntimeException {
+        Nasty() {
+            super("nasty", null, false, false);
+        }
+
+        @Override
+        public String toString() {
+            throw new IllegalStateException("MachineSpecs: Nasty.toString");
+        }
     }
 
     /** Scenario 1: the constructor, handleEvent and close each on a thread of its own; then the machine is closed. */
@@ -525,10 +749,14 @@ public final class MachineSpecs {
         return null;
     }
 
-    /** Every error result must carry a traceback: its second line is {@code stack traceback:} (D7, F21). */
+    /**
+     * Every error result of a Lua error must carry a traceback: its second line is {@code stack traceback:} (D7,
+     * F21). {@link Run#noTraceback} lists the steps whose error is not a Lua error.
+     */
     static String traceback(Run r) {
-        for (Step s : r.steps) {
-            if (s.kind().equals("error") && !s.line(1).equals("stack traceback:")) {
+        for (int i = 0; i < r.steps.size(); i++) {
+            Step s = r.steps.get(i);
+            if (s.kind().equals("error") && !r.noTraceback.contains(i) && !s.line(1).equals("stack traceback:")) {
                 return r.machine + ": error without 'stack traceback:' as its second line: " + s.show();
             }
         }
@@ -879,13 +1107,34 @@ public final class MachineSpecs {
         return b.toString();
     }
 
-    /** Passes everything to {@code out}, and keeps a copy while started. */
+    /**
+     * Passes everything to {@code out}, and keeps a copy while started. While {@link #failWrites} is on, every write
+     * throws instead (scenario 27: a logger that fails).
+     */
     static final class Tee extends OutputStream {
         private final OutputStream out;
         private ByteArrayOutputStream copy;   // guarded by this
+        private volatile boolean fail;
+        private final AtomicInteger injected = new AtomicInteger();
 
         Tee(OutputStream out) {
             this.out = out;
+        }
+
+        void failWrites(boolean on) {
+            fail = on;
+        }
+
+        /** Writes that threw because of {@link #failWrites}. */
+        int injected() {
+            return injected.get();
+        }
+
+        private void maybeFail() {
+            if (fail) {
+                injected.incrementAndGet();
+                throw new IllegalStateException("MachineSpecs: injected log failure");
+            }
         }
 
         synchronized void start() {
@@ -901,12 +1150,14 @@ public final class MachineSpecs {
 
         @Override
         public synchronized void write(int b) throws IOException {
+            maybeFail();
             out.write(b);
             if (copy != null) copy.write(b);
         }
 
         @Override
         public synchronized void write(byte[] b, int off, int len) throws IOException {
+            maybeFail();
             out.write(b, off, len);
             if (copy != null) copy.write(b, off, len);
         }

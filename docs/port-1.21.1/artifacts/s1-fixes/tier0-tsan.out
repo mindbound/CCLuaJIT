@@ -1,0 +1,12 @@
+=== tsan-tier0 (20:33:43)
+host: Ubuntu 26.04.1 LTS, gcc (Ubuntu 15.2.0-16ubuntu1) 15.2.0
+tree: 047efd3bcbe3331c3b9cb69bf5b217164d80bd5c, xcflags: -DLUAJIT_ENABLE_INTERRUPT -DLUAJIT_ENABLE_LUA52COMPAT -DLUAJIT_DISABLE_FFI -DLUAJIT_DISABLE_BCLOAD -DLUAJIT_ENABLE_CSTACKGUARD -DLUAJIT_DISABLE_PROFILE -DLUAJIT_DISABLE_VMEVENT -DLUA_USE_ASSERT -DLUA_USE_APICHECK; stamp: compiler=x86_64-linux-gnu 15.2.0
+== current: running under TSan
+<scratch>/g7/ubuntu-tsan.sh: line 18:  2509 Segmentation fault         TSAN_OPTIONS="halt_on_error=0 second_deadlock_stack=1" timeout 1800 ./machine_test > $out/run.log 2>&1
+current: exit 139; data race reports: 0; other TSan reports: 0
+machine_test: CCLJ_ABI 2, 16 host functions, spec 260 bytes
+== negctl: running under TSan
+<scratch>/g7/ubuntu-tsan.sh: line 18:  2533 Segmentation fault         TSAN_OPTIONS="halt_on_error=0 second_deadlock_stack=1" timeout 1800 ./machine_test > $out/run.log 2>&1
+negctl: exit 139; data race reports: 0; other TSan reports: 0
+machine_test: CCLJ_ABI 2, 16 host functions, spec 260 bytes
+=== tsan-tier0 exit: 1

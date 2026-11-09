@@ -65,16 +65,20 @@ public final class LuaJITMachine implements ILuaMachine {
 
     /**
      * Creates the machine: one Lua table per API of {@code environment}, and the bios compiled (not run).
+     * <p>
+     * Throws nothing but {@link IOException} and {@link MachineException}: anything else from a factory would wedge
+     * the computer until it is recreated (F15). Only an allocation failure while the {@code MachineException} itself
+     * is built can still escape.
      *
-     * @throws IOException      if reading the bios fails
+     * @throws IOException      if reading the bios fails (or addon code throws one without declaring it)
      * @throws MachineException if the natives are not loaded, the bios does not compile, or anything else fails;
      *                          the computer shows the message, and turning it on again retries (F15)
      */
     public LuaJITMachine(MachineEnvironment environment, InputStream bios) throws IOException, MachineException {
         env = environment;
-        byte[] biosBytes = bios.readAllBytes();
         if (!NativeLibrary.isLoaded()) throw new MachineException("CCLuaJIT natives are not loaded");
         try {
+            byte[] biosBytes = bios.readAllBytes();
             // The spec numbers the methods across all APIs in the order they are added; entries uses the same order.
             List<Entry> list = new ArrayList<>();
             Wire.SpecWriter spec = new Wire.SpecWriter();
@@ -85,25 +89,42 @@ public final class LuaJITMachine implements ILuaMachine {
                     list.add(new Entry(target, method, name));
                 });
                 // The API still gets its (empty) table, as in Cobalt.
-                if (!any) LOG.warn("API {} does not provide any methods", api);
+                if (!any) {
+                    try {
+                        LOG.warn("API {} does not provide any methods", api);
+                    } catch (Throwable ignored) {
+                        // The machine matters more than the log line.
+                    }
+                }
             }
             entries = list.toArray(new Entry[0]);
             vm = NativeMachine.create(this::call, MEMORY_LIMIT, SECURE.nextLong(), spec.toByteArray(), biosBytes);
+        } catch (IOException e) {
+            // Reading the bios failed, or addon code threw one without declaring it: CC:T shows its own message
+            // (M1.md section 3.10).
+            throw e;
         } catch (NativeMachineException e) {
             // The bios did not compile (its message, e.g. "bios.lua:1: unexpected symbol near '='"), or out of memory.
             throw new MachineException(e.getMessage());
-        } catch (RuntimeException | Error e) {
-            // An unchecked exception from a factory would wedge the computer until it is recreated (F15).
-            LOG.error("CCLuaJIT could not start a machine", e);
-            throw new MachineException("CCLuaJIT could not start: " + e);
+        } catch (Throwable e) {
+            // Anything else, also a checked exception that addon code throws without declaring it. On every path
+            // here, the native machine either does not exist yet or create has freed it.
+            MachineException failure = new MachineException("CCLuaJIT could not start: " + describe(e));
+            try {
+                LOG.error("CCLuaJIT could not start a machine", e);
+            } catch (Throwable ignored) {
+                // Out of memory, or a throwable whose toString throws: the MachineException matters more.
+            }
+            throw failure;
         }
     }
 
     /**
-     * S1: {@code eventName == null} resumes the bios (M1.md section 3.12). Any event closes the machine and returns an error
-     * (events come in S2).
+     * S1: {@code eventName == null} resumes the bios (M1.md section 3.12). Any event closes the machine and returns an
+     * error (events come in S2). Log calls are best effort: one that throws changes neither the result nor the close.
      *
-     * @throws IllegalStateException if the machine has been closed
+     * @throws IllegalStateException if the machine has been closed, or, for {@code eventName == null}, if it is
+     *                               running (which CC:T never does)
      */
     @Override
     public MachineResult handleEvent(@Nullable String eventName, @Nullable Object @Nullable [] arguments) {
@@ -116,28 +137,46 @@ public final class LuaJITMachine implements ILuaMachine {
         try {
             outcome = vm.resume(null);
         } catch (IllegalStateException e) {
-            throw e;   // closed, or already running: CC:T's contract
+            throw e;   // closed, or already running: CC:T's contract (resume throws it for nothing else)
         } catch (Throwable t) {
-            LOG.error("CCLuaJIT internal error", t);
-            close();
-            return MachineResult.error("CCLuaJIT internal error: " + t);
+            // Out of memory, say, which can leave the machine open (after a YIELD). Close it first, so that neither
+            // the log call nor the text below can stop that.
+            try {
+                close();
+            } catch (Throwable ignored) {
+                // CC:T closes the machine again when it shuts the computer down.
+            }
+            try {
+                LOG.error("CCLuaJIT internal error", t);
+            } catch (Throwable ignored) {
+                // The result below matters more than the log line.
+            }
+            return MachineResult.error("CCLuaJIT internal error: " + describe(t));
         }
-        // close() during the resume: report what Cobalt reports when close() interrupts it. The machine is freed.
+        // close() during the resume: report what Cobalt reports when close() interrupts it. The machine is closed:
+        // freed, or after ST_BUSY left unfreed and counted as a leak (NativeMachine.resume).
         if (outcome.closedWhileRunning()) return MachineResult.TIMEOUT;
+        // YIELD keeps the machine open: return before anything below allocates. Every other status has closed it,
+        // and freed it except ST_BUSY, after which NativeMachine.resume leaves the handle unfreed as a leak.
+        if (outcome.status() == NativeMachine.ST_YIELD) return MachineResult.OK;
+        if (outcome.status() == NativeMachine.ST_RETURNED) return MachineResult.GENERIC_ERROR;
         Wire.Message message = outcome.message() != null ? outcome.message() : new Wire.Message(Wire.NO_MESSAGE, -1);
-        switch (outcome.status()) {
-            case NativeMachine.ST_YIELD:
-                return MachineResult.OK;
-            case NativeMachine.ST_RETURNED:
-                return MachineResult.GENERIC_ERROR;
-            case NativeMachine.ST_ERROR:
-                // The screen shows only the first 51 columns, so the log keeps the whole traceback (F21, D7).
+        if (outcome.status() == NativeMachine.ST_ERROR) {
+            // The screen shows only the first 51 columns, so the log keeps the whole traceback (F21, D7).
+            try {
                 if (LOG.isWarnEnabled()) LOG.warn("Top level coroutine errored: {}", forLog(message));
-                return MachineResult.error(message.text());
-            default:
-                LOG.error("CCLuaJIT internal error (status {}): {}", outcome.status(), forLog(message));
-                return MachineResult.error("CCLuaJIT internal error: " + message.text());
+            } catch (Throwable ignored) {
+                // Out of memory while escaping a 64 KiB message, say: the Lua error matters more than the log line.
+            }
+            return MachineResult.error(message.text());
         }
+        // ST_INTERNAL, ST_BUSY: a bug or a broken lock, never a Lua program.
+        try {
+            LOG.error("CCLuaJIT internal error (status {}): {}", outcome.status(), forLog(message));
+        } catch (Throwable ignored) {
+            // As above.
+        }
+        return MachineResult.error("CCLuaJIT internal error: " + message.text());
     }
 
     /** Pure Java: never touches native code, so it is safe from any thread at any time. */
@@ -146,7 +185,10 @@ public final class LuaJITMachine implements ILuaMachine {
         out.append("CCLuaJIT machine: ").append(vm.stateName()).append('\n');
     }
 
-    /** Any thread, any number of times. During a resume, the resume frees the machine when it returns. */
+    /**
+     * Any thread, any number of times. During a resume, the resume frees the machine when it returns (after
+     * {@code ST_BUSY} it leaves it unfreed, see {@link NativeMachine#resume}).
+     */
     @Override
     public void close() {
         vm.close();
@@ -170,8 +212,12 @@ public final class LuaJITMachine implements ILuaMachine {
         } catch (Wire.UnsupportedValue x) {
             return Wire.error(x.getMessage(), 0);
         } catch (Throwable t) {
-            LOG.error("Error calling {} on {}", e.name(), e.target(), t);
-            return Wire.error("Java Exception Thrown: " + t, 0);
+            try {
+                LOG.error("Error calling {} on {}", e.name(), e.target(), t);
+            } catch (Throwable ignored) {
+                // Never throws, as NativeMachine.Host requires: the Lua error below matters more than the log line.
+            }
+            return Wire.error("Java Exception Thrown: " + describe(t), 0);
         }
     }
 
@@ -187,8 +233,24 @@ public final class LuaJITMachine implements ILuaMachine {
         Class<?> c = value.getClass();
         // Concurrent machines may pass the size check together, so the set can end a few classes over the limit.
         if (WARNED.size() < MAX_WARNED && WARNED.add(c)) {
-            LOG.warn("Method {} returned a value of unknown type {}, which becomes nil (logged once per type)",
-                e.name(), c.getName());
+            try {
+                LOG.warn("Method {} returned a value of unknown type {}, which becomes nil (logged once per type)",
+                    e.name(), c.getName());
+            } catch (Throwable ignored) {
+                // The value still becomes nil.
+            }
+        }
+    }
+
+    /**
+     * {@code String.valueOf(t)}, or the class name of {@code t} if its {@code toString} throws (addon code may
+     * override it). Package-private for the tests.
+     */
+    static String describe(Throwable t) {
+        try {
+            return String.valueOf(t);
+        } catch (Throwable x) {
+            return t.getClass().getName();
         }
     }
 

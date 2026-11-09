@@ -10,8 +10,13 @@ import java.net.URL;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.DirectoryIteratorException;
+import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.attribute.FileTime;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HexFormat;
@@ -51,7 +56,8 @@ import java.util.function.Predicate;
  * Exit code 0: every check passed; 1: a check failed, or the watchdog stopped the run; 2: no library is bundled for
  * this platform; 3: the library could not be loaded, or its ABI does not match.
  * <p>
- * The checks (M1.md section 3.15, Tier 1 items 1-9, and the decoders of {@link Wire}):
+ * The checks (M1.md section 3.15, Tier 1 items 1-9; the decoders of {@link Wire}, {@code NativeMachine.ended}, and
+ * the cleanup of {@link NativeLoader}):
  * <ol>
  *   <li>the ABI; {@link NativeLibrary} loads once (a second call with another cache root returns the first path),
  *       and a failed load is sticky (in the second JVM); the G1 path: {@code term.write("hi")} then
@@ -153,6 +159,7 @@ public final class BridgeProbe {
         section("library and ABI", BridgeProbe::testLibrary);
         section("library failure", BridgeProbe::testLibraryFailure);
         section("Wire", BridgeProbe::testWire);
+        section("loader cleanup", BridgeProbe::testLoaderCleanup);
         section("G1 path", BridgeProbe::testG1);
         section("statuses", BridgeProbe::testStatuses);
         section("load errors", BridgeProbe::testLoadErrors);
@@ -393,7 +400,7 @@ public final class BridgeProbe {
                 took.set(Wire.decodeArgs(req));
                 return NONE;
             })
-            .fn("wide", req -> Wire.values(new Object[]{"é€😀"}, NO_UNKNOWN))
+            .fn("wide", req -> Wire.values(new Object[]{"\u00e9\u20ac\ud83d\ude00"}, NO_UNKNOWN))
             .fn("take2", req -> {
                 took2.set(Wire.decodeArgs(req));
                 return NONE;
@@ -1065,6 +1072,50 @@ public final class BridgeProbe {
 
     // ---- Wire, directly -------------------------------------------------------------------------------------------
 
+    /**
+     * NativeLoader's cleanup of other versions' hash directories: it keeps its own and any used within a day, and
+     * nothing it meets may throw out of it, an error while listing included (guide finding 5, review R6).
+     */
+    private static void testLoaderCleanup() throws IOException {
+        Path root = Files.createTempDirectory(cache, "cleanup-");
+        Path keep = root.resolve("keep"), fresh = root.resolve("fresh"), old = root.resolve("old");
+        for (Path d : List.of(keep, fresh, old)) Files.writeString(Files.createDirectories(d).resolve("lib"), "x");
+        Instant now = Instant.now();
+        FileTime twoDaysAgo = FileTime.from(now.minus(Duration.ofDays(2)));
+        Files.setLastModifiedTime(old, twoDaysAgo);
+        Files.setLastModifiedTime(keep, twoDaysAgo);
+        NativeLoader.cleanupStale(root, keep, Files::isDirectory, now);
+        check("NativeLoader: the cleanup deletes a directory unused for two days, and keeps its own and a fresh one",
+            !Files.exists(old) && Files.exists(keep.resolve("lib")) && Files.exists(fresh.resolve("lib")),
+            "old " + Files.exists(old) + ", keep " + Files.exists(keep) + ", fresh " + Files.exists(fresh));
+
+        // An I/O error of the filter comes out of the iterator as DirectoryIteratorException, as a failing
+        // readdir does.
+        DirectoryStream.Filter<Path> failing = p -> {
+            throw new IOException("injected");
+        };
+        String direct;
+        try (DirectoryStream<Path> s = Files.newDirectoryStream(root, failing)) {
+            s.iterator().hasNext();
+            direct = "no exception";
+        } catch (DirectoryIteratorException e) {
+            direct = null;
+        }
+        String thrown = null;
+        try {
+            NativeLoader.cleanupStale(root, keep, failing, now);
+        } catch (Throwable t) {
+            thrown = t.toString();
+        }
+        check("NativeLoader: the cleanup swallows a DirectoryIteratorException", direct == null && thrown == null,
+            direct != null ? "the injected error did not give DirectoryIteratorException: " + direct : thrown);
+        for (Path d : List.of(keep, fresh)) {
+            Files.deleteIfExists(d.resolve("lib"));
+            Files.deleteIfExists(d);
+        }
+        Files.deleteIfExists(root);
+    }
+
     private static void testWire() {
         // decodeArgs: well-formed input.
         Object[] args = Wire.decodeArgs(bytes(4, 0, 0, 0, 0, 2, 1, 4, 1, 0, 0, 0, 'x'));
@@ -1118,11 +1169,11 @@ public final class BridgeProbe {
         check("Wire: Latin-1 round trip of bytes 0-255", chars && Arrays.equals(want, back), hex(back, 16));
 
         // Chars of 256 and more.
-        check("Wire.values: a char >= 256 is '?'", Arrays.equals(Wire.values(new Object[]{"Ā"}, NO_UNKNOWN),
+        check("Wire.values: a char >= 256 is '?'", Arrays.equals(Wire.values(new Object[]{"\u0100"}, NO_UNKNOWN),
             bytes(0, 1, 0, 0, 0, 4, 1, 0, 0, 0, '?')), "");
-        check("Wire.values: a surrogate pair is two '?'", Arrays.equals(Wire.values(new Object[]{"a😀b"},
+        check("Wire.values: a surrogate pair is two '?'", Arrays.equals(Wire.values(new Object[]{"a\ud83d\ude00b"},
             NO_UNKNOWN), bytes(0, 1, 0, 0, 0, 4, 4, 0, 0, 0, 'a', '?', '?', 'b')), "");
-        check("Wire.error: a char >= 256 is '?'", Arrays.equals(Wire.error("€", 0),
+        check("Wire.error: a char >= 256 is '?'", Arrays.equals(Wire.error("\u20ac", 0),
             bytes(1, 0, 0, 0, 0, 4, 1, 0, 0, 0, '?')), "");
 
         // values(): the mapping.
@@ -1183,7 +1234,7 @@ public final class BridgeProbe {
         m = Wire.message(raw);
         check("Wire.message: with a traceback", m.text().equals(G1_TEXT) && m.tracebackAt() == 16, show(m));
         m = Wire.message(bytes(0xff, 0xff, 0xff, 0xff, 'a', 0xe9));
-        check("Wire.message: without a traceback (0xFFFFFFFF), Latin-1", m.text().equals("aé")
+        check("Wire.message: without a traceback (0xFFFFFFFF), Latin-1", m.text().equals("a\u00e9")
             && m.tracebackAt() == -1, show(m));
         m = Wire.message(bytes(0xff, 0xff, 0xff, 0xff));
         check("Wire.message: empty", m.text().isEmpty() && m.tracebackAt() == -1, show(m));
@@ -1198,6 +1249,21 @@ public final class BridgeProbe {
             }
         }
         check("Wire.message: malformed arrays throw IllegalStateException", notThrown.isEmpty(), notThrown.toString());
+
+        // NativeMachine.ended: what resume and create make of a message (guide finding 4, review R5).
+        NativeMachine.Ended en = NativeMachine.ended(NativeMachine.ST_ERROR, raw);
+        check("NativeMachine.ended: a well-formed message keeps its status", en.status() == NativeMachine.ST_ERROR
+            && en.message().equals(Wire.message(raw)), en.status() + " " + show(en.message()));
+        notThrown.clear();
+        for (byte[] b : new byte[][]{new byte[0], bytes(1, 2, 3), bytes(2, 0, 0, 0, 'a'), bytes(0, 0, 0, 0x80)}) {
+            NativeMachine.Ended e = NativeMachine.ended(NativeMachine.ST_ERROR, b);
+            if (e.status() != NativeMachine.ST_INTERNAL || e.message().tracebackAt() != -1
+                || !e.message().text().startsWith("CCLuaJIT: malformed native message (wire: ")) {
+                notThrown.add(hex(b) + ": " + e.status() + " " + show(e.message()));
+            }
+        }
+        check("NativeMachine.ended: a malformed message gives ST_INTERNAL, not an IllegalStateException",
+            notThrown.isEmpty(), notThrown.toString());
 
         // SpecWriter.
         Wire.SpecWriter sw = new Wire.SpecWriter();

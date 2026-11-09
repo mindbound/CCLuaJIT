@@ -1,8 +1,10 @@
 /*
 ** libcclj: CCLuaJIT's native library. JNI glue plus a statically linked, patched LuaJIT (natives/build-natives.sh).
 **
-** M0 contents: only the self-test that the test class io.github.mindbound.cclj.natives.NativeProbe calls
-** (./gradlew :common:nativeProbe). The machine bridge (docs/port-1.21.1/DESIGN.md sections 3 and 4) comes later.
+** This file holds only the M0 self-test that the test class io.github.mindbound.cclj.natives.NativeProbe calls
+** (./gradlew :common:nativeProbe). The machine bridge is machine.c and jni_machine.c (cclj_machine.h). Their own
+** rules (no light userdata, luaL_openlibs, lua_sethook or NewStringUTF; M1.md sections 3.8 and 3.9) do not apply
+** here, and lint-natives.sh leaves this file out of its forbidden-name scan.
 **
 ** Rules for every function in this file (DESIGN.md section 2):
 ** - Plain C. A Lua error unwinds the C stack (DWARF unwinding on Linux, SEH on Windows): there are no destructors
