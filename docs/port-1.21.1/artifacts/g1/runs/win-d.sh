@@ -3,7 +3,7 @@
 # of Tier 1 and Tier 2; then the release build again, lint, and the same Gradle tasks, so natives/build/out ends as a
 # release build.
 set -uo pipefail
-G=<scratch>/g1
+G=<scratch>/g8
 . $G/common.sh
 cd <repo>
 echo "commit: $(git rev-parse HEAD); dirty files: $(git status --porcelain | wc -l)"

@@ -6,7 +6,7 @@ The fixes for the 23 findings of the [review guide](s1-review-guide.md) ("Findin
 
 You asked whether you misread anything. The check: one agent per part of the review (R1 to R6, the documentation section, the checklist table, the validation section) compared every claim with the code and the CC:T 1.121.0 sources. A second agent then tried to refute each mistake that the first one reported. 37 agents in all.
 
-**No claim of the review is wrong.** The line numbers, mechanisms and severities hold. Your Tier 0 numbers (166 checks, 0 of 7,684 accounting checks differ, 1,102 tracebacks) are the ones in the G1 logs. The Ubuntu logs show 165 because under ASan the memory check does not run: the test prints the memory figures as an info line, which is not counted. Some statements are narrower or wider than the code:
+**No claim of the review is wrong.** The line numbers, mechanisms and severities hold. Your Tier 0 numbers (166 checks, 0 of 7,684 accounting checks differ, 1,102 tracebacks) are the ones in the G1 logs of 5381504 (commit bf1aff2). The Ubuntu logs there show 165 because under ASan the memory check does not run: the test prints the memory figures as an info line, which is not counted. Some statements are narrower or wider than the code:
 
 | Review | What the code shows |
 |---|---|
@@ -61,7 +61,7 @@ Not possible: the whole Tier 0 program under ThreadSanitizer. It ends with a seg
 
 ## 4. Runs before the commit
 
-On the step 7 tree. G1 items 1–6 and 8 run again on the fix commit, and `g1-evidence.md` then holds the evidence.
+On the step 7 tree, before the commit. G1 items 1–6 and 8 then ran again on the fix commit, 0b4dcd1: [`g1-evidence.md`](g1-evidence.md) holds that evidence.
 
 | Where | Result |
 |---|---|

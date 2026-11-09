@@ -7,8 +7,8 @@
 [lua] programs run ok
 ---- terminal (51x19) after 1.61 s ----
 |CraftOS 1.9                                        |
-|Files beginning with a "." are hidden from "list"  |
-|by default.                                        |
+|You can change the color of a disk by crafting or  |
+|right clicking it with dye.                        |
 |CraftOS 1.9	ComputerCraft 1.121.0 (headless)       |
 |name? Steve                                        |
 |apis        autorun     help        modules        |

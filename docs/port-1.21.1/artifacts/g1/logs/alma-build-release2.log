@@ -9,12 +9,12 @@
 == linking <repo>/natives/build/out/natives/linux-x86_64/libcclj.so
 == dependency check
 ldd:
-  	linux-vdso.so.1 (0x0000700ec0c10000)
-  	libm.so.6 => /lib64/libm.so.6 (0x0000700ec0200000)
-  	libdl.so.2 => /lib64/libdl.so.2 (0x0000700ebfe00000)
-  	libpthread.so.0 => /lib64/libpthread.so.0 (0x0000700ebfa00000)
-  	libc.so.6 => /lib64/libc.so.6 (0x0000700ebf600000)
-  	/lib64/ld-linux-x86-64.so.2 (0x0000700ec0800000)
+  	linux-vdso.so.1 (0x0000785295bce000)
+  	libm.so.6 => /lib64/libm.so.6 (0x0000785295200000)
+  	libdl.so.2 => /lib64/libdl.so.2 (0x0000785294e00000)
+  	libpthread.so.0 => /lib64/libpthread.so.0 (0x0000785294a00000)
+  	libc.so.6 => /lib64/libc.so.6 (0x0000785294600000)
+  	/lib64/ld-linux-x86-64.so.2 (0x0000785295800000)
 max GLIBC symbol version (objdump -T): GLIBC_2.14 (allowed: GLIBC_2.28)
 GNU_STACK flags: RW
 exports:
@@ -25,5 +25,5 @@ exports:
   Java_io_github_mindbound_cclj_natives_NativeMachine_nNew
   Java_io_github_mindbound_cclj_natives_NativeMachine_nResume
   Java_io_github_mindbound_cclj_natives_NativeProbe_selfTest
-== OK: <repo>/natives/build/out/natives/linux-x86_64/libcclj.so (477856 bytes, sha256 004c09267fd7ee1d...)
+== OK: <repo>/natives/build/out/natives/linux-x86_64/libcclj.so (477856 bytes, sha256 bec804305a537c5e...)
    with LuaJIT-COPYRIGHT.txt 

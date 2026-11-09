@@ -2,10 +2,10 @@
 # MachineSpecs (Tier 2) under WSL with the class path Gradle printed on Windows, the Linux library taken from
 # natives/build/out (first on the class path), JVM arguments as the machineSpecs task. $1 = JAVA_HOME, $2 = label.
 set -uo pipefail
-G=<scratch>/g1
+G=<scratch>/g8
 cd <repo>
-CP=$(tr -d '\r\n' < "$G/cp-g1.txt" | tr '\\;' '/:' | sed -e 's|C:/|/mnt/c/|g')
-out=/tmp/cclj-g1-specs-$2; rm -rf "$out"; mkdir -p "$out/tmp"
+CP=$(tr -d '\r\n' < "$G/cp-g8.txt" | tr '\\;' '/:' | sed -e 's|C:/|/mnt/c/|g')
+out=/tmp/cclj-g8-specs-$2; rm -rf "$out"; mkdir -p "$out/tmp"
 "$1/bin/java" -version 2>&1 | head -1
 sha256sum natives/build/out/natives/linux-x86_64/libcclj.so
 [ -f natives/build/out/natives/linux-x86_64/DEBUG-BUILD.txt ] && echo "library: DEBUG build" || echo "library: release build"

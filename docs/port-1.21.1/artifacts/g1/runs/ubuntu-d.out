@@ -1,33 +1,33 @@
 host: Ubuntu 26.04.1 LTS
-=== tier0-debug-sanitized (11:54:55)
+=== tier0-debug-sanitized (21:23:55)
 host: Ubuntu 26.04.1 LTS, gcc (Ubuntu 15.2.0-16ubuntu1) 15.2.0
 LUA_USE_APICHECK LUA_USE_ASSERT (LuaJIT tree flags)
 machine-test exit: 0
 == compiling with -fsanitize=address,undefined -fno-sanitize-recover=all -fno-omit-frame-pointer
 == running <repo>/natives/build/linux-x86_64/machine-test/machine_test (timeout 900 s, sanitized)
-machine_test: 165 checks, 0 failed
+machine_test: 166 checks, 0 failed
 machine-test: OK (linux-x86_64, with ASan and UBSan)
 === tier0-debug-sanitized exit: 0
-=== tier1-debug (11:55:09)
+=== tier1-debug (21:24:09)
 java exit: 0
-jni-scan: OK, none of the 4 patterns in 1 log(s): <scratch>/g1/logs/ubuntu-tier1-debug.log
+jni-scan: OK, none of the 4 patterns in 1 log(s): <scratch>/g8/logs/ubuntu-tier1-debug.log
 scan exit: 0
 java 21.0.12.1 (OpenJDK 64-Bit Server VM) on Linux amd64, -Xcheck:jni on, max heap 256 MiB
 library build: DEBUG (CCLJ_DEBUG=1, DEBUG-BUILD.txt next to it)
-ns per call: 268.4 (median of 5 runs of 200000 calls of t.echo("hello"), a string in and a string out, decoded and encoded by Wire; -Xcheck:jni on; runs: 262.8 271.0 268.4 272.5 263.2)
-bridgeProbe: 88 checks, 0 failed
+ns per call: 255.4 (median of 5 runs of 200000 calls of t.echo("hello"), a string in and a string out, decoded and encoded by Wire; -Xcheck:jni on; runs: 255.0 262.9 255.4 261.7 249.6)
+bridgeProbe: 92 checks, 0 failed
 bridgeProbe: OK
 === tier1-debug exit: 0
-=== tier2-debug (11:55:11)
+=== tier2-debug (21:24:12)
 openjdk version "21.0.12.1" 2026-08-18
-4cf7e96b8c470990a8951373459925e2b369b5cb8b60ef7bf02fb11119de7fbe  natives/build/out/natives/linux-x86_64/libcclj.so
+b9886e6d5e3c8ffd781d224ec9db0f4b3a831690db165cae5a7eb17c42240391  natives/build/out/natives/linux-x86_64/libcclj.so
 library: DEBUG build
 java exit: 0
 machineSpecs: java 21.0.12.1 on Linux amd64, CC:T 1.121.0
-natives: /tmp/cclj-g1-specs-ubuntu-debug/natives/4cf7e96b8c470990/libcclj.so
-       luajit: error: done (+3 lines) | line 0 '' | 303 ns per call (100,000 calls, one resume)
-machineSpecs: 33 passed (5 with an allowed difference from Cobalt), 0 failed; native machines live 0, leaked 0
-ok lines: 33
-jni-scan: OK, none of the 4 patterns in 1 log(s): <scratch>/g1/logs/specs-ubuntu-debug.log
+natives: /tmp/cclj-g8-specs-ubuntu-debug/natives/b9886e6d5e3c8ffd/libcclj.so
+       luajit: error: done (+3 lines) | line 0 '' | 294 ns per call (100,000 calls, one resume)
+machineSpecs: 39 passed (5 with an allowed difference from Cobalt), 0 failed; native machines live 0, leaked 0
+ok lines: 39
+jni-scan: OK, none of the 4 patterns in 1 log(s): <scratch>/g8/logs/specs-ubuntu-debug.log
 scan exit: 0
 === tier2-debug exit: 0

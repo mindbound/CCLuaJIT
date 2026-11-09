@@ -2,7 +2,7 @@
 # Phase B, Ubuntu 26.04: Tier 1 by hand with the library that AlmaLinux 8 built, with -Xcheck:jni and 3 runs without.
 set -uo pipefail
 export JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64
-G=<scratch>/g1
+G=<scratch>/g8
 . $G/common.sh
 cd <repo>
 echo "host: $(. /etc/os-release; echo $PRETTY_NAME), $(ldd --version | head -1)"

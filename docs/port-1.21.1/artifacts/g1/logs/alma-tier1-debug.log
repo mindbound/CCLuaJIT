@@ -1,10 +1,10 @@
 java 21.0.13 (OpenJDK 64-Bit Server VM) on Linux amd64, -Xcheck:jni on, max heap 256 MiB
 resource /natives/linux-x86_64/libcclj.so: file:<repo>/natives/build/out/natives/linux-x86_64/libcclj.so
 library build: DEBUG (CCLJ_DEBUG=1, DEBUG-BUILD.txt next to it)
-loaded /tmp/cclj-g1-probe-alma-tier1-debug/cache/4cf7e96b8c470990/libcclj.so in 50.8 ms
-ok   ABI: nAbi() = 1, NativeMachine.ABI = 1
-ok   NativeLibrary: a second ensureLoaded, with another cache root, returns the first path: returned /tmp/cclj-g1-probe-alma-tier1-debug/cache/4cf7e96b8c470990/libcclj.so
-  child: first call: java.nio.file.FileSystemException: /tmp/cclj-g1-probe-alma-tier1-debug/cache/library-failure/a-file/cache: Not a directory; second call: the same exception object; isLoaded false; usable root created false
+loaded /tmp/cclj-g8-probe-alma-tier1-debug/cache/b9886e6d5e3c8ffd/libcclj.so in 55.1 ms
+ok   ABI: nAbi() = 2, NativeMachine.ABI = 2
+ok   NativeLibrary: a second ensureLoaded, with another cache root, returns the first path: returned /tmp/cclj-g8-probe-alma-tier1-debug/cache/b9886e6d5e3c8ffd/libcclj.so
+  child: first call: java.nio.file.FileSystemException: /tmp/cclj-g8-probe-alma-tier1-debug/cache/library-failure/a-file/cache: Not a directory; second call: the same exception object; isLoaded false; usable root created false
 ok   NativeLibrary: a failed load is sticky (second JVM: the same exception again, nothing loaded): child exit 0
 ok   Wire.decodeArgs: nil, true, false, a string: [null, true, false, "x"]
 ok   Wire.decodeArgs: a number is a Double: [-0.5]
@@ -26,9 +26,13 @@ ok   Wire.message: with a traceback: "bios.lua:3: boom\nstack traceback:\n\t[C]:
 ok   Wire.message: without a traceback (0xFFFFFFFF), Latin-1: "a\xe9", tracebackAt -1
 ok   Wire.message: empty: "", tracebackAt -1
 ok   Wire.message: malformed arrays throw IllegalStateException: []
+ok   NativeMachine.ended: a well-formed message keeps its status: 3 "bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk", tracebackAt 16
+ok   NativeMachine.ended: a malformed message gives ST_INTERNAL, not an IllegalStateException: []
 ok   Wire.SpecWriter: two APIs, a module, the MAY_YIELD flag: 0200000001000000040000007465726d000100000005000000777269746500020000000100000061010000006201010000006d02000000010000007801010000... (67 bytes)
 ok   Wire.SpecWriter: a method before any API: java.lang.IllegalStateException: wire: method x outside an API
 ok   Wire.SpecWriter: a 257-byte name: java.lang.IllegalArgumentException: name longer than 256 bytes: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa...
+ok   NativeLoader: the cleanup deletes a directory unused for two days, and keeps its own and a fresh one: old false, keep true, fresh true
+ok   NativeLoader: the cleanup swallows a DirectoryIteratorException
 ok   G1: created: live 1, idle
 ok   G1: status ERROR: status 3
 ok   G1: message: "bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk"
@@ -63,52 +67,52 @@ ok   a 60,000-byte error value keeps its traceback after it: 60070 chars, traceb
 ok   a 100 MiB string.rep hits the 64 MiB cap; the machine goes on: "false not enough memory alive"
 note: the RuntimeException and OutOfMemoryError stack traces on stderr are expected: the native side prints them (ExceptionDescribe)
 Exception in thread "bridge-section" java.lang.RuntimeException: BridgeProbe: fake host failure (expected)
-	at io.github.mindbound.cclj.natives.BridgeProbe.lambda$testHostFailures$17(BridgeProbe.java:447)
-	at io.github.mindbound.cclj.natives.BridgeProbe$FakeHost.call(BridgeProbe.java:1255)
-	at io.github.mindbound.cclj.natives.NativeMachine.upcall(NativeMachine.java:197)
+	at io.github.mindbound.cclj.natives.BridgeProbe.lambda$testHostFailures$17(BridgeProbe.java:454)
+	at io.github.mindbound.cclj.natives.BridgeProbe$FakeHost.call(BridgeProbe.java:1321)
+	at io.github.mindbound.cclj.natives.NativeMachine.upcall(NativeMachine.java:256)
 	at io.github.mindbound.cclj.natives.NativeMachine.nResume(Native Method)
-	at io.github.mindbound.cclj.natives.NativeMachine.resume(NativeMachine.java:129)
-	at io.github.mindbound.cclj.natives.BridgeProbe.lambda$testHostFailures$22(BridgeProbe.java:467)
-	at io.github.mindbound.cclj.natives.BridgeProbe.captureErr(BridgeProbe.java:1333)
-	at io.github.mindbound.cclj.natives.BridgeProbe.testHostFailures(BridgeProbe.java:467)
-	at io.github.mindbound.cclj.natives.BridgeProbe.lambda$section$58(BridgeProbe.java:1281)
+	at io.github.mindbound.cclj.natives.NativeMachine.resume(NativeMachine.java:157)
+	at io.github.mindbound.cclj.natives.BridgeProbe.lambda$testHostFailures$22(BridgeProbe.java:474)
+	at io.github.mindbound.cclj.natives.BridgeProbe.captureErr(BridgeProbe.java:1399)
+	at io.github.mindbound.cclj.natives.BridgeProbe.testHostFailures(BridgeProbe.java:474)
+	at io.github.mindbound.cclj.natives.BridgeProbe.lambda$section$60(BridgeProbe.java:1347)
 	at java.base/java.lang.Thread.run(Thread.java:1583)
 ok   host throws RuntimeException: uncaught, the fixed level-0 error: "CCLuaJIT: Java exception in host call\nstack traceback:\n\t[C]: in field 'f'\n\tbios.lua:1: in main chunk"
 Exception in thread "bridge-section" java.lang.RuntimeException: BridgeProbe: fake host failure (expected)
-	at io.github.mindbound.cclj.natives.BridgeProbe.lambda$testHostFailures$17(BridgeProbe.java:447)
-	at io.github.mindbound.cclj.natives.BridgeProbe$FakeHost.call(BridgeProbe.java:1255)
-	at io.github.mindbound.cclj.natives.NativeMachine.upcall(NativeMachine.java:197)
+	at io.github.mindbound.cclj.natives.BridgeProbe.lambda$testHostFailures$17(BridgeProbe.java:454)
+	at io.github.mindbound.cclj.natives.BridgeProbe$FakeHost.call(BridgeProbe.java:1321)
+	at io.github.mindbound.cclj.natives.NativeMachine.upcall(NativeMachine.java:256)
 	at io.github.mindbound.cclj.natives.NativeMachine.nResume(Native Method)
-	at io.github.mindbound.cclj.natives.NativeMachine.resume(NativeMachine.java:129)
-	at io.github.mindbound.cclj.natives.BridgeProbe.lambda$testHostFailures$23(BridgeProbe.java:472)
-	at io.github.mindbound.cclj.natives.BridgeProbe.captureErr(BridgeProbe.java:1333)
-	at io.github.mindbound.cclj.natives.BridgeProbe.testHostFailures(BridgeProbe.java:471)
-	at io.github.mindbound.cclj.natives.BridgeProbe.lambda$section$58(BridgeProbe.java:1281)
+	at io.github.mindbound.cclj.natives.NativeMachine.resume(NativeMachine.java:157)
+	at io.github.mindbound.cclj.natives.BridgeProbe.lambda$testHostFailures$23(BridgeProbe.java:479)
+	at io.github.mindbound.cclj.natives.BridgeProbe.captureErr(BridgeProbe.java:1399)
+	at io.github.mindbound.cclj.natives.BridgeProbe.testHostFailures(BridgeProbe.java:478)
+	at io.github.mindbound.cclj.natives.BridgeProbe.lambda$section$60(BridgeProbe.java:1347)
 	at java.base/java.lang.Thread.run(Thread.java:1583)
 ok   host throws RuntimeException: under pcall, the machine goes on: "false|CCLuaJIT: Java exception in host call\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk", after() called 1 time(s)
 ok   host throws RuntimeException: printed to System.err once per call (ExceptionDescribe): 2 of 2 times, 1808 chars on System.err
 Exception in thread "bridge-section" java.lang.OutOfMemoryError: fake
-	at io.github.mindbound.cclj.natives.BridgeProbe.lambda$testHostFailures$18(BridgeProbe.java:450)
-	at io.github.mindbound.cclj.natives.BridgeProbe$FakeHost.call(BridgeProbe.java:1255)
-	at io.github.mindbound.cclj.natives.NativeMachine.upcall(NativeMachine.java:197)
+	at io.github.mindbound.cclj.natives.BridgeProbe.lambda$testHostFailures$18(BridgeProbe.java:457)
+	at io.github.mindbound.cclj.natives.BridgeProbe$FakeHost.call(BridgeProbe.java:1321)
+	at io.github.mindbound.cclj.natives.NativeMachine.upcall(NativeMachine.java:256)
 	at io.github.mindbound.cclj.natives.NativeMachine.nResume(Native Method)
-	at io.github.mindbound.cclj.natives.NativeMachine.resume(NativeMachine.java:129)
-	at io.github.mindbound.cclj.natives.BridgeProbe.lambda$testHostFailures$22(BridgeProbe.java:467)
-	at io.github.mindbound.cclj.natives.BridgeProbe.captureErr(BridgeProbe.java:1333)
-	at io.github.mindbound.cclj.natives.BridgeProbe.testHostFailures(BridgeProbe.java:467)
-	at io.github.mindbound.cclj.natives.BridgeProbe.lambda$section$58(BridgeProbe.java:1281)
+	at io.github.mindbound.cclj.natives.NativeMachine.resume(NativeMachine.java:157)
+	at io.github.mindbound.cclj.natives.BridgeProbe.lambda$testHostFailures$22(BridgeProbe.java:474)
+	at io.github.mindbound.cclj.natives.BridgeProbe.captureErr(BridgeProbe.java:1399)
+	at io.github.mindbound.cclj.natives.BridgeProbe.testHostFailures(BridgeProbe.java:474)
+	at io.github.mindbound.cclj.natives.BridgeProbe.lambda$section$60(BridgeProbe.java:1347)
 	at java.base/java.lang.Thread.run(Thread.java:1583)
 ok   host throws new OutOfMemoryError("fake"): uncaught, the fixed level-0 error: "CCLuaJIT: Java exception in host call\nstack traceback:\n\t[C]: in field 'f'\n\tbios.lua:1: in main chunk"
 Exception in thread "bridge-section" java.lang.OutOfMemoryError: fake
-	at io.github.mindbound.cclj.natives.BridgeProbe.lambda$testHostFailures$18(BridgeProbe.java:450)
-	at io.github.mindbound.cclj.natives.BridgeProbe$FakeHost.call(BridgeProbe.java:1255)
-	at io.github.mindbound.cclj.natives.NativeMachine.upcall(NativeMachine.java:197)
+	at io.github.mindbound.cclj.natives.BridgeProbe.lambda$testHostFailures$18(BridgeProbe.java:457)
+	at io.github.mindbound.cclj.natives.BridgeProbe$FakeHost.call(BridgeProbe.java:1321)
+	at io.github.mindbound.cclj.natives.NativeMachine.upcall(NativeMachine.java:256)
 	at io.github.mindbound.cclj.natives.NativeMachine.nResume(Native Method)
-	at io.github.mindbound.cclj.natives.NativeMachine.resume(NativeMachine.java:129)
-	at io.github.mindbound.cclj.natives.BridgeProbe.lambda$testHostFailures$23(BridgeProbe.java:472)
-	at io.github.mindbound.cclj.natives.BridgeProbe.captureErr(BridgeProbe.java:1333)
-	at io.github.mindbound.cclj.natives.BridgeProbe.testHostFailures(BridgeProbe.java:471)
-	at io.github.mindbound.cclj.natives.BridgeProbe.lambda$section$58(BridgeProbe.java:1281)
+	at io.github.mindbound.cclj.natives.NativeMachine.resume(NativeMachine.java:157)
+	at io.github.mindbound.cclj.natives.BridgeProbe.lambda$testHostFailures$23(BridgeProbe.java:479)
+	at io.github.mindbound.cclj.natives.BridgeProbe.captureErr(BridgeProbe.java:1399)
+	at io.github.mindbound.cclj.natives.BridgeProbe.testHostFailures(BridgeProbe.java:478)
+	at io.github.mindbound.cclj.natives.BridgeProbe.lambda$section$60(BridgeProbe.java:1347)
 	at java.base/java.lang.Thread.run(Thread.java:1583)
 ok   host throws new OutOfMemoryError("fake"): under pcall, the machine goes on: "false|CCLuaJIT: Java exception in host call\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk", after() called 1 time(s)
 ok   host throws new OutOfMemoryError("fake"): printed to System.err once per call (ExceptionDescribe): 2 of 2 times, 1734 chars on System.err
@@ -127,17 +131,17 @@ ok   close() while running: the resume returns, closedWhileRunning, freed by the
 ok   close() while running: LIVE == 0 at the end: live 0
 ok   create on thread A, resume on B, close on C: resume status 1, host calls on [bridge-B], live 0
 ok   create on A, resume on B, resume to the error (and the free) on C: status 3, host calls on [bridge-B, bridge-C], live 0
-ok   close() racing resume, 300 rounds: one free each, no leak; some during the resume, some outside it: close() came before the resume 42 times, during it 229 (closedWhileRunning), after it 29
-ok   local references: 100000 upcalls of 4 KiB each way in one resume; heap below baseline + 32 MiB: baseline 2.2 MiB, in the last upcall after System.gc() 2.2 MiB (+0.0 MiB), 100000 calls in 218 ms; machine: "done\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:4: in main chunk"
+ok   close() racing resume, 300 rounds: one free each, no leak; some during the resume, some outside it: close() came before the resume 58 times, during it 240 (closedWhileRunning), after it 2
+ok   local references: 100000 upcalls of 4 KiB each way in one resume; heap below baseline + 32 MiB: baseline 2.3 MiB, in the last upcall after System.gc() 2.3 MiB (+0.0 MiB), 100000 calls in 269 ms; machine: "done\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:4: in main chunk"
 ok   ns per call measured: 5 runs of 200000 calls
-ns per call: 289.0 (median of 5 runs of 200000 calls of t.echo("hello"), a string in and a string out, decoded and encoded by Wire; -Xcheck:jni on; runs: 286.0 289.4 285.2 290.2 289.0)
+ns per call: 345.5 (median of 5 runs of 200000 calls of t.echo("hello"), a string in and a string out, decoded and encoded by Wire; -Xcheck:jni on; runs: 361.4 341.6 336.8 345.5 368.8)
 ok   JNI failure: a request the full Java heap cannot hold gives the fixed level-0 error, uncaught: status 3, "CCLuaJIT: JNI failure in host call\nstack traceback:\n\t[C]: in field 'big'\n\tbios.lua:3: in main chunk"
 ok   JNI failure: under pcall, the machine goes on: status 3, "false|CCLuaJIT: JNI failure in host call\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:5: in main chunk"
 note: for the 128 host exceptions below, ExceptionDescribe writes "Exception in thread ..." to stderr each time (one long line, expected); their text is captured and counted
-ok   local references, null exit: 128 failing upcalls of 448 KiB; heap below baseline + 16 MiB; nothing printed: baseline 19.1 MiB, in the last upcall after System.gc() 19.1 MiB (+0.0 MiB), 128 calls, 0 printed to System.err; machine: "done\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:8: in main chunk"
+ok   local references, null exit: 128 failing upcalls of 448 KiB; heap below baseline + 16 MiB; nothing printed: baseline 19.2 MiB, in the last upcall after System.gc() 19.2 MiB (+0.0 MiB), 128 calls, 0 printed to System.err; machine: "done\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:8: in main chunk"
 Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" Exception in thread "bridge-section" 
-ok   local references, exception exit: 128 failing upcalls of 448 KiB; heap below baseline + 16 MiB; each exception printed once: baseline 19.1 MiB, in the last upcall after System.gc() 19.1 MiB (+0.0 MiB), 128 calls, 128 printed to System.err; machine: "done\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:8: in main chunk"
-ok   local references, 16 MiB + 1 byte exit: 128 failing upcalls of 448 KiB; heap below baseline + 16 MiB; nothing printed: baseline 19.1 MiB, in the last upcall after System.gc() 19.1 MiB (+0.0 MiB), 128 calls, 0 printed to System.err; machine: "done\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:8: in main chunk"
+ok   local references, exception exit: 128 failing upcalls of 448 KiB; heap below baseline + 16 MiB; each exception printed once: baseline 19.2 MiB, in the last upcall after System.gc() 19.2 MiB (+0.0 MiB), 128 calls, 128 printed to System.err; machine: "done\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:8: in main chunk"
+ok   local references, 16 MiB + 1 byte exit: 128 failing upcalls of 448 KiB; heap below baseline + 16 MiB; nothing printed: baseline 19.2 MiB, in the last upcall after System.gc() 19.2 MiB (+0.0 MiB), 128 calls, 0 printed to System.err; machine: "done\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:8: in main chunk"
 ok   no machine left: live 0, leaked 0
-bridgeProbe: 88 checks, 0 failed
+bridgeProbe: 92 checks, 0 failed
 bridgeProbe: OK

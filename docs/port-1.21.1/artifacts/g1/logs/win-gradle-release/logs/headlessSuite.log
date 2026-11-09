@@ -17,7 +17,7 @@ pending	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTes
 pending	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_number_with_leading_zero
 pending	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_structure_100000_opening_arrays
 pending	The textutils library -> textutils.unserializeJSON -> passes nst/JSONTestSuite -> n_structure_open_array_object
-suite done=true after 23.7 s; registered=1407 run=1407 counts={error=5, pass=1390, pending=12}
+suite done=true after 23.6 s; registered=1407 run=1407 counts={error=5, pass=1390, pending=12}
 context closed cleanly: true
 verdict: 0 unexpected failure(s), 5 expected failure(s), 0 stale expected-failure entries
 RESULT: PASS

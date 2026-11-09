@@ -2,7 +2,7 @@
 # Phase D, Ubuntu 26.04 (G1 item 6): Tier 1 and Tier 2 by hand against the CCLJ_DEBUG=1 library that AlmaLinux 8 built.
 set -uo pipefail
 export JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64
-G=<scratch>/g1
+G=<scratch>/g8
 . $G/common.sh
 cd <repo>
 echo "host: $(. /etc/os-release; echo $PRETTY_NAME)"

@@ -1,7 +1,7 @@
-mutant written: <scratch>\g1\negctl-win\natives\src\jni_machine.c
---- natives/src/jni_machine.c	2026-11-09 04:25:13.491148300 +0200
-+++ <scratch>/g1/negctl-win/natives/src/jni_machine.c	2026-11-09 11:49:31.061868700 +0200
-@@ -79,11 +79,7 @@
+mutant written: <scratch>\g8\negctl-win\natives\src\jni_machine.c
+--- natives/src/jni_machine.c	2026-11-09 20:03:17.951517500 +0200
++++ <scratch>/g8/negctl-win/natives/src/jni_machine.c	2026-11-09 21:19:03.422672100 +0200
+@@ -80,11 +80,7 @@
      if ((*env)->ExceptionCheck(env)) { rc = CM_HOST_E_JNI; goto out; }
    }
    jrep = (jbyteArray)(*env)->CallObjectMethod(env, host->self, host->upcall, (jint)fn, jreq);
@@ -14,11 +14,11 @@ mutant written: <scratch>\g1\negctl-win\natives\src\jni_machine.c
    if (jrep == NULL) { rc = CM_HOST_E_NULL; goto out; }
    n = (*env)->GetArrayLength(env, jrep);
    if (n < 0 || (size_t)n > CM_WIRE_MAX) { rc = CM_HOST_E_TOOBIG; goto out; }
-=== build-mutant (11:49:31)
-== OK: <scratch>/g1/negctl-win/natives/build/out/natives/windows-x86_64/cclj.dll (520704 bytes, sha256 46f4a1798d383f80...)
+=== build-mutant (21:19:03)
+== OK: <scratch>/g8/negctl-win/natives/build/out/natives/windows-x86_64/cclj.dll (520192 bytes, sha256 653364d0a44cbd78...)
 === build-mutant exit: 0
-in natives/build/out now: mutant 46f4a1798d383f80
-=== gradle bridgeProbe with the mutant (11:49:42)
+in natives/build/out now: mutant 653364d0a44cbd78
+=== gradle bridgeProbe with the mutant (21:19:13)
 gradle exit: 1
 bridgeProbe: Java 21.0.13+9-LTS at C:\Program Files\Eclipse Adoptium\jdk-21.0.13.9-hotspot
 FAIL host throws RuntimeException: uncaught, the fixed level-0 error: "CCLuaJIT: host call returned null\nstack traceback:\n\t[C]: in field 'f'\n\tbios.lua:1: in main chunk"
@@ -27,25 +27,25 @@ FAIL host throws RuntimeException: printed to System.err once per call (Exceptio
 FAIL host throws new OutOfMemoryError("fake"): uncaught, the fixed level-0 error: "CCLuaJIT: host call returned null\nstack traceback:\n\t[C]: in field 'f'\n\tbios.lua:1: in main chunk"
 FAIL host throws new OutOfMemoryError("fake"): under pcall, the machine goes on: "CCLuaJIT: JNI failure in host call\nstack traceback:\n\t[C]: in field 'after'\n\tbios.lua:2: in main chunk", after() called 0 time(s)
 FAIL host throws new OutOfMemoryError("fake"): printed to System.err once per call (ExceptionDescribe): 0 of 2 times, 0 chars on System.err
-FAIL local references, exception exit: 128 failing upcalls of 448 KiB; heap below baseline + 16 MiB; each exception printed once: baseline 21.6 MiB, in the last upcall after System.gc() 0.0 MiB (-21.6 MiB), 1 calls, 0 printed to System.err; machine: "call 1: CCLuaJIT: host call returned null\nstack 
-bridgeProbe: 88 checks, 7 failed
+FAIL local references, exception exit: 128 failing upcalls of 448 KiB; heap below baseline + 16 MiB; each exception printed once: baseline 21.7 MiB, in the last upcall after System.gc() 0.0 MiB (-21.7 MiB), 1 calls, 0 printed to System.err; machine: "call 1: CCLuaJIT: host call returned null\nstack 
+bridgeProbe: 92 checks, 7 failed
 bridgeProbe: FAILED
-bridgeProbe: 1273329 line(s) of -Xcheck:jni output in <repo>\common\build\headless\logs\bridgeProbe.log; the first 100:
+bridgeProbe: 1274129 line(s) of -Xcheck:jni output in <repo>\common\build\headless\logs\bridgeProbe.log; the first 100:
 FAILURE: Build failed with an exception.
 * What went wrong:
 Execution failed for task ':common:bridgeProbe' (registered in build file 'common\build.gradle').
-BUILD FAILED in 2m 48s
-task log: 1136079710 bytes; lines 'without checking exceptions ... from CallObjectMethod': 1273325; 'WARNING in native method' lines in all: 1273329
+BUILD FAILED in 2m 40s
+task log: 1136544198 bytes; lines 'without checking exceptions ... from CallObjectMethod': 1274125; 'WARNING in native method' lines in all: 1274129
 WARNING in native method: JNI call made without checking exceptions when required to from CallObjectMethod
 WARNING in native method: JNI call made without checking exceptions when required to from CallObjectMethod
 WARNING in native method: JNI call made without checking exceptions when required to from CallObjectMethod
-restored: 44f151d9dfe0627160742a79dbea4531d6cd1378c2b6907653c0fdfa4e944575
+restored: 80957d1e98f36281f4651d06b5fd9523c6519b616086488afbed46a66ee0fa4d
 release DLL back: OK
-=== gradle bridgeProbe with the release library again (11:52:33)
+=== gradle bridgeProbe with the release library again (21:21:56)
 gradle exit: 0
 bridgeProbe: Java 21.0.13+9-LTS at C:\Program Files\Eclipse Adoptium\jdk-21.0.13.9-hotspot
-bridgeProbe: 88 checks, 0 failed
+bridgeProbe: 92 checks, 0 failed
 bridgeProbe: OK
 bridgeProbe: JNI scan clean, exit code 0 (log: <repo>\common\build\headless\logs\bridgeProbe.log)
 BUILD SUCCESSFUL in 2s
-44f151d9dfe0627160742a79dbea4531d6cd1378c2b6907653c0fdfa4e944575 *common/build/resources/main/natives/windows-x86_64/cclj.dll
+80957d1e98f36281f4651d06b5fd9523c6519b616086488afbed46a66ee0fa4d *common/build/resources/main/natives/windows-x86_64/cclj.dll

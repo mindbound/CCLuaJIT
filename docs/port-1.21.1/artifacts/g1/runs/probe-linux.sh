@@ -4,9 +4,9 @@
 # then jni-scan.sh on it.
 set -uo pipefail
 cd <repo>
-G=<scratch>/g1
+G=<scratch>/g8
 name=$1; shift
-out=/tmp/cclj-g1-probe-$name
+out=/tmp/cclj-g8-probe-$name
 rm -rf "$out"
 "$JAVA_HOME/bin/javac" -d "$out/classes" common/src/main/java/io/github/mindbound/cclj/natives/*.java \
   common/src/test/java/io/github/mindbound/cclj/natives/NativeProbe.java \

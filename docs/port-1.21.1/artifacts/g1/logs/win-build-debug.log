@@ -23,6 +23,6 @@ exports:
   Java_io_github_mindbound_cclj_natives_NativeMachine_nNew
   Java_io_github_mindbound_cclj_natives_NativeMachine_nResume
   Java_io_github_mindbound_cclj_natives_NativeProbe_selfTest
-== OK: <repo>/natives/build/out/natives/windows-x86_64/cclj.dll (906548 bytes, sha256 799f7b6423d72be8...)
+== OK: <repo>/natives/build/out/natives/windows-x86_64/cclj.dll (906548 bytes, sha256 acfe6e697fb2f351...)
    with DEBUG-BUILD.txt LuaJIT-COPYRIGHT.txt MinGW-w64-runtime.txt 
 == DEBUG BUILD (CCLJ_DEBUG=1): see <repo>/natives/build/out/natives/windows-x86_64/DEBUG-BUILD.txt. Do not ship it.

@@ -4,7 +4,7 @@
    LuaJIT 047efd3bcbe3331c3b9cb69bf5b217164d80bd5c, xcflags: -DLUAJIT_ENABLE_INTERRUPT -DLUAJIT_ENABLE_LUA52COMPAT -DLUAJIT_DISABLE_FFI -DLUAJIT_DISABLE_BCLOAD -DLUAJIT_ENABLE_CSTACKGUARD -DLUAJIT_DISABLE_PROFILE -DLUAJIT_DISABLE_VMEVENT -DLUA_USE_ASSERT -DLUA_USE_APICHECK
 == compiling without sanitizers
 == running <repo>/natives/build/windows-x86_64/machine-test/machine_test.exe (timeout 900 s)
-machine_test: CCLJ_ABI 1, 16 host functions, spec 260 bytes
+machine_test: CCLJ_ABI 2, 16 host functions, spec 260 bytes
 ok   smoke: the G1 bios end to end: load 0 resume 3 free 0 "bios.lua:3: boom\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk"
 ok   1 allow-lists: state inspected: load 0, inspection 0
 ok   1 allow-lists: keys of _G: got "_G _VERSION alias1 alias2 assert coroutine empty error getfenv getmetatable ipairs load loadstring math next pairs pcall rawequal rawget rawlen rawset select setfenv setmetatable string t table term tonumber tostring type unpack xpcall" (0 non-string keys)
@@ -65,12 +65,12 @@ ok   5 render: a number at level 0: load 0, resume 3 (want 3), free 0, message "
 ok   5 render: a fraction: load 0, resume 3 (want 3), free 0, message "1.5\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:1: in main chunk"
 ok   5 render: error(42) (LuaJIT adds a position, F6): load 0, resume 3 (want 3), free 0, message "bios.lua:1: 42\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:1: in main chunk"
 ok   5 render: NUL and 0xFF bytes: "a\x00b\xff\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:1: in main chunk"
-ok   5 render: a table is "table: %08x": "table: bea35f8c\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:1: in main chunk"
-ok   5 render: a function: "function: 34b17eef\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:1: in main chunk"
-ok   5 render: a thread: "thread: d2c98db8\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:1: in main chunk"
-ok   5 render: __tostring is never run: marks 0, "table: 812303a9\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:1: in main chunk"
-ok   5 render: a table is the hash of its address under key 1: "table: 6964286f\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:2: in main chunk", want "table: 6964286f" (address "table: 6b0b8c98", other key "table: dbbcb78f")
-ok   5 render: a table is the hash of its address under key 2: "table: dbbcb78f\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:2: in main chunk", want "table: dbbcb78f" (address "table: 6b0b8c98", other key "table: 6964286f")
+ok   5 render: a table is "table: %08x": "table: 4509896d\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:1: in main chunk"
+ok   5 render: a function: "function: 51dc5ae8\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:1: in main chunk"
+ok   5 render: a thread: "thread: 672fe868\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:1: in main chunk"
+ok   5 render: __tostring is never run: marks 0, "table: fd78671f\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:1: in main chunk"
+ok   5 render: a table is the hash of its address under key 1: "table: 8eac617b\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:2: in main chunk", want "table: 8eac617b" (address "table: 5ef48c98", other key "table: ba573ad7")
+ok   5 render: a table is the hash of its address under key 2: "table: ba573ad7\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:2: in main chunk", want "table: ba573ad7" (address "table: 5ef48c98", other key "table: 8eac617b")
 ok   5 traceback: global and local function frames: "bios.lua:1: deep2\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:1: in function 'g'\n\tbios.lua:2: in local 'l'\n\tbios.lua:3: in main chunk"
 ok   5 traceback: field frames: "m\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:2: in field 'm'\n\tbios.lua:3: in local 'f'\n\tbios.lua:4: in main chunk"
 ok   5 traceback: an error re-raised by coroutine.wrap shows the outer frames: "bios.lua:5: m\nstack traceback:\n\t[C]: in local 'co'\n\tbios.lua:5: in main chunk"
@@ -160,16 +160,17 @@ ok   8 oom: cap 0, cm_load fails: 3 "not enough memory"
 ok   8 oom: every cap up to the load size: load needs about 19198 bytes (state 12524): 752 caps loaded, 3966 not enough memory, 0 other
 ok   8 oom: the buffer-growth scenario runs: 7 allocations, "done\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:6: in main chunk"
 ok   8 oom: cm_test_fail_after(n) for every n: n = 0..8, 0 bad
-ok   9 re-entrancy: cm_resume, cm_load and cm_free from the host are refused: outer 1; inner resume 4 "machine is busy", load 4, free 4
-ok   9 re-entrancy: the owner's YIELD replaces the "machine is busy" message: ""
-ok   9 re-entrancy: the machine was not freed or changed: 3 "4|machine is busy|4|4\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk"
+ok   9 re-entrancy: cm_resume, cm_load and cm_free from the host get CM_ST_BUSY and leave the message alone: outer 1; inner resume 5 "", load 5, free 5
+ok   9 re-entrancy: the owner's YIELD gives its own (empty) message: ""
+ok   9 re-entrancy: the machine was not freed or changed: 3 "5||5|5\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk"
 ok   9 re-entrancy: freed afterwards
-ok   9 re-entrancy: cm_free, cm_resume and cm_load from another thread while busy: free 4, resume 4 "machine is busy", load 4; owner 1
+ok   9 re-entrancy: cm_free, cm_resume and cm_load from another thread while busy: free 5, resume 5, load 5; owner 1
 ok   9 re-entrancy: the machine works and frees afterwards: 3 "end\nstack traceback:\n\t[C]: in function 'error'\n\tbios.lua:3: in main chunk"
+ok   9 re-entrancy: refused calls from another thread while the owner renders its error change nothing: 10 of 10 rounds intact, 42044853 refused calls (20847381 before the messages were complete), 0 not refused
 ok   10 threads: new, resume and free on three threads: load 0, resumes 1 1, log "r1r2", free 0
 ok   10 churn: 1,000 machines on three threads at once: 1000 ok, 0 bad (0.0 s)
-ok   10 churn: process memory stays flat: 0.9 MiB before, 1.1 MiB after the 1,000 machines (at most 16 MiB more)
+ok   10 churn: process memory stays flat: 0.9 MiB before, 1.0 MiB after the 1,000 machines (at most 16 MiB more)
 ok   all: no traceback of any test has "0x", "[builtin" or a line number below 1, or changed lua_gettop(co): 1102 tracebacks: 0 with an address or builtin name, 0 with a line below 1, 0 changed the top
 ok   all: after every load and resume, the cap counted what LuaJIT counts: 0 of 7684 checks differ
-machine_test: 166 checks, 0 failed
+machine_test: 167 checks, 0 failed
 machine-test: OK (windows-x86_64)

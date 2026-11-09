@@ -3,7 +3,7 @@
 # without it (D1).
 set -uo pipefail
 export JAVA_HOME=/usr/lib/jvm/java-21-openjdk
-G=<scratch>/g1
+G=<scratch>/g8
 . $G/common.sh
 cd <repo>
 echo "commit: $(git rev-parse HEAD 2>/dev/null || echo '(git n/a)')"

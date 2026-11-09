@@ -2,14 +2,14 @@
 # G1 item 4 on Windows: build the mutant from a scratch copy, put it into natives/build/out for one
 # ./gradlew :common:bridgeProbe, then restore the release library and check it.
 set -uo pipefail
-G=<scratch>/g1
+G=<scratch>/g8
 . $G/common.sh
 REPO=<repo>
 N=$G/negctl-win
 DLL=$REPO/natives/build/out/natives/windows-x86_64/cclj.dll
-REL=44f151d9dfe0627160742a79dbea4531d6cd1378c2b6907653c0fdfa4e944575
+REL=80957d1e98f36281
 cd $REPO
-[ "$(sha256sum < $DLL | cut -c1-64)" = $REL ] || { echo "the release DLL is not the phase A build; stop"; exit 1; }
+[ "$(sha256sum < $DLL | cut -c1-16)" = $REL ] || { echo "the release DLL is not the phase A build; stop"; exit 1; }
 python "$(cygpath -w $G/negctl.py)" "$(cygpath -w $N)" || exit 1
 diff -u natives/src/jni_machine.c $N/natives/src/jni_machine.c
 step build-mutant bash -c "LUAJIT_SRC=$REPO/vendor/luajit bash $N/natives/build-natives.sh windows-x86_64 > $G/logs/negctl-win-build.log 2>&1; rc=\$?; grep -E 'OK:' $G/logs/negctl-win-build.log; exit \$rc"
@@ -29,7 +29,7 @@ echo "task log: $(wc -c < $TL) bytes; lines 'without checking exceptions ... fro
 grep -a -m3 '^WARNING in native method' $TL
 head -c 2000000 $TL > $G/logs/negctl-win-task-head.log; rm -f $TL
 trap - EXIT; restore
-[ "$(sha256sum < $DLL | cut -c1-64)" = $REL ] && echo "release DLL back: OK" || echo "release DLL NOT restored"
+[ "$(sha256sum < $DLL | cut -c1-16)" = $REL ] && echo "release DLL back: OK" || echo "release DLL NOT restored"
 echo "=== gradle bridgeProbe with the release library again ($(date +%H:%M:%S))"
 ./gradlew :common:bridgeProbe > $G/logs/negctl-win-after.log 2>&1; echo "gradle exit: $?"
 grep -a -E '^(bridgeProbe:|BUILD)' $G/logs/negctl-win-after.log

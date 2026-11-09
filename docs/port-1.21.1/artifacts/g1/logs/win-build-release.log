@@ -19,5 +19,5 @@ exports:
   Java_io_github_mindbound_cclj_natives_NativeMachine_nNew
   Java_io_github_mindbound_cclj_natives_NativeMachine_nResume
   Java_io_github_mindbound_cclj_natives_NativeProbe_selfTest
-== OK: <repo>/natives/build/out/natives/windows-x86_64/cclj.dll (520704 bytes, sha256 44f151d9dfe06271...)
+== OK: <repo>/natives/build/out/natives/windows-x86_64/cclj.dll (520192 bytes, sha256 80957d1e98f36281...)
    with LuaJIT-COPYRIGHT.txt MinGW-w64-runtime.txt 

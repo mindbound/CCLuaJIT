@@ -1,7 +1,7 @@
-=== build-debug (11:54:28)
+=== build-debug (21:23:25)
 == DEBUG BUILD (CCLJ_DEBUG=1): for local testing only. Do not ship it or build a mod jar with it.
 max GLIBC symbol version (objdump -T): GLIBC_2.14 (allowed: GLIBC_2.28)
-== OK: <repo>/natives/build/out/natives/linux-x86_64/libcclj.so (786056 bytes, sha256 4cf7e96b8c470990...)
+== OK: <repo>/natives/build/out/natives/linux-x86_64/libcclj.so (785824 bytes, sha256 b9886e6d5e3c8ffd...)
 == DEBUG BUILD (CCLJ_DEBUG=1): see <repo>/natives/build/out/natives/linux-x86_64/DEBUG-BUILD.txt. Do not ship it.
 === build-debug exit: 0
 DEBUG BUILD of libcclj.so (CCLJ_DEBUG=1): for local testing only. Do not ship it.
@@ -9,34 +9,34 @@ LuaJIT:      047efd3bcbe3331c3b9cb69bf5b217164d80bd5c, XCFLAGS: -DLUAJIT_ENABLE_
 natives/src: cclj.c machine.c jni_machine.c, compiled with -g -O1 -DCCLJ_DEBUG -fno-common
 not stripped; built by build-natives.sh linux-x86_64 with gcc (GCC) 8.5.0 20210514 (Red Hat 8.5.0-30)
 LUA_USE_APICHECK LUA_USE_ASSERT 
-=== lint-debug (11:54:34)
+=== lint-debug (21:23:31)
 lint-natives: OK
 === lint-debug exit: 0
-=== tier0-debug (11:54:34)
+=== tier0-debug (21:23:31)
    LuaJIT 047efd3bcbe3331c3b9cb69bf5b217164d80bd5c, xcflags: -DLUAJIT_ENABLE_INTERRUPT -DLUAJIT_ENABLE_LUA52COMPAT -DLUAJIT_DISABLE_FFI -DLUAJIT_DISABLE_BCLOAD -DLUAJIT_ENABLE_CSTACKGUARD -DLUAJIT_DIS
-machine_test: 166 checks, 0 failed
+machine_test: 167 checks, 0 failed
 machine-test: OK (linux-x86_64)
 === tier0-debug exit: 0
-=== tier1-debug (11:54:44)
+=== tier1-debug (21:23:42)
 java exit: 0
-jni-scan: OK, none of the 4 patterns in 1 log(s): <scratch>/g1/logs/alma-tier1-debug.log
+jni-scan: OK, none of the 4 patterns in 1 log(s): <scratch>/g8/logs/alma-tier1-debug.log
 scan exit: 0
 java 21.0.13 (OpenJDK 64-Bit Server VM) on Linux amd64, -Xcheck:jni on, max heap 256 MiB
 library build: DEBUG (CCLJ_DEBUG=1, DEBUG-BUILD.txt next to it)
-ns per call: 289.0 (median of 5 runs of 200000 calls of t.echo("hello"), a string in and a string out, decoded and encoded by Wire; -Xcheck:jni on; runs: 286.0 289.4 285.2 290.2 289.0)
-bridgeProbe: 88 checks, 0 failed
+ns per call: 345.5 (median of 5 runs of 200000 calls of t.echo("hello"), a string in and a string out, decoded and encoded by Wire; -Xcheck:jni on; runs: 361.4 341.6 336.8 345.5 368.8)
+bridgeProbe: 92 checks, 0 failed
 bridgeProbe: OK
 === tier1-debug exit: 0
-=== tier2-debug (11:54:46)
+=== tier2-debug (21:23:45)
 openjdk version "21.0.13" 2026-10-20 LTS
-4cf7e96b8c470990a8951373459925e2b369b5cb8b60ef7bf02fb11119de7fbe  natives/build/out/natives/linux-x86_64/libcclj.so
+b9886e6d5e3c8ffd781d224ec9db0f4b3a831690db165cae5a7eb17c42240391  natives/build/out/natives/linux-x86_64/libcclj.so
 library: DEBUG build
 java exit: 0
 machineSpecs: java 21.0.13 on Linux amd64, CC:T 1.121.0
-natives: /tmp/cclj-g1-specs-alma-debug/natives/4cf7e96b8c470990/libcclj.so
-       luajit: error: done (+3 lines) | line 0 '' | 333 ns per call (100,000 calls, one resume)
-machineSpecs: 33 passed (5 with an allowed difference from Cobalt), 0 failed; native machines live 0, leaked 0
-ok lines: 33
-jni-scan: OK, none of the 4 patterns in 1 log(s): <scratch>/g1/logs/specs-alma-debug.log
+natives: /tmp/cclj-g8-specs-alma-debug/natives/b9886e6d5e3c8ffd/libcclj.so
+       luajit: error: done (+3 lines) | line 0 '' | 329 ns per call (100,000 calls, one resume)
+machineSpecs: 39 passed (5 with an allowed difference from Cobalt), 0 failed; native machines live 0, leaked 0
+ok lines: 39
+jni-scan: OK, none of the 4 patterns in 1 log(s): <scratch>/g8/logs/specs-alma-debug.log
 scan exit: 0
 === tier2-debug exit: 0

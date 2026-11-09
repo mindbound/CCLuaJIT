@@ -1,7 +1,7 @@
 #!/bin/bash
 # Phase A, Windows (Git Bash): release build, lint, Tier 0, scan self-test. No Gradle.
 set -uo pipefail
-G=<scratch>/g1
+G=<scratch>/g8
 . $G/common.sh
 cd <repo>
 echo "commit: $(git rev-parse HEAD); dirty files: $(git status --porcelain | wc -l)"

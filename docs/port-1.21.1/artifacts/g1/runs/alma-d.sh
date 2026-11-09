@@ -4,7 +4,7 @@
 # release library again.
 set -uo pipefail
 export JAVA_HOME=/usr/lib/jvm/java-21-openjdk
-G=<scratch>/g1
+G=<scratch>/g8
 . $G/common.sh
 cd <repo>
 step build-debug bash -c "CCLJ_DEBUG=1 bash natives/build-natives.sh linux-x86_64 > $G/logs/alma-build-debug.log 2>&1; rc=\$?; grep -E 'DEBUG BUILD|OK:|max GLIBC' $G/logs/alma-build-debug.log | head -4; exit \$rc"

@@ -1,53 +1,55 @@
-commit: 538150462af597f04b36d8a5a88ba96ab2ee581c; dirty files: 0
-=== gradle-release (11:45:07)
+commit: 0b4dcd1d4b8c9fd0018eb277e7b2a9beab16ca59; dirty files: 0
+=== gradle-release (21:17:40)
+> Task :common:processResources
+> Task :common:classes
 > Task :common:nativeProbe
 > Task :common:bridgeProbe
 bridgeProbe: Java 21.0.13+9-LTS at C:\Program Files\Eclipse Adoptium\jdk-21.0.13.9-hotspot
-ns per call: 331.1 (median of 5 runs of 200000 calls of t.echo("hello"), a string in and a string out, decoded and encoded by Wire; -Xcheck:jni on; runs: 307.7 295.8 332.4 331.1 353.2)
-bridgeProbe: 88 checks, 0 failed
+ns per call: 308.6 (median of 5 runs of 200000 calls of t.echo("hello"), a string in and a string out, decoded and encoded by Wire; -Xcheck:jni on; runs: 308.6 308.4 311.8 306.1 309.1)
+bridgeProbe: 92 checks, 0 failed
 bridgeProbe: OK
 bridgeProbe: JNI scan clean, exit code 0 (log: <repo>\common\build\headless\logs\bridgeProbe.log)
 > Task :common:machineSpecs
 machineSpecs: Java 21.0.13+9-LTS at C:\Program Files\Eclipse Adoptium\jdk-21.0.13.9-hotspot
 machineSpecs: java 21.0.13 on Windows 11 amd64, CC:T 1.121.0
-machineSpecs: 33 passed (5 with an allowed difference from Cobalt), 0 failed; native machines live 0, leaked 0
+machineSpecs: 39 passed (5 with an allowed difference from Cobalt), 0 failed; native machines live 0, leaked 0
 machineSpecs: JNI scan clean, exit code 0 (log: <repo>\common\build\headless\logs\machineSpecs.log)
 > Task :common:headlessSmoke
 > Task :common:headlessSuite
 suite: 1407 tests registered
-suite done=true after 23.7 s; registered=1407 run=1407 counts={error=5, pass=1390, pending=12}
-BUILD SUCCESSFUL in 36s
+suite done=true after 23.6 s; registered=1407 run=1407 counts={error=5, pass=1390, pending=12}
+BUILD SUCCESSFUL in 35s
 === gradle-release exit: 0
-=== gradle-nocheckjni-1 (11:45:44)
+=== gradle-nocheckjni-1 (21:18:16)
 bridgeProbe: Java 21.0.13+9-LTS at C:\Program Files\Eclipse Adoptium\jdk-21.0.13.9-hotspot
 java 21.0.13 (OpenJDK 64-Bit Server VM) on Windows 11 amd64, -Xcheck:jni OFF, max heap 256 MiB
-ns per call: 209.1 (median of 5 runs of 200000 calls of t.echo("hello"), a string in and a string out, decoded and encoded by Wire; -Xcheck:jni off; runs: 209.1 205.8 211.7 204.9 210.9)
-bridgeProbe: 88 checks, 0 failed
+ns per call: 210.0 (median of 5 runs of 200000 calls of t.echo("hello"), a string in and a string out, decoded and encoded by Wire; -Xcheck:jni off; runs: 218.6 206.0 210.0 202.8 211.9)
+bridgeProbe: 92 checks, 0 failed
 bridgeProbe: OK
 bridgeProbe: JNI scan clean, exit code 0 (log: <repo>\common\build\headless\logs\bridgeProbe.log)
 BUILD SUCCESSFUL in 1s
 === gradle-nocheckjni-1 exit: 0
-=== gradle-nocheckjni-2 (11:45:47)
+=== gradle-nocheckjni-2 (21:18:18)
 bridgeProbe: Java 21.0.13+9-LTS at C:\Program Files\Eclipse Adoptium\jdk-21.0.13.9-hotspot
 java 21.0.13 (OpenJDK 64-Bit Server VM) on Windows 11 amd64, -Xcheck:jni OFF, max heap 256 MiB
-ns per call: 202.2 (median of 5 runs of 200000 calls of t.echo("hello"), a string in and a string out, decoded and encoded by Wire; -Xcheck:jni off; runs: 208.8 200.4 206.3 200.7 202.2)
-bridgeProbe: 88 checks, 0 failed
+ns per call: 209.3 (median of 5 runs of 200000 calls of t.echo("hello"), a string in and a string out, decoded and encoded by Wire; -Xcheck:jni off; runs: 214.7 208.9 209.3 207.0 209.6)
+bridgeProbe: 92 checks, 0 failed
 bridgeProbe: OK
 bridgeProbe: JNI scan clean, exit code 0 (log: <repo>\common\build\headless\logs\bridgeProbe.log)
 BUILD SUCCESSFUL in 1s
 === gradle-nocheckjni-2 exit: 0
-=== gradle-nocheckjni-3 (11:45:49)
+=== gradle-nocheckjni-3 (21:18:21)
 bridgeProbe: Java 21.0.13+9-LTS at C:\Program Files\Eclipse Adoptium\jdk-21.0.13.9-hotspot
 java 21.0.13 (OpenJDK 64-Bit Server VM) on Windows 11 amd64, -Xcheck:jni OFF, max heap 256 MiB
-ns per call: 204.2 (median of 5 runs of 200000 calls of t.echo("hello"), a string in and a string out, decoded and encoded by Wire; -Xcheck:jni off; runs: 214.5 198.2 204.2 202.8 208.3)
-bridgeProbe: 88 checks, 0 failed
+ns per call: 210.4 (median of 5 runs of 200000 calls of t.echo("hello"), a string in and a string out, decoded and encoded by Wire; -Xcheck:jni off; runs: 218.2 208.6 209.8 210.4 214.0)
+bridgeProbe: 92 checks, 0 failed
 bridgeProbe: OK
 bridgeProbe: JNI scan clean, exit code 0 (log: <repo>\common\build\headless\logs\bridgeProbe.log)
 BUILD SUCCESSFUL in 1s
 === gradle-nocheckjni-3 exit: 0
-=== print-cp (11:45:51)
+=== print-cp (21:18:23)
 3935
 === print-cp exit: 0
-44f151d9dfe0627160742a79dbea4531d6cd1378c2b6907653c0fdfa4e944575 *natives/build/out/natives/windows-x86_64/cclj.dll
-44f151d9dfe0627160742a79dbea4531d6cd1378c2b6907653c0fdfa4e944575 *common/build/resources/main/natives/windows-x86_64/cclj.dll
-004c09267fd7ee1d3bd00fbf29109857115f8e0315c3912f09b13230e688fc68 *common/build/resources/main/natives/linux-x86_64/libcclj.so
+80957d1e98f36281f4651d06b5fd9523c6519b616086488afbed46a66ee0fa4d *natives/build/out/natives/windows-x86_64/cclj.dll
+80957d1e98f36281f4651d06b5fd9523c6519b616086488afbed46a66ee0fa4d *common/build/resources/main/natives/windows-x86_64/cclj.dll
+bec804305a537c5ec23d0df136a5dfa0f016bc939e6d69c8c36edb68b921ec0e *common/build/resources/main/natives/linux-x86_64/libcclj.so

@@ -1,23 +1,23 @@
-=== build-release (11:55:19)
+=== build-release (21:24:19)
 max GLIBC symbol version (objdump -T): GLIBC_2.14 (allowed: GLIBC_2.28)
-== OK: <repo>/natives/build/out/natives/linux-x86_64/libcclj.so (477856 bytes, sha256 004c09267fd7ee1d...)
+== OK: <repo>/natives/build/out/natives/linux-x86_64/libcclj.so (477856 bytes, sha256 bec804305a537c5e...)
 === build-release exit: 0
 libcclj.so
 LuaJIT-COPYRIGHT.txt
-=== lint (11:55:24)
+=== lint (21:24:24)
 lint-natives: OK
 === lint exit: 0
-=== tier0 (11:55:24)
+=== tier0 (21:24:24)
 machine-test: OK (linux-x86_64)
 === tier0 exit: 0
-=== tier1 (11:55:34)
+=== tier1 (21:24:34)
 java exit: 0
-jni-scan: OK, none of the 4 patterns in 1 log(s): <scratch>/g1/logs/alma-tier1-final.log
+jni-scan: OK, none of the 4 patterns in 1 log(s): <scratch>/g8/logs/alma-tier1-final.log
 scan exit: 0
 java 21.0.13 (OpenJDK 64-Bit Server VM) on Linux amd64, -Xcheck:jni on, max heap 256 MiB
 library build: release
-ns per call: 277.7 (median of 5 runs of 200000 calls of t.echo("hello"), a string in and a string out, decoded and encoded by Wire; -Xcheck:jni on; runs: 284.3 277.7 279.5 277.6 268.7)
-bridgeProbe: 88 checks, 0 failed
+ns per call: 275.6 (median of 5 runs of 200000 calls of t.echo("hello"), a string in and a string out, decoded and encoded by Wire; -Xcheck:jni on; runs: 275.6 278.1 269.0 276.4 274.3)
+bridgeProbe: 92 checks, 0 failed
 bridgeProbe: OK
 === tier1 exit: 0
-004c09267fd7ee1d3bd00fbf29109857115f8e0315c3912f09b13230e688fc68  natives/build/out/natives/linux-x86_64/libcclj.so
+bec804305a537c5ec23d0df136a5dfa0f016bc939e6d69c8c36edb68b921ec0e  natives/build/out/natives/linux-x86_64/libcclj.so

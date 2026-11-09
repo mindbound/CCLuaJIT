@@ -3,5 +3,5 @@ host: Ubuntu 26.04.1 LTS, gcc (Ubuntu 15.2.0-16ubuntu1) 15.2.0
 machine-test exit: 0
 == compiling with -fsanitize=address,undefined -fno-sanitize-recover=all -fno-omit-frame-pointer
 == running <repo>/natives/build/linux-x86_64/machine-test/machine_test (timeout 900 s, sanitized)
-machine_test: 165 checks, 0 failed
+machine_test: 166 checks, 0 failed
 machine-test: OK (linux-x86_64, with ASan and UBSan)

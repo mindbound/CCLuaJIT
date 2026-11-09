@@ -2,7 +2,7 @@
 # Phase E, AlmaLinux 8: the release library again (natives/build/out ends as a release build), lint, Tier 0, Tier 1.
 set -uo pipefail
 export JAVA_HOME=/usr/lib/jvm/java-21-openjdk
-G=<scratch>/g1
+G=<scratch>/g8
 . $G/common.sh
 cd <repo>
 step build-release bash -c "bash natives/build-natives.sh linux-x86_64 > $G/logs/alma-build-release2.log 2>&1; rc=\$?; grep -E 'OK:|max GLIBC' $G/logs/alma-build-release2.log; exit \$rc"
