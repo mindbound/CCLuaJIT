@@ -692,14 +692,14 @@ static int load_body(lua_State *L)
   open_lib(L, luaopen_bit, LUA_BITLIBNAME);
   open_lib(L, luaopen_jit, LUA_JITLIBNAME);
 
-  /* 2. LuaJIT's security defaults must be on (DESIGN.md:54). */
+  /* 2. LuaJIT's security defaults must be on (DESIGN.md section 2). */
   lua_getfield(L, LUA_GLOBALSINDEX, "jit");
   jit = lua_gettop(L);
   need_table(L, jit);
   if (jit_security(L, jit, "prng") == 0 || jit_security(L, jit, "strhash") == 0 || jit_security(L, jit, "mcode") == 0)
     return raise_text(L, "CCLuaJIT: LuaJIT security defaults are off");
 
-  /* 3. At most 256 KiB of machine code per state (DESIGN.md:203, F11). */
+  /* 3. At most 256 KiB of machine code per state (DESIGN.md section 3.6, F11). */
   lua_getfield(L, jit, "opt");
   need_table(L, lua_gettop(L));
   lua_getfield(L, -1, "start");

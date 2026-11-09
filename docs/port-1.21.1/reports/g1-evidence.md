@@ -7,7 +7,7 @@ Gate G1 (M1.md §3.16) asks for eight things on one commit. This report gives th
 
 The first G1 run, on 5381504, is in commit bf1aff2. Step 7 changed code (CM_ST_BUSY and `CCLJ_ABI` 2, and the Java fixes of [s1-fixes.md](s1-fixes.md)), so G1 ran again in full; this report replaces that one.
 
-Item 7, your sign-off of the review, is still open. Your review is [s1-review.md](s1-review.md); [s1-fixes.md](s1-fixes.md) gives the fix of each of its findings and of the guide's.
+Item 7: you signed off the review on 2026-11-09, after the fixes of step 7. Your review is [s1-review.md](s1-review.md); [s1-fixes.md](s1-fixes.md) gives the fix of each of its findings and of the guide's. So G1 is passed.
 
 ## Summary
 
@@ -19,7 +19,7 @@ Item 7, your sign-off of the review, is still open. Your review is [s1-review.md
 | 4 | `jni-scan.sh --self-test` passes; the negative control makes `bridgeProbe` fail through the scan | Met. The self-test passes in both natives jobs and locally on Windows and Alma 8. The negative control fails through the scan on Windows (Gradle) and on Alma 8 (by hand, with the natives job's commands). |
 | 5 | No G0 regression: `nativeProbe`, Cobalt `headlessSmoke` and `headlessSuite` at 1390/1407, all scan-clean | Met. In the mod job and locally on Windows 11. The harnesses of both natives jobs pass too. |
 | 6 | The same scenarios pass against a `CCLJ_DEBUG=1` build on both OSes | Met. Tier 1 and Tier 2 pass with the debug library on Windows 11, AlmaLinux 8 and Ubuntu 26.04, all scan-clean. Tier 0 always runs as a debug build (§1), so item 1 covers it. |
-| 7 | You sign off the review in §3.17 | Open. |
+| 7 | You sign off the review in §3.17 | Met. You signed off the review on 2026-11-09. |
 | 8 | ns per call from Tier 1 without `-Xcheck:jni` is recorded for D1 | Met. 204–210 ns on Windows 11 and Alma 8, 193–194 ns on Ubuntu 26.04: below D1's 300 ns, so the `byte[]` transport stays. These figures are for this PC; see "Not covered". |
 
 ## Environments

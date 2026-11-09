@@ -71,7 +71,7 @@
 
 /* Limits. */
 #define CM_WIRE_MAX (16u << 20)    /* max request/reply/spec/bios bytes (S3 revisits) */
-#define CM_MSG_MAX  (64u << 10)    /* error/filter text is cut to this (DESIGN.md:219) */
+#define CM_MSG_MAX  (64u << 10)    /* error/filter text is cut to this (DESIGN.md section 4.2) */
 #define CM_WIRE_MAX_FN   65536u    /* max host functions in a spec (all APIs together) */
 #define CM_WIRE_MAX_NAME 256u      /* max bytes of an API, module or method name in a spec */
 

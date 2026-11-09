@@ -1,11 +1,12 @@
 # CCLuaJIT 1.21.1: technical design
 
-*Companion to [PLAN.md](PLAN.md), version 2 (2026-11-07). It contains the review corrections and the results of the pause, patch 07 and patch 08 prototypes. P-numbers refer to the problem table in PLAN.md §3. "Prototyped" means the code exists in `artifacts/` and was tested outside CC:T. "Design" means nothing has been built yet.*
+*Companion to [PLAN.md](PLAN.md), version 2 (2026-11-07). It contains the review corrections and the results of the pause, patch 07 and patch 08 prototypes, and, since 2026-11-09, the changes that [M1.md](M1.md) §5 lists after S1. P-numbers refer to the problem table in PLAN.md §3; F- and D-numbers refer to M1.md §1 and §7; WP F1 and WP F2 are the work packages of PLAN.md §5.1. "Prototyped" means the code exists in `artifacts/` and was tested outside CC:T. "Design" means nothing has been built yet.*
 
 ```
  CC:T ComputerThread worker ──handleEvent()──► LuaJITMachine (Java, common module)
-                                                   │  lean JNI: cached IDs, Push/PopLocalFrame per call,
-                                                   │  Latin-1 strings via byte[], lazy IArguments, handle table
+                                                   │  lean JNI: IDs looked up per event, Push/PopLocalFrame
+                                                   │  per call, one Latin-1 byte[] per call, eager budgeted
+                                                   │  argument snapshot decoded lazily in Java, handle table
                                                    ▼
                               libcclj (one static native library per platform, plain C)
                               ├─ host core: state + counting allocator (per-computer and global caps),
@@ -94,12 +95,13 @@
 
 ### 3.1 Threads, locks and lifecycle (P4)
 - CC:T calls `close()` and `printExecutionState()` from the **Computer-Monitor thread** while `handleEvent` runs on a worker, and calls `close()` repeatedly (about 30 times after one hard abort, measured). The first hard abort in M1 will hit this, so the lifecycle design belongs in M1.
-- **Lock order:** `TimeoutState` monitor → `machine.lock`, never the reverse. CC:T runs `TimeoutState` listeners while holding the `TimeoutState` monitor (`refresh`/`reset`/`startTimer` are `synchronized` and call `updateListeners`), and `removeListener` needs that monitor too. Holding `machine.lock` while calling `removeListener` can therefore deadlock the Monitor thread. After that, no computer on the server can be timed out again.
+- **Lock order:** `TimeoutState` monitor → `machine.lock`, never the reverse. CC:T runs `TimeoutState` listeners while holding the `TimeoutState` monitor: `refresh`, `reset` and `hardAbort` call `updateListeners`; `startTimer` does not call the listeners (M1.md F10). `reset()` runs under CC:T's `computerLock`, and `workerFinished` calls the listener on the Monitor thread. `removeListener` needs the `TimeoutState` monitor too. Holding `machine.lock` while calling `removeListener` can therefore deadlock the Monitor thread. After that, no computer on the server can be timed out again.
+- So `machine.lock` is a Java monitor in `NativeMachine` (built in S1) that is never held across a native resume or free, an upcall, or a call into CC:T. The one native call made under it is S6a's interrupt request (§3.2: an atomic OR of the request bits, then the two stores of `luaJIT_interrupt`), which runs no Lua code, allocates nothing and never blocks; the lock keeps the handle from being freed under it. A C `busy` flag is a second line of defence: a load, resume or free that finds the machine busy is refused and changes nothing. The interrupt request does not check the flag.
 - **`close()`:** idempotent. Steps:
   1. Call `env.timeout().removeListener(listener)` **without** holding `machine.lock`. When it returns, no listener call is in flight.
   2. Take `machine.lock`, set CLOSED, and request a HARD interrupt.
   3. Return. The **owning worker thread** frees the `lua_State` when `handleEvent` unwinds, or immediately if no call is running. `CobaltLuaMachine.close()` is the model: set a flag, interrupt, remove the listener.
-- **Listener body:** takes only `machine.lock` (or does a CAS on the native-pointer field), performs the two stores of `luaJIT_interrupt`, and never calls back into CC:T.
+- **Listener body:** takes only `machine.lock`, makes the interrupt request (§3.2) only while the handle is not 0, and never calls back into CC:T.
 - **`printExecutionState()`:** never touches the VM. The count hook stores the last `chunk:line` in an atomic per machine, and `printExecutionState()` prints that, sanitised.
 - Test: a stress harness calls `close()` from 4 threads against `refresh()`/`reset()` at 1 kHz for 10 minutes, under the real `ManagedTimeoutState`. A watchdog asserts that the Monitor thread keeps ticking.
 
@@ -111,7 +113,7 @@
   - **HARD:** set `aborting`, re-arm at count 1, then `lua_yield` if yieldable, otherwise raise an error. `pcall` cannot catch it: wrappers that see `aborting` yield or raise immediately. The host reports `TIMEOUT` and frees the state. Measured latency: at most 42 µs, including `pcall` loops and a looping `xpcall` handler.
   - **PAUSE:** §3.3.
 - **Hook calls from C (patch 07).** The pattern matcher and `table.sort` poll the flag and run the count hook inside a protected, non-yieldable C frame (`lua_isyieldable() == 0`). Errors work there, but yields are refused. SOFT and HARD work unchanged. A PAUSE stays pending (§3.3).
-- **C stack (patch 08).** Before every `lua_resume` on a CC:T worker, call `luaJIT_setcstacklimit(L, lo, lo + margin)`. Get `lo` from `GetCurrentThreadStackLimits` (Windows), `pthread_getattr_np` (Linux) or `pthread_get_stackaddr_np − pthread_get_stacksize_np` (macOS). Cache it per thread, because CC:T moves computers between workers.
+- **C stack (patch 08).** Before every `lua_resume` on a CC:T worker, call `luaJIT_setcstacklimit(L, lo, lo + margin)`. Get `lo` from `GetCurrentThreadStackLimits` (Windows), `pthread_getattr_np` (Linux) or `pthread_get_stackaddr_np − pthread_get_stacksize_np` (macOS). CC:T moves computers between workers, so get the current thread's bounds on every resume if that costs under 1 µs; otherwise use a thread-local cache, which needs the static-state rule (M1.md I4 and its `nm` check) amended for TLS (M1.md D20).
   - Margin: **128 KiB**, configurable. Measured on x64 with 4 KiB pages: 32 KiB is enough natively, and 64, 128 and 256 KiB all worked inside a JDK 21 JVM with JNI upcalls at every level.
   - HotSpot's guard and shadow zones scale with page size: 16 KiB on macOS arm64, 64 KiB on some aarch64 kernels. The margin therefore has to be **measured on those systems**, with a JVM, before shipping (PLAN.md M4 gate). The harness-only arm64 CI jobs run no JVM, and a 64 KiB-page kernel needs a machine of its own. A page-size formula like max(256 KiB, 32 × page size), as one reviewer suggested, cannot work with 64 KiB pages: it would reserve 2 MiB on a ~1 MB stack.
   - On Linux, each nested `gsub` callback costs ~9 KiB of C stack (glibc's 8 KiB `luaL_Buffer`). A 1 MB thread therefore allows only ~100 nested `gsub` callbacks. That is fine; the ROM nests ~6–10 deep.
@@ -119,12 +121,12 @@
 
 ### 3.3 Coroutine wrapper and pause token protocol (P8, P10) — prototyped
 The prototype is `artifacts/pause-prototype/cclj_co.c`. It was tested on Windows and Linux, with the JIT on and off, and with an assert build.
-- **F1, nesting limit (needed even without pause).** `coroutine.resume` and `coroutine.wrap` are replaced by a C `raw_resume` with a 12-line Lua continuation. `create`, `yield`, `status`, `running` and `isyieldable` stay native.
+- **WP F1, nesting limit (needed even without pause).** `coroutine.resume` and `coroutine.wrap` are replaced by a C `raw_resume` with a 12-line Lua continuation. `create`, `yield`, `status`, `running` and `isyieldable` stay native.
   - `raw_resume` checks status exactly like LuaJIT's `ffh_resume` and refuses the main thread. Its messages use Cobalt's wording ("cannot resume dead coroutine").
   - It enforces a nesting **count limit of 200** and a **stack-pointer floor** (margin + 128 KiB). On Linux the floor, not the count, is what stops `gsub`-mixed nesting.
   - `wrap` re-raises child errors unchanged, as Cobalt does.
   - Cost: +13–15 ns per resume (1.3–1.7x on coroutine ping-pong microbenchmarks, ~0% on real workloads).
-- **F2, pause:**
+- **WP F2, pause:**
   1. Hook PAUSE: if no non-yieldable resume is active (`nonyield == 0`) and `lua_isyieldable(L)`, clear the bit, set `pausing`, and `lua_yield(L, 0)` (a hook-yield, transparent on resume).
   2. Otherwise **defer**: leave the bit pending and do **not** re-arm the interrupt. Re-arming made JIT code inside `sort`/`gsub` callbacks 4–7x slower.
   3. A wrapper whose child returns `LUA_YIELD` while `pausing` is set does `settop(child, 0)` and `return lua_yield(L, 0)`. This repeats up to `lua_resume(top)`, which becomes `MachineResult.PAUSE`. The event filter is kept.
@@ -148,10 +150,15 @@ The prototype is `artifacts/pause-prototype/cclj_co.c`. It was tested on Windows
 
   Never hold `Get*Critical` across any call. Never `longjmp` across a JVM frame. Check `ExceptionCheck` after every JNI call. A pending Java exception becomes a Lua error only after all JNI work is done.
 - Conversions are iterative, with depth limits and identity-preserving cycle maps (§4.3).
+- **Built in S1 (M1.md §3.3):**
+  - **Compile-unit split.** In the machine bridge, `machine.c` makes every Lua call and never includes `jni.h`; `jni_machine.c` makes every JNI call and includes no Lua header. Java is reached only through a host function that runs in phase 2 of the API call, where no Lua call happens. So in the bridge a Lua error cannot cross a JVM frame, by construction, and `natives/tests/lint-natives.sh` checks the include graph. The M0 self-test `cclj.c` (`NativeProbe.selfTest`) is the only other unit in `libcclj` and is outside the split: it makes both kinds of call, but runs all of its Lua work in one `lua_cpcall` and never calls Java from Lua (M1.md §3.4).
+  - **`lua_checkstack(to, n + 1)` before every `lua_xmove(from, to, n)`.** `lua_xmove` grows `to` when its free slots are at most `n`, and a raise while it grows is attributed to the wrong state (M1.md F1).
+  - **No light userdata.** `lua_pushlightuserdata` and the `ud` of `lua_cpcall` are interned on x64, and interning can raise. So in the bridge nothing pushes light userdata, and the `ud` of every `lua_cpcall` is the heap machine struct (M1.md F3; `cclj.c` is exempt, M1.md §3.4).
+  - **No Lua code runs while phase 3 of a host call reads `rep_buf` (M1.md I5).** This holds only because no reachable userdata has a `__gc`: there is no `newproxy` and no FFI, and LuaJIT tables have no `__gc`. Any slice that adds `__gc` userdata (§4.4, P14) must add a re-entrancy guard first.
 
 ### 3.5 Curated environment (P6, P7, P15)
 - **Libraries:**
-  - base without `dofile`/`loadfile`/`collectgarbage`/`newproxy`/`print`/`__inext`;
+  - base without `dofile`/`loadfile`/`collectgarbage`/`gcinfo`/`newproxy`/`print` (LuaJIT's base has no `__inext`, M1.md F12);
   - `coroutine` (wrapper, §3.3);
   - `string` without `dump`;
   - `table` with `pack`/`unpack`/`move`;
@@ -174,7 +181,7 @@ The prototype is `artifacts/pause-prototype/cclj_co.c`. It was tested on Windows
     - No CC program looks for LuaJIT in `_VERSION`. Every distinct-but-compatible `_VERSION` string tried changes at least one real check (`== "Lua 5.2"`, `:sub(-3)` in compat53, `tonumber(_VERSION:sub(5))`).
     - A separate trailing `(…)` tag in `_HOST` parses the same as the existing UnBIOS suffix in all 20 real-world parsers that were checked.
     - Egor Skriptunoff's widely vendored `sha2.lua` detects LuaJIT by a VM quirk and then calls `require "bit"`, so it needs `_LOADED.bit`.
-- **`bit32`, `utf8` and `string.pack` must be C.** The pure-Lua `bit32` in `artifacts/lua/cclj_prebios.lua` is *slower than Cobalt* on full 32-bit values, because its loops abort JIT traces. With it, SHA-256 is only ~1.5x Cobalt instead of 22x. Start from CraftOS-PC's LuaJIT fork (`MCJack123/craftos2-luajit`, MIT):
+- **`bit32`, `utf8` and `string.pack` must be C** (C `bit32` in M1, S4; `utf8` and `string.pack` stay in the Lua shim for M1 and become C in M2, M1.md D16). The pure-Lua `bit32` in `artifacts/lua/cclj_prebios.lua` is *slower than Cobalt* on full 32-bit values, because its loops abort JIT traces. With it, SHA-256 is only ~1.5x Cobalt instead of 22x. Start from CraftOS-PC's LuaJIT fork (`MCJack123/craftos2-luajit`, MIT):
   - `lib_utf8.c` (commits `de36407`, `aa5e292`);
   - `string.pack`/`unpack`/`packsize` from PUC 5.3 (`5cd001e`);
   - PUC 5.2 `bit32` (`5cd001e`).
@@ -200,7 +207,7 @@ The prototype is `artifacts/pause-prototype/cclj_co.c`. It was tested on Windows
   - `per_computer_memory`, default 64 MiB;
   - `global_native_memory` across all LuaJIT states, default min(1 GiB, 25% of `Runtime.maxMemory()`), kept in one process-wide atomic counter.
 - An allocation that would exceed either cap returns NULL, which becomes a catchable "not enough memory" in that computer. Keep a 1 MiB per-state reserve so that the GC can run (it is exempt from the cap but counted), and force a full GC after an OOM.
-- **JIT machine code** is mmap'd outside the allocator, up to `maxmcode` (512 KiB per state by default). Set `jit.opt.start("maxmcode=256")` at state creation, and add `maxmcode × live states` to the global figure as an estimate.
+- **JIT machine code** is mmap'd outside the allocator, up to `maxmcode` (2048 KiB per state by default in this tree, `lj_jit.h:128`; M1.md F11). Set `jit.opt.start("maxmcode=256")` at state creation, and add `maxmcode × live states` to the global figure as an estimate.
 - Keep the per-computer default small enough that any single linear C operation stays well under 0.5 s. Measured: a full GC of a 368 MB heap took 0.19–0.25 s, and `("x"):rep(2^30)` took 0.53 s.
 - Document for container hosts (Pterodactyl, Docker): container limit ≥ `-Xmx` + JVM overhead + `global_native_memory` + `maxmcode × computers`. Exceeding the container limit means a SIGKILL of the whole server.
 
@@ -216,18 +223,22 @@ The prototype is `artifacts/pause-prototype/cclj_co.c`. It was tested on Windows
   - Still to do: adjust error levels for the extra Lua frame, and implement `getErrorAdjust()`.
   - The trampoline is a host-owned function, so its locals are protected by §3.5.
 - `LuaException` levels are honoured. Other `Throwable`s become `"Java Exception Thrown: …"`, logged rate-limited (§5).
-- **Error values that escape the bios are stringified raw:** a string as-is, anything else as `<type>: <id>`, truncated to 64 KiB. Host code never runs metamethods (`__tostring`, `__index`) on them. Cobalt uses `rawToString`.
+- **Error values that escape the bios are stringified raw:** a string as-is, cut to 64 KiB; a number as Lua's `tostring` renders it; nil and booleans as `nil`, `true` or `false`; any other value as `<type>: <id>` (M1.md §3.7). Host code never runs metamethods (`__tostring`, `__index`) on them. Cobalt uses `rawToString`.
+  - `<id>` is `%08x` of a keyed 32-bit hash of the value's address (the key is a per-state `SecureRandom` value); patch 10 reuses the same key.
+  - The machine error message is that raw rendering, then `\nstack traceback:` and the bios coroutine's frames, in Cobalt's header and frame wording. C writes the traceback from `lua_getstack`/`lua_getinfo(co, "Sln")`, without `luaL_traceback` and with no addresses (M1.md D7, F20, F21). The screen shows only its first 51 columns, so `LuaJITMachine` also logs it at WARN, escaped.
 
 ### 4.3 Conversions
-- **Strings:** Latin-1, mapping bytes 0–255 1:1 to chars 0–255 (`'?'` for chars > 255 going Java→Lua). `byte[]` is copied verbatim. A `ByteBuffer` copies `remaining()` bytes from `position` (heap buffers via array + `arrayOffset`; direct buffers, which fs reads use, via `GetDirectBufferAddress`) and advances the position, as Cobalt does.
+- **Strings:** Latin-1, mapping bytes 0–255 1:1 to chars 0–255 (`'?'` for chars > 255 going Java→Lua). `byte[]` is copied verbatim. A `ByteBuffer` copies `remaining()` bytes from `position` into the wire `byte[]`, in Java, for heap buffers and for the direct buffers that fs reads use alike, and advances the position, as Cobalt does (M1.md D1).
 - **Numbers:** `Double` in both directions. `Map`/`Collection`/`Object[]`/method objects follow the rules below.
-- **Lua→Java:** iterative and identity-preserving, so cyclic tables work. It is raw-only (`lua_rawget`/`lua_next`, never metamethods). Each call has a budget of `max_conversion_values` nodes (default 1,000,000); beyond it, raise `LuaException("table too large to convert")`. The `IArguments` contract explicitly allows that. Without a budget, 256 queued events × a big table can exhaust `-Xmx`.
-- **Java→Lua:** iterative, with depth ≥ 512 (Minecraft NBT depth). The memory cap bounds the size under protection. A Java `Map` with a `null` or NaN key, or an unknown type, raises a normal Lua error. These used to be JVM-killers.
-- **`IArguments`:** lazy over a native argument snapshot, like CC:T's `VarargArguments`, so a table is converted only when `get`/`getTable`/`escapes` asks for it.
-  - Override `getType` (honours `__name` via a raw lookup on the metatable), `getStringCoerced`/`getBytesCoerced` (Lua-style numbers and `table: <id>`, never Java `hashCode()`), and `getTableUnsafe`. `escapes()` converts eagerly in place.
-  - This avoids the `term.write(cyclicTable)` → `StackOverflowError` → stack-trace-per-call log flood that eager conversion causes.
+- **Lua→Java:** iterative and identity-preserving, so cyclic tables work. It is raw-only (`lua_rawget`/`lua_next`, never metamethods). Each call has a budget of `max_conversion_values` nodes (default 1,000,000), which the phase-1 C snapshot (below) counts. S3 decides how a call past the budget fails: with a Lua error in phase 1, before Java runs, or with a mark in the snapshot that the lazy Java decoder turns into `LuaException("table too large to convert")` when the method reads that argument, which the `IArguments` contract allows. Without a budget, 256 queued events × a big table can exhaust `-Xmx`.
+- **Java→Lua:** iterative, with depth ≥ 512 (Minecraft NBT depth). The memory cap bounds the size under protection. A Java `Map` with a `null` or NaN key raises a normal Lua error in a method or callback result (it used to be a JVM-killer); in an event, which has no Lua caller, that entry is dropped with a WARN (M1.md S3). A value of an unknown Java type becomes nil plus a log line (one WARN per class), in method results, callback results and events alike, as in Cobalt and as core-api's `MethodResult` javadoc promises (M1.md F8, D9).
+- **`IArguments`:** an eager, budgeted C snapshot of the arguments in the request `byte[]` (phase 1 of the host call), decoded lazily in Java, like CC:T's `VarargArguments`, so a table is decoded only when `get`/`getTable`/`escapes` asks for it. Java makes no downcalls into the native state during the upcall, so the JNI phase rule (§3.4) holds with no exceptions (M1.md D1, D10).
+  - Override `getType` (honours `__name`, read raw from the metatable when the snapshot is taken), `getStringCoerced`/`getBytesCoerced` (Lua-style numbers and `table: <id>`, never Java `hashCode()`), and `getTableUnsafe`. `escapes()` decodes eagerly in place.
+  - The snapshot is iterative, raw, budgeted, and keeps identity back-references, so `term.write(cyclicTable)` cannot overflow a stack or flood the log with a stack trace per call, as an eager Java conversion would.
 
 ### 4.4 Java object lifetime (P14)
+M1 has no host userdata: a method object is a table of closures (M1.md S3). The userdata design below stays for M2 (P14).
+
 CC:T relies on Java GC to clean up after programs that forget `close()`. `FileSystem.openFiles` uses `WeakReference`s against `maximum_open_files` (default 128), and websockets use `GlobalCleaner`. LuaJIT tables have no `__gc`, and pinning handles until `close()` would leak them for the machine's lifetime.
 - Each Java object converted to Lua (method table, `ILuaFunction`, `IDynamicLuaObject`) gets **one host userdata**. It holds a generation-tagged integer handle into a per-machine Java `Object[]` / `Int2ObjectMap`, and every method closure of that object captures it as an upvalue.
 - There are no per-object JNI global refs and no per-machine global refs: pass `this` (a local ref) down each native call. After `close()`, nothing is left to leak.
@@ -241,7 +252,7 @@ CC:T relies on Java GC to clean up after programs that forget `close()`. `FileSy
   - a forced handle reuse errors cleanly.
 
 ### 4.5 `MachineResult` mapping
-- `OK` with the string event filter (the first yielded value, if it is a string);
+- `OK` with the event filter: the first yielded value if it is a string or a number, kept in its string form, as Cobalt's `isString()` does (M1.md F9);
 - `PAUSE` (§3.3; keep the filter; the next call is `handleEvent(null, null)`);
 - `TIMEOUT` after a hard abort;
 - `error(msg)`;
