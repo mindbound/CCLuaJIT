@@ -228,3 +228,12 @@ Both natives jobs of `.github/workflows/build.yml` run these steps in this order
 | Tier 1 | `javac` of `natives/*.java`, `NativeProbe.java` and `BridgeProbe.java`; `java -Xcheck:jni -Xmx256m ... BridgeProbe natives/build/bridge-probe/cache 2>&1 \| tee natives/build/bridge-probe/bridge-probe.log`; `jni-scan.sh` of that log |
 
 The probe steps run under `set -eo pipefail`, so the exit code of the pipeline is the one of `java`, not of `tee`: a FATAL ERROR of `-Xcheck:jni` exits 1 on Windows and 134 on Linux, and either fails the step before the scan.
+
+Two more jobs run the Gradle tasks of "Through Gradle" with the library from the natives job's artifact, each task through the `jniScan` wrapper:
+
+| Job | Runs | Reports |
+|---|---|---|
+| `mod` (ubuntu-24.04, after both natives jobs) | `./gradlew build`; then `:common:nativeProbe`; `--continue :common:bridgeProbe :common:machineSpecs`; `--continue :common:headlessSmoke :common:headlessSuite` (Cobalt) | `reports-mod`: `suite.tsv`, `machineSpecs.tsv`, `common/build/headless/logs/`, `hs_err_pid*.log` |
+| `headless-windows-x86_64` (windows-2025, after the Windows natives job) | `./gradlew.bat --no-daemon --continue :common:nativeProbe :common:bridgeProbe :common:machineSpecs` in pwsh (`--no-daemon`: on Windows a running daemon would hold the Gradle cache's lock files when setup-gradle saves the cache) | `reports-headless-windows-x86_64`: `machineSpecs.tsv`, `common/build/headless/logs/`, `hs_err_pid*.log` |
+
+In every job that uses `actions/setup-java`, a step removes its problem matcher `java` (`::remove-matcher owner=java::`). That matcher turns each `Exception in thread ...` line into an error annotation, and Tier 1 prints such lines on purpose, for its fake host failures; a green run would show red annotations. setup-java's `javac` matcher stays.

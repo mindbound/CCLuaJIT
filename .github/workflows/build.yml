@@ -6,7 +6,13 @@
 #   natives-windows-x86_64  required   cclj.dll built with MSYS2 MinGW64, the same tests
 #   harness-informational   NOT required (continue-on-error): patched LuaJIT and harnesses only (no JNI) on arm64
 #                           Linux and macOS arm64. PLAN.md decision 4: these platforms come later (M4)
-#   mod                     required   mod jar with both natives, :common:nativeProbe, headless CC:T smoke and suite
+#   mod                     required   mod jar with both natives; through Gradle on Linux: :common:nativeProbe,
+#                                      Tier 1 (bridgeProbe), Tier 2 (machineSpecs), headless CC:T smoke and suite
+#   headless-windows-x86_64 required   the same Gradle tasks on Windows: nativeProbe, bridgeProbe, machineSpecs
+#                                      (M1.md decision D13)
+#
+# Every Gradle task of :common that starts a JVM goes through the JNI scan (jniScan in common/build.gradle): the task
+# fails on a line of -Xcheck:jni output, and its log is in common/build/headless/logs/<task>.log.
 #
 # Every job calls the repository's own scripts and Gradle tasks, so a CI failure reproduces locally with the same
 # command: natives/build-natives.sh, natives/tests/run-harnesses.sh, natives/luajit-patches/build-patched-luajit.sh,
@@ -179,6 +185,13 @@ jobs:
         with:
           distribution: temurin
           java-version: "21"
+
+      # setup-java's problem matcher "java" makes an error annotation of every "Exception in thread ..." line. Tier 1
+      # prints such lines on purpose (its fake host failures), so a green run would show red annotations. Its javac
+      # matcher stays. A real failure of a probe fails its step anyway.
+      - name: Remove setup-java's "Exception in thread" problem matcher
+        shell: bash
+        run: echo "::remove-matcher owner=java::"
 
       - uses: msys2/setup-msys2@v2
         with:
@@ -356,6 +369,10 @@ jobs:
           distribution: temurin
           java-version: "21"
 
+      # As in natives-windows-x86_64: bridgeProbe prints "Exception in thread ..." lines on purpose.
+      - name: Remove setup-java's "Exception in thread" problem matcher
+        run: echo "::remove-matcher owner=java::"
+
       # cache-provider basic: the MIT-licensed cache (actions/cache). The default, "enhanced", loads Gradle's
       # proprietary gradle-actions-caching component, whose use means accepting Gradle's Terms of Use; that is the
       # repository owner's decision. The action writes caches only on the default branch by default, which is
@@ -421,10 +438,17 @@ jobs:
             !neoforge/build/libs/*-sources.jar
           if-no-files-found: error
 
-      # The two test steps run whenever the build succeeded, so one push reports both results.
+      # The test steps run whenever the build succeeded, so one push reports every result. Each task fails on a
+      # non-zero exit or a line of -Xcheck:jni output (jniScan, common/build.gradle).
       - name: Native self-test, linux-x86_64 (./gradlew :common:nativeProbe)
         if: ${{ !cancelled() && steps.build.outcome == 'success' }}
         run: ./gradlew :common:nativeProbe
+
+      # S1 (M1.md section 3.15) on Ubuntu 24.04, through Gradle: Tier 1 under -Xcheck:jni -Xmx256m, and Tier 2,
+      # LuaJITMachine against the CC:T machine contract, differential against Cobalt (report machineSpecs.tsv).
+      - name: Tier 1 and Tier 2, linux-x86_64 (./gradlew :common:bridgeProbe :common:machineSpecs)
+        if: ${{ !cancelled() && steps.build.outcome == 'success' }}
+        run: ./gradlew --continue :common:bridgeProbe :common:machineSpecs
 
       # Cobalt baseline (G0): 1407 tests, 1390 pass, 12 pending, and the 5 HTTP tests listed in
       # common/src/test/resources/headless/expected-failures-cobalt.txt error because HTTP is off.
@@ -432,6 +456,8 @@ jobs:
         if: ${{ !cancelled() && steps.build.outcome == 'success' }}
         run: ./gradlew --continue :common:headlessSmoke :common:headlessSuite
 
+      # The task logs that jniScan writes, the two reports, and a JVM crash's hs_err_pid*.log (each task runs in its
+      # own directory under common/build).
       - name: Upload test reports
         if: ${{ !cancelled() }}
         uses: actions/upload-artifact@v7
@@ -439,6 +465,63 @@ jobs:
           name: reports-mod
           path: |
             common/build/headless/suite.tsv
+            common/build/headless/machineSpecs.tsv
+            common/build/headless/logs/
+            common/build/**/hs_err_pid*.log
+            common/build/**/replay_pid*.log
+          if-no-files-found: ignore
+          retention-days: 14
+
+  # D13 (M1.md section 3.14): the Gradle side of S1 on Windows. The natives job already runs NativeProbe and
+  # BridgeProbe there with plain java; this runs them through Gradle as a Windows user would (gradlew.bat in pwsh),
+  # and adds Tier 2, which needs CC:T and Cobalt from Gradle. It needs only the Windows library, so it does not wait
+  # for the Linux job or the mod job.
+  headless-windows-x86_64:
+    needs: natives-windows-x86_64
+    runs-on: windows-2025
+    timeout-minutes: 30
+    defaults:
+      run:
+        shell: pwsh
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      # As in natives-windows-x86_64: bridgeProbe prints "Exception in thread ..." lines on purpose.
+      - name: Remove setup-java's "Exception in thread" problem matcher
+        run: echo "::remove-matcher owner=java::"
+
+      # The same cache settings as the mod job (see there). For pushes to save the cache here too, the Gradle step
+      # below runs with --no-daemon: setup-gradle's basic cache does not stop daemons, and on Windows a daemon that
+      # still runs holds the *.lock files under ~/.gradle/caches, so the tar of the cache save fails.
+      - uses: gradle/actions/setup-gradle@v6
+        with:
+          cache-provider: basic
+          cache-read-only: ${{ github.ref != 'refs/heads/1.21.1_CCT' }}
+
+      - name: Download natives-windows-x86_64
+        uses: actions/download-artifact@v8
+        with:
+          name: natives-windows-x86_64
+          path: natives/build/out
+
+      # --continue: one push reports all three tasks. Each fails on a non-zero exit or a line of -Xcheck:jni output.
+      # --no-daemon (see setup-gradle above): the one Gradle run of this job ends with its build, locks released.
+      - name: Native self-test, Tier 1 and Tier 2, windows-x86_64 (gradlew.bat)
+        run: ./gradlew.bat --no-daemon --continue :common:nativeProbe :common:bridgeProbe :common:machineSpecs
+
+      - name: Upload test reports
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: reports-headless-windows-x86_64
+          path: |
+            common/build/headless/machineSpecs.tsv
+            common/build/headless/logs/
             common/build/**/hs_err_pid*.log
             common/build/**/replay_pid*.log
           if-no-files-found: ignore
