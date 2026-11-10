@@ -307,10 +307,10 @@ jobs:
   # wait for it. But a leg that GitHub cancels because no runner took it still shows the whole run as failed, and
   # continue-on-error cannot change that. The macOS arm64 leg was cancelled that way, under GitHub's capacity
   # constraints, on two pushes in a row (runs 42681441999 and 42698731440). So push and pull-request runs have only
-  # the linux-aarch64 leg, and the macos-aarch64 leg runs only in a manual run with the macos input:
+  # the linux-aarch64 leg, and the macos-aarch64 leg runs only in a manual run with the macos input: the "Run
+  # workflow" button of this workflow on the Actions tab, or
   #   gh workflow run build.yml --ref 1.21.1_CCT -f macos=true
-  # GitHub documents that a workflow_dispatch event starts a run only if the workflow file is on the default branch
-  # (main), which has no workflows yet; whether a manual run starts without that is not tested yet.
+  # The first such run, 42765675460 (2026-11-10), passed on both legs.
   # PLAN.md decision 4 limits the supported platforms to Windows x64 and Linux x64 until M4, and G0 lists these
   # runs as "optional, informational only": arm64 is only partly tested (PLAN.md section 6), and these jobs run no
   # JVM. A red leg here is information for M4, not a broken build. It builds the
@@ -388,8 +388,9 @@ jobs:
 
       # cache-provider basic: the MIT-licensed cache (actions/cache). The default, "enhanced", loads Gradle's
       # proprietary gradle-actions-caching component, whose use means accepting Gradle's Terms of Use; that is the
-      # repository owner's decision. The action writes caches only on the default branch by default, which is
-      # main here, so let pushes to 1.21.1_CCT write them too; pull requests only read.
+      # repository owner's decision. The action writes caches only on the default branch by default. That is
+      # 1.21.1_CCT since 2026-11-10 (main before), and cache-read-only says so explicitly, so runs on 1.21.1_CCT
+      # (pushes and manual runs) write the cache and pull requests only read it, whatever the default branch is.
       - uses: gradle/actions/setup-gradle@v6
         with:
           cache-provider: basic
