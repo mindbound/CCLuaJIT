@@ -27,7 +27,55 @@
  
  /* -- Precomputed tables -------------------------------------------------- */
  
-@@ -268,8 +269,34 @@
+@@ -169,7 +170,8 @@
+   }
+   if (k > 18) {
+     if (STRFMT_FP(sf) == STRFMT_FP(STRFMT_T_FP_F)) {
+-      /* Must not limit precision here or nd_round cannot round to even.
++      /* Upstream needs every digit here to round to even. CC: nd_round
++      ** rounds half up (S2, D34), but the limit stays off.
+       ** stop1 = 63 - (int32_t)STRFMT_PREC(sf) / 9;
+       */
+     } else {
+@@ -244,7 +246,9 @@
+   return ndhi;
+ }
+ 
+-/* Round to even with given precision. Extra digits are not zeroed. */
++/* CC: round half up, away from zero, as Cobalt does, for every caller
++** (S2, D34). Extra digits are not zeroed.
++*/
+ static uint32_t nd_round(uint32_t* nd, uint32_t ndlo, uint32_t ndhi, int32_t e)
+ {
+   uint32_t i;
+@@ -258,24 +262,11 @@
+     i = (uint32_t)(64 + f);
+     d = 8 - e + f * 9;
+   }
++  UNUSED(ndlo);  /* CC: only the round-to-even test read the fraction. */
+   lj_strfmt_wuint9(buf, nd[i]);
+   if (buf[d] < '5') {
+     return ndhi;  /* Don't round up. */
+-  } else if (buf[d] == '5') {  /* Must check for round to even. */
+-    if (d ? (buf[d-1] & 1) : (nd[(i + 1) & 0x3f] & 1))
+-      goto round_up;  /* Round up '[13579]5.*' */
+-    while (++d < 9) {  /* Check remaining digits in buffer. */
+-      if (buf[d] != '0')
+-	goto round_up;  /* Round up '[02468]5[^0]*'. */
+-    }
+-    while (i != ndlo) {  /* Check remaining fraction. */
+-      if (nd[i])
+-	goto round_up;  /* Round up '[02468]5[^0]*'. */
+-      i = (i - 1) & 0x3f;
+-    }
+-    return ndhi;  /* Don't round up. */
+-  } /* else: round up.*/
+-round_up:
++  } /* else: round up, a tie '5' too (CC: half up).*/
+   return nd_add_m10e(nd, ndhi, 5, e);  /* Round up by adding 5*10^e. */
+ }
+ 
+@@ -305,8 +296,35 @@
  /* Write formatted floating-point number to either sb or p. */
  static char *lj_strfmt_wfnum(SBuf *sb, SFormat sf, lua_Number n, char *p)
  {
@@ -39,6 +87,7 @@
 +    ** use "%.15g" if it round-trips, else "%.17g". -0 is printed as "0".
 +    ** Only internal tostring()/concat conversions carry STRFMT_F_RT, so
 +    ** string.format("%.14g") is unaffected.
++    ** nd_round rounds every exact decimal tie half up, for string.format too.
 +    */
 +    char tmp[STRFMT_MAXBUF_NUM];
 +    char *e;

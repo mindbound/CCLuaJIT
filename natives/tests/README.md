@@ -41,7 +41,7 @@ The harnesses that read `G(L)->vmstate` include LuaJIT's internal `lj_obj.h`, so
 
 ## Provenance
 
-Every file in `preempt/`, `patterns/`, `cstack/` and `lua/` except `lua/compat_check.expected` is a verbatim copy, made on 2026-11-07 from commit `c48cace`. The git blob ids are identical to those of the sources. The sources in `docs/` stay as the historical record. Fix the harnesses here.
+Every file in `preempt/`, `patterns/`, `cstack/` and `lua/` except `lua/compat_check.expected` and `lua/compat_check.lua` is a verbatim copy, made on 2026-11-07 from commit `c48cace`; its git blob id is identical to that of its source. `lua/compat_check.lua` was one too, until S2 added its last three lines (exact decimal ties, `docs/port-1.21.1/S2.md` D34); the table gives the blob of its source. The sources in `docs/` stay as the historical record. Fix the harnesses here.
 
 | File | Copied from (`docs/port-1.21.1/artifacts/...`) | Blob |
 |---|---|---|

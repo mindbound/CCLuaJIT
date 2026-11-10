@@ -2760,12 +2760,13 @@ static void test_events(void)
       "coroutine.yield(0/0)\n"
       "coroutine.yield(1/0)\n"
       "coroutine.yield(-1/0)\n"
+      "coroutine.yield(391.786041259765625)\n"
       "coroutine.yield(string.rep('x', 65531))\n"
       "coroutine.yield(string.rep('y', 65532))\n"
       "error('end', 0)";
     static const char *const want[] = {
       "abc", NULL, "", NULL, "a", NULL, "5", NULL, "0.30000000000000004", NULL, "100000000000000", "1e+15",
-      "9007199254740992", "0", "nan", "inf", "-inf"
+      "9007199254740992", "0", "nan", "inf", "-inf", "391.78604125976563"   /* a 17-digit tie: half up (D34) */
     };
     const int nwant = (int)(sizeof(want) / sizeof(want[0]));
     char *xs = (char *)xmalloc(65532);

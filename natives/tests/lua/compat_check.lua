@@ -9,3 +9,6 @@ show("real goto statement", pcall(function() return load("local i=0 ::a:: i=i+1 
 show("table.pack/unpack (52COMPAT)", pcall(function() return table.pack(1,2,3).n + select('#', table.unpack({1,2})) end))
 show("ffi disabled", pcall(require, "ffi"))
 show("jit on", true, jit and jit.status())
+show("tostring(391.786041259765625)", true, tostring(391.786041259765625))
+show("%.17g of 391.786041259765625", true, string.format("%.17g", 391.786041259765625))
+show("%.0f %.2f of 2.5, 0.125", true, string.format("%.0f %.2f", 2.5, 0.125))
