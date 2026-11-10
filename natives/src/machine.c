@@ -7,15 +7,16 @@
 **   only in phase 2 of api_call, where no Lua call happens.
 ** - Each function carries its run-context tag (cclj_machine.h): UNPROTECTED functions make only calls that
 **   cannot raise (M1.md section 3.8); PROTECTED functions are lua_cpcall bodies or run only inside one;
-**   LUA_CFUNCTION functions are api_call or run only when api_call calls them. raise_text carries both of the
-**   last two tags, because both kinds of function call it.
+**   LUA_CFUNCTION functions are api_call or run only when api_call calls them. raise_text and push_value carry
+**   both of the last two tags, because both kinds of function call them.
 ** - The ud of every lua_cpcall is the heap cm_machine (F3). No light userdata is ever pushed: Lua sees no C
 **   pointer, and C code finds the machine through the allocator's ud (machine_of).
 ** - lua_checkstack(to, n + 1) comes before every lua_xmove(from, to, n) (F1).
 ** - The bios coroutine "co" is touched outside lua_resume only through the calls of the "rule for co" (M1.md
 **   section 3.7): lua_status, lua_gettop, a shrinking lua_settop, lua_type, lua_tolstring on a LUA_TSTRING only,
-**   lua_checkstack (a failed growth resets co's status, F19), lua_xmove after the check above, lua_resume while
-**   the machine is not dead, lua_getstack, and lua_getinfo with "Sln" only.
+**   lua_tonumber on a LUA_TNUMBER only (S2), lua_checkstack (a failed growth resets co's status, F19), lua_xmove
+**   after the check above, lua_resume while the machine is not dead, lua_getstack, and lua_getinfo with "Sln"
+**   only.
 ** - No mutable static state (release builds), no exit, and no output except cm_panic's one line. Debug and test
 **   builds add CM_CHECK, which prints one line and aborts.
 ** - Every copy is bounded; wire decoders use size_t arithmetic and check every length.
@@ -34,6 +35,13 @@
 ** S3 plans assume a little-endian host, so refuse anything else at build time.
 */
 _Static_assert(__BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__, "CCLuaJIT supports little-endian hosts only");
+
+/* The header cannot include luaconf.h, so CM_EVENT_MAX is a literal (docs/port-1.21.1/S2.md section 4.2). co holds
+** slot 1 of L while an event is pushed, so L has room for LUAI_MAXCSTACK - 1 values (F23). A filter record is the
+** tag, the 4-byte length and the bytes, and fits the message buffer whole.
+*/
+_Static_assert(CM_EVENT_MAX == LUAI_MAXCSTACK - 1, "CM_EVENT_MAX must be LUAI_MAXCSTACK - 1 (S2.md F23)");
+_Static_assert(CM_FILTER_MAX + 5 == CM_MSG_MAX, "a filter record of CM_FILTER_MAX bytes must fill msg exactly");
 
 #define CM_MAGIC        0x564c4d43u   /* "CMLV": a live machine */
 #define CM_MAGIC_FREED  0x44414544u   /* "DEAD": set just before the struct is freed (a test tripwire) */
@@ -80,14 +88,18 @@ struct cm_machine {
   const unsigned char *in_spec, *in_bios;   /* cm_load only (cpcall ud is always m, F3) */
   size_t in_spec_len, in_bios_len;
   cm_buf req_buf, rep_buf;   /* wire buffers: outside the Lua cap, at most CM_WIRE_MAX each */
+  const unsigned char *in_event; size_t in_event_len;   /* cm_resume only: the checked record (cpcall ud is m, F3) */
+  uint32_t in_event_n;       /* its number of values; 0 = no event */
   int result;                /* body -> caller */
-  lua_Number err_num;        /* render_error -> number_body: a number error value */
+  lua_Number err_num;        /* a number for render_error or the filter -> their number bodies */
   uint64_t id_key;           /* SecureRandom; keys the "<type>: %08x" hash (patch 10 reuses it in M2) */
   size_t msg_len, msg_tb;    /* msg_tb: offset of the traceback in msg, SIZE_MAX if none (D7) */
   unsigned char msg[CM_MSG_MAX];
 #ifdef CCLJ_TEST
   int test_cotop_before, test_cotop_after;   /* lua_gettop(co) around append_traceback (cm_test_cotop) */
-  int test_cotop_resume;                     /* lua_gettop(co) just before lua_resume (cm_test_cotop_resume) */
+  int test_cotop_resume;                     /* lua_gettop(co) when the resume starts, before the event is pushed */
+  int test_grow_fail;                        /* cm_test_grow_fail: one-shot */
+  int test_grow_ret, test_grow_before, test_grow_after;   /* cm_test_grow */
   void (*test_leave_fn)(void *);             /* cm_test_on_leave */
   void *test_leave_ud;
 #endif
@@ -146,6 +158,17 @@ void cm_test_on_leave(cm_machine *m, void (*fn)(void *), void *ud)
   m->test_leave_fn = fn;
   m->test_leave_ud = ud;
 }
+
+/* UNPROTECTED. Between calls only. */
+void cm_test_grow_fail(cm_machine *m, int on) { m->test_grow_fail = on != 0; }
+
+/* UNPROTECTED. */
+void cm_test_grow(const cm_machine *m, int *ret, int *status_before, int *status_after)
+{
+  *ret = m->test_grow_ret;
+  *status_before = m->test_grow_before;
+  *status_after = m->test_grow_after;
+}
 #else
 #define test_alloc_ok() 1
 #endif
@@ -188,6 +211,26 @@ static void msg_from_top(cm_machine *m, lua_State *L)
   } else {
     msg_setz(m, "not enough memory");
   }
+}
+
+/* UNPROTECTED (pure). Sets the message to the filter record of n bytes of s (S2.md section 4.1): STRING with the
+** whole text, or FALSE when it is longer than CM_FILTER_MAX (D26). A filter is never cut.
+*/
+static void msg_filter(cm_machine *m, const char *s, size_t n)
+{
+  m->msg_tb = SIZE_MAX;
+  if (n > CM_FILTER_MAX) {
+    m->msg[0] = CM_WIRE_FALSE;
+    m->msg_len = 1;
+    return;
+  }
+  m->msg[0] = CM_WIRE_STRING;
+  m->msg[1] = (unsigned char)n;
+  m->msg[2] = (unsigned char)(n >> 8);
+  m->msg[3] = (unsigned char)(n >> 16);
+  m->msg[4] = (unsigned char)(n >> 24);
+  if (n > 0) memcpy(m->msg + 5, s, n);
+  m->msg_len = 5 + n;
 }
 
 /* -- Allocator and machine lookup ------------------------------------------ */
@@ -378,6 +421,26 @@ static int wire_check_reply(const unsigned char *d, size_t len, wire_reply *out)
   return r.left == 0;
 }
 
+/* UNPROTECTED (pure; a Tier 0 fuzz target). Checks a whole event record (S2): a count of at least 1 and at most
+** the number of bytes after it, a STRING first value (the name), known tags, every length inside the buffer, and
+** no bytes left over. 1 = valid, and *n is the number of values. The bound on n depends on the machine's state,
+** so cm_resume checks it.
+*/
+static int wire_check_event(const unsigned char *d, size_t len, uint32_t *n)
+{
+  wire_rd r;
+  wire_val v;
+  uint32_t i, cnt;
+  r.p = d; r.left = d ? len : 0;
+  if (!rd_u32(&r, &cnt) || cnt == 0 || cnt > r.left) return 0;   /* every value takes at least one byte */
+  if (!rd_value(&r, &v) || v.tag != CM_WIRE_STRING) return 0;
+  for (i = 1; i < cnt; i++)
+    if (!rd_value(&r, &v)) return 0;
+  if (r.left != 0) return 0;
+  *n = cnt;
+  return 1;
+}
+
 /* UNPROTECTED (pure; a Tier 0 fuzz target). Checks a whole spec: every length inside the buffer, names of at
 ** most CM_WIRE_MAX_NAME bytes, hasModule 0 or 1, method flags with only MAY_YIELD, at most CM_WIRE_MAX_FN
 ** methods in all, and no bytes left over. 1 = valid, and *nfn is the number of methods.
@@ -475,7 +538,9 @@ static int raise_text(lua_State *L, const char *s)
   return lua_error(L);
 }
 
-/* LUA_CFUNCTION. Pushes one value that wire_check_reply accepted. May raise (out of memory). */
+/* PROTECTED or LUA_CFUNCTION (phase 3): resume_body pushes event values with it, api_call reply values. Pushes one
+** value that wire_check_reply or wire_check_event accepted. May raise (out of memory).
+*/
 static void push_value(lua_State *L, const wire_val *v)
 {
   switch (v->tag) {
@@ -840,6 +905,57 @@ static void render_error(cm_machine *m, lua_State *L, int idx)
   }
 }
 
+/* PROTECTED. The body of the nested lua_cpcall in yield_filter: writes the filter record of m->err_num, the text
+** of Lua's tostring under patch 05 (S2.md D25, F26). The conversion allocates a string, so it may raise "not
+** enough memory".
+*/
+static int filter_number_body(lua_State *L)
+{
+  cm_machine *m = machine_of(L);
+  size_t n;
+  const char *s;
+  if (m == NULL) return raise_text(L, "CCLuaJIT: machine missing");
+  lua_pushnumber(L, m->err_num);
+  s = lua_tolstring(L, -1, &n);   /* converts the copy pushed here, never a value of co (F27) */
+  msg_filter(m, s, n);
+  return 0;
+}
+
+/* PROTECTED (called by resume_body after a yield; raises nothing itself). Writes the filter record of the first
+** yielded value into msg (S2.md section 4.3): a string as it is, a number as tostring prints it, anything else no
+** filter. co is read only through the rule for co. A number is converted in a nested lua_cpcall on L; if that
+** fails (only "not enough memory" under an exhausted cap), the machine ends with that error (D25).
+*/
+static void yield_filter(cm_machine *m, lua_State *L, lua_State *co)
+{
+  size_t n;
+  const char *s;
+  int top;
+  if (lua_gettop(co) < 1) {
+    msg_set(m, "", 0);
+    return;
+  }
+  switch (lua_type(co, 1)) {
+  case LUA_TSTRING:
+    s = lua_tolstring(co, 1, &n);   /* a string: no conversion, no allocation */
+    msg_filter(m, s, n);
+    break;
+  case LUA_TNUMBER:
+    m->err_num = lua_tonumber(co, 1);
+    top = lua_gettop(L);
+    if (lua_cpcall(L, filter_number_body, m) != 0) {
+      msg_from_top(m, L);
+      m->state = CM_DEAD;
+      m->result = CM_ST_ERROR;
+    }
+    lua_settop(L, top);
+    break;
+  default:   /* nil, boolean, table, function, thread, userdata: no filter */
+    msg_set(m, "", 0);
+    break;
+  }
+}
+
 /* UNPROTECTED (pure). The length of s, reading at most max bytes. */
 static size_t cstr_len(const char *s, size_t max)
 {
@@ -922,7 +1038,9 @@ static int resume_body(lua_State *L)
 {
   cm_machine *m = machine_of(L);
   lua_State *co;
-  int st;
+  wire_rd r;
+  wire_val v;
+  int st, base, n, k;
 
   lua_settop(L, 0);
   if (m == NULL) return raise_text(L, "CCLuaJIT: machine missing");
@@ -931,10 +1049,9 @@ static int resume_body(lua_State *L)
   if (co == NULL) return raise_text(L, "bios coroutine missing");
   /* co stays at index 1 of L until this body returns. co_ref alone does not keep it alive here: once Lua can
   ** reach the registry (S4: debug.getregistry), the bios can remove co_ref, and an allocation on L before the
-  ** last use of co (the number conversion in render_error; S2: the event push) can run a GC cycle, which marks
-  ** L's stack but not a coroutine that nothing refers to.
-  ** S2 hook point: the event is pushed onto L above co (7,999 slots are left for it, one fewer than with co
-  ** popped), then lua_checkstack(co, n + 1) and lua_xmove of the top n values.
+  ** last use of co (the number conversions in render_error and yield_filter) can run a GC cycle, which marks L's
+  ** stack but not a coroutine that nothing refers to. During the event push the registry still refers to co: no
+  ** Lua code runs between the lua_rawgeti above and lua_resume, because nothing has a __gc metamethod (I5).
   */
   /* F4: a coroutine is resumed only in the state the machine expects; anything else is a bug. */
   if (lua_status(co) != (m->state == CM_SUSPENDED ? LUA_YIELD : 0)) {
@@ -942,15 +1059,52 @@ static int resume_body(lua_State *L)
     return raise_text(L, "CCLuaJIT: bios coroutine in an unexpected state");
   }
 #ifdef CCLJ_TEST
-  m->test_cotop_resume = lua_gettop(co);
+  m->test_cotop_resume = lua_gettop(co);   /* when the resume starts, before the event */
 #endif
-  CM_CHECK(lua_gettop(L) == 1 && lua_gettop(co) == (m->state == CM_NEW ? 1 : 0));   /* S1: no event */
-  st = lua_resume(co, 0);
-  if (st == LUA_YIELD) {
+  base = m->state == CM_NEW ? 1 : 0;   /* the bios function waits on co until the first resume */
+  CM_CHECK(lua_gettop(L) == 1 && lua_gettop(co) == base);
+  n = 0;
+  if (m->in_event != NULL) {   /* 5. The event (S2): its values are pushed onto L above co, then moved to co. */
+    n = (int)m->in_event_n;
+    if (n < 1 || n + 1 > LUAI_MAXCSTACK - lua_gettop(co)) {   /* cm_resume checked both: never reached */
+      msg_setz(m, "event has too many values");
+      m->result = CM_ST_INTERNAL;   /* co and state untouched (I10) */
+      return 0;
+    }
+    if (!lua_checkstack(L, n)) return raise_text(L, "not enough memory");   /* size cannot fail: 1 + n <= 8000 */
+    r.p = m->in_event + 4; r.left = m->in_event_len - 4;   /* past the checked count */
+    for (k = 0; k < n; k++) {
+      if (!rd_value(&r, &v)) return raise_text(L, "CCLuaJIT: corrupt event");   /* never: checked */
+      push_value(L, &v);   /* lua_pushlstring may raise "not enough memory" */
+    }
+    CM_CHECK(lua_gettop(L) == 1 + n);
+    /* Nothing may allocate on any thread from here to the lua_xmove: a GC step can shrink co's stack again
+    ** (S2.md section 4.7), and lua_xmove would then grow co and raise on co (F1).
+    */
+#ifdef CCLJ_TEST
+    if (m->test_grow_fail) { m->test_grow_fail = 0; m->limit = m->used; }   /* one-shot */
+    m->test_grow_before = lua_status(co);
+#endif
+    k = lua_checkstack(co, n + 1);   /* F1; its size test cannot fail here (checked above) */
+#ifdef CCLJ_TEST
+    m->test_grow_ret = k;
+    m->test_grow_after = lua_status(co);
+#endif
+    if (!k) {   /* F19: co's status was reset, so it is never resumed again. Never raise here: */
+      m->state = CM_DEAD;   /* cm_resume's msg_from_top would overwrite msg */
+      msg_setz(m, "CCLuaJIT: cannot grow the bios coroutine stack");
+      m->result = CM_ST_ERROR;
+      return 0;
+    }
+    lua_xmove(L, co, n);
+  }
+  CM_CHECK(lua_gettop(L) == 1 && lua_gettop(co) == base + n);
+  st = lua_resume(co, n);   /* 6 */
+  if (st == LUA_YIELD) {   /* 7 */
     m->state = CM_SUSPENDED;
-    lua_settop(co, 0);   /* S1 ignores the yielded values (S2: the filter) */
-    msg_set(m, "", 0);
     m->result = CM_ST_YIELD;
+    yield_filter(m, L, co);   /* the filter record; D25 may set ERROR and DEAD */
+    lua_settop(co, 0);   /* the next event finds co empty (F23) */
   } else if (st == 0) {
     m->state = CM_DEAD;
     msg_set(m, "", 0);
@@ -980,21 +1134,26 @@ static int resume_body(lua_State *L)
 int cm_resume(cm_machine *m, cm_host_fn fn, void *host, const unsigned char *event, size_t event_len)
 {
   int st, res;
-  (void)event_len;
-  if ((res = machine_enter(m)) != CM_ST_OK) return res;
+  uint32_t n = 0;
+  if ((res = machine_enter(m)) != CM_ST_OK) return res;   /* INTERNAL or BUSY, nothing written */
   if (m->state == CM_DEAD) {
     msg_setz(m, "machine is dead");
     res = CM_ST_INTERNAL;
-  } else if (event != NULL) {
-    msg_setz(m, "events are not implemented yet (S2)");
+  } else if (event == NULL ? event_len != 0
+                           : event_len > CM_WIRE_MAX || !wire_check_event(event, event_len, &n)) {
+    msg_setz(m, "corrupt event");   /* I10: before any Lua call; the machine stays as it was */
+    res = CM_ST_INTERNAL;
+  } else if (n > CM_EVENT_MAX - (m->state == CM_NEW ? 1u : 0u)) {   /* F23: the bios function is on co */
+    msg_setz(m, "event has too many values");
     res = CM_ST_INTERNAL;
   } else {
+    m->in_event = event; m->in_event_len = event_len; m->in_event_n = n;
     m->host_fn = fn;
     m->host = host;
-    m->result = CM_ST_INTERNAL;
+    m->result = CM_ST_INTERNAL;   /* every return 0 of resume_body sets it (I11) */
     st = lua_cpcall(m->L, resume_body, m);
     CM_CHECK(lua_gettop(m->L) == (st != 0));
-    if (st != 0) {
+    if (st != 0) {   /* a raise: "not enough memory" and the like */
       msg_from_top(m, m->L);
       m->state = CM_DEAD;
       m->result = CM_ST_ERROR;
@@ -1002,9 +1161,10 @@ int cm_resume(cm_machine *m, cm_host_fn fn, void *host, const unsigned char *eve
     lua_settop(m->L, 0);
     m->host_fn = NULL;
     m->host = NULL;
+    m->in_event = NULL; m->in_event_len = 0; m->in_event_n = 0;   /* I12: no pointer into the caller's buffer */
     res = m->result;
   }
-  machine_leave(m);
+  machine_leave(m);   /* every path after a successful enter */
   return res;
 }
 
@@ -1038,6 +1198,9 @@ cm_machine *cm_new(size_t mem_limit, uint64_t id_key)
   m->test_cotop_before = -1;
   m->test_cotop_after = -1;
   m->test_cotop_resume = -1;
+  m->test_grow_ret = -1;
+  m->test_grow_before = -1;
+  m->test_grow_after = -1;
 #endif
   m->magic = CM_MAGIC;
   return m;

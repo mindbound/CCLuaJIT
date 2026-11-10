@@ -170,9 +170,12 @@ JNIEXPORT jint JNICALL Java_io_github_mindbound_cclj_natives_NativeMachine_nLoad
 }
 
 /* NO_LUA. NativeMachine.nResume(h, event): resumes the bios coroutine. Its host calls go to this.upcall through
-** jni_host_call. A non-null event is copied and passed on: in S1, cm_resume refuses it with CM_ST_INTERNAL and the
-** message "events are not implemented yet (S2)". Returns cm_resume's status (CM_ST_BUSY included), or
-** CM_ST_INTERNAL with the message left as it was for a zero handle, or when the event cannot be copied.
+** jni_host_call. A non-null event is an event record (cclj_machine.h; docs/port-1.21.1/S2.md section 4.1), copied
+** and passed on; the copy lives until cm_resume returns. cm_resume refuses a malformed record with CM_ST_INTERNAL
+** "corrupt event", and one with more values than the machine's state allows with CM_ST_INTERNAL "event has too
+** many values", both before any Lua call. After CM_ST_YIELD, nMessage returns the filter record. Returns
+** cm_resume's status (CM_ST_BUSY included), or CM_ST_INTERNAL with the message left as it was for a zero handle,
+** or when the event cannot be copied (after a YIELD that message is the YIELD's filter record).
 */
 JNIEXPORT jint JNICALL Java_io_github_mindbound_cclj_natives_NativeMachine_nResume(JNIEnv *env, jobject self,
                                                                                   jlong h, jbyteArray event)
@@ -211,9 +214,11 @@ JNIEXPORT jint JNICALL Java_io_github_mindbound_cclj_natives_NativeMachine_nResu
   return st;
 }
 
-/* NO_LUA. NativeMachine.nMessage(h): the text of the last cm_load or cm_resume that did not return CM_ST_BUSY, as a
-** byte[] of a 4-byte little-endian traceback offset (0xFFFFFFFF for none) and then the message bytes. NULL, with no
-** exception pending, if the array cannot be made; Java then shows "(no message)".
+/* NO_LUA. NativeMachine.nMessage(h): the message of the last cm_load or cm_resume that did not return CM_ST_BUSY,
+** as a byte[] of a 4-byte little-endian traceback offset (0xFFFFFFFF for none) and then the message bytes. After
+** CM_ST_YIELD the bytes are the filter record (empty = no filter). NULL, with no exception pending, if the array
+** cannot be made; after a YIELD, Java turns that into ST_INTERNAL (S2.md F34), and for any other status it shows
+** "(no message)".
 */
 JNIEXPORT jbyteArray JNICALL Java_io_github_mindbound_cclj_natives_NativeMachine_nMessage(JNIEnv *env, jclass cls,
                                                                                          jlong h)

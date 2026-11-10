@@ -1,6 +1,7 @@
 /*
-** machine_test.c: Tier 0 of S1, the native machine core (natives/src/machine.c) without a JVM
-** (docs/port-1.21.1/M1.md section 3.15, items 1-10, and the "try to break" list of section 3.17).
+** machine_test.c: Tier 0 of S1 and S2, the native machine core (natives/src/machine.c) without a JVM
+** (docs/port-1.21.1/M1.md section 3.15, items 1-10, and the "try to break" list of section 3.17; S2 events:
+** docs/port-1.21.1/S2.md section 6.1, items 4, 11 and 12).
 **
 ** natives/tests/machine-test.sh builds it together with machine.c compiled with -DCCLJ_TEST, against an assert and
 ** API-check build of the patched LuaJIT, and runs it. The host functions talk to machine.c through wire format v1
@@ -422,10 +423,14 @@ struct host {
   unsigned char re_msg[64];
   size_t re_msglen;
   int gate, blocked;                /* __atomic: t.block() sets blocked, then waits for gate */
+  int re_event;                     /* t.reenter(): cm_resume with an event (S2) */
+  const cm_buf *cur_req;            /* the request of the host call in progress */
+  cm_buf took;                      /* t.take(): a copy of its whole request */
+  long takes;                       /* t.take() calls */
 };
 
 static void host_init(host *h) { memset(h, 0, sizeof(*h)); }
-static void host_done(host *h) { free(h->args); h->args = NULL; h->args_cap = 0; }
+static void host_done(host *h) { free(h->args); h->args = NULL; h->args_cap = 0; cb_free(&h->took); }
 
 static hfn g_fns[32];
 static int g_nfn;
@@ -438,6 +443,7 @@ static int host_call(void *hp, uint32_t fn, const cm_buf *req, cm_buf *rep)
   size_t left = req->len;
   uint32_t n, i;
   h->calls++;
+  h->cur_req = req;
   if (rep->len != 0) h->bad_req++;
   if (req->len > h->req_max) h->req_max = req->len;
   h->req_len = req->len;
@@ -490,13 +496,17 @@ static int h_check(host *h, cm_buf *rep) { return h->fz ? fuzz_check(h->fz, h, r
 /* t.code(c): returns c as the host status, without a reply. */
 static int h_code(host *h, cm_buf *rep) { (void)rep; return (int)arg_num(h, 0); }
 
-/* t.reenter(): calls cm_resume, cm_load and cm_free on its own machine from inside the host call. */
+/* t.reenter(): calls cm_resume (without and with an event), cm_load and cm_free on its own machine from inside the
+** host call.
+*/
 static int h_reenter(host *h, cm_buf *rep)
 {
+  static const unsigned char ev[] = {1, 0, 0, 0, 4, 1, 0, 0, 0, 'e'};   /* the event "e" */
   size_t len;
   const unsigned char *msg;
   tval v[4];
   h->re_resume = cm_resume(h->m, host_call, h, NULL, 0);
+  h->re_event = cm_resume(h->m, host_call, h, ev, sizeof(ev));
   h->re_load = cm_load(h->m, g_spec.data, g_spec.len, (const unsigned char *)"", 0);
   h->re_free = cm_free(h->m);
   /* White box: the header does not let a caller read the message after CM_ST_BUSY. Here it is race-free (the
@@ -579,16 +589,26 @@ static int h_write(host *h, cm_buf *rep)
   return CM_HOST_OK;
 }
 
+/* t.take(...): keeps a copy of its whole request (the count and the values) in h->took. */
+static int h_take(host *h, cm_buf *rep)
+{
+  h->took.len = 0;
+  cb_mem(&h->took, h->cur_req->data, h->cur_req->len);
+  h->takes++;
+  reply_none(rep);
+  return CM_HOST_OK;
+}
+
 /* alias1.which(): its own function index. */
 static int h_which(host *h, cm_buf *rep) { reply_one(rep, tv_num(h->fn)); return CM_HOST_OK; }
 
-/* The default spec: 4 APIs, 16 host functions. */
+/* The default spec: 4 APIs, 17 host functions. */
 typedef struct mdef { const char *name; unsigned flags; hfn fn; } mdef;
 
 static const mdef T_METHODS[] = {
   {"echo", 0, h_echo}, {"err", 0, h_err}, {"raw", 0, h_raw}, {"check", 0, h_check}, {"code", 0, h_code},
   {"reenter", 0, h_reenter}, {"mark", 0, h_mark}, {"nop", 0, h_nop}, {"f", 0, h_f}, {"block", 0, h_block},
-  {"argc", 0, h_argc}, {"used", 0, h_used}, {"capnow", 0, h_capnow}
+  {"argc", 0, h_argc}, {"used", 0, h_used}, {"capnow", 0, h_capnow}, {"take", 0, h_take}
 };
 static const mdef TERM_METHODS[] = {{"write", 0, h_write}};
 static const mdef ALIAS_METHODS[] = {{"which", CM_WIRE_MAY_YIELD, h_which}, {"which2", 0, h_which}};
@@ -1208,7 +1228,7 @@ static void test_resume(void)
   check(st2 == CM_ST_YIELD && st3 == CM_ST_ERROR && head_is(&o, "after") && strcmp(h.log, "ab") == 0,
         "4 resume: YIELD with values, then ERROR", "%d, %d \"%s\", log \"%s\"", st2, st3, show(&o, b, sizeof(b)),
         h.log);
-  /* S2 relies on it for the size bound of an event (M1.md section 3.7 resume_body step 3, F19, D19). */
+  /* S2 relies on it for the size bound of an event (M1.md section 3.7 resume_body step 5, F19, D19; S2.md F23). */
   check(top2 == 0 && top3 == 0, "4 resume: the bios coroutine's stack is empty after a YIELD",
         "lua_gettop(co) when the next resume starts: %d after yield(), %d after yield(1, 2, 3)", top2, top3);
   st1 = cm_resume(m, host_call, &h, NULL, 0);
@@ -1234,21 +1254,21 @@ static void test_resume(void)
   o.load_st = cm_load(m, g_spec.data, g_spec.len, (const unsigned char *)"return", 6);
   st1 = cm_resume(m, host_call, &h, (const unsigned char *)"x", 1);
   out_msg(&o, m);
-  check(st1 == CM_ST_INTERNAL && msg_is(&o, "events are not implemented yet (S2)") && o.tb == SIZE_MAX,
-        "4 resume: a non-NULL event is INTERNAL", "%d \"%s\"", st1, show(&o, b, sizeof(b)));
+  check(st1 == CM_ST_INTERNAL && msg_is(&o, "corrupt event") && o.tb == SIZE_MAX,
+        "4 resume: the 1-byte event \"x\" is a malformed record", "%d \"%s\"", st1, show(&o, b, sizeof(b)));
   st1 = cm_resume(m, host_call, &h, (const unsigned char *)"", 0);
   out_msg(&o, m);
-  check(st1 == CM_ST_INTERNAL && msg_is(&o, "events are not implemented yet (S2)"),
-        "4 resume: a non-NULL empty event is INTERNAL", "%d \"%s\"", st1, show(&o, b, sizeof(b)));
+  check(st1 == CM_ST_INTERNAL && msg_is(&o, "corrupt event") && o.tb == SIZE_MAX,
+        "4 resume: a non-NULL empty event is a malformed record", "%d \"%s\"", st1, show(&o, b, sizeof(b)));
   st1 = cm_resume(m, host_call, &h, NULL, 0);
   out_msg(&o, m);
-  check(st1 == CM_ST_RETURNED, "4 resume: the machine was not touched by the refused event", "%d", st1);
+  check(st1 == CM_ST_RETURNED, "4 resume: the machine was not touched by the refused events", "%d", st1);
   check(o.len == 0 && o.tb == SIZE_MAX, "4 resume: RETURNED after an INTERNAL message leaves the message empty",
         "\"%s\", msg_tb %ld", show(&o, b, sizeof(b)), o.tb == SIZE_MAX ? -1L : (long)o.tb);
   cm_free(m);
 
-  /* S2 turns the message after a YIELD into the event filter: a text left over from an earlier call would be a
-  ** wrong filter.
+  /* After a YIELD the message is the filter record (S2): a text left over from an earlier call would be a wrong
+  ** filter. An empty message means no filter.
   */
   m = cm_new(LIMIT, KEY);
   h.m = m;
@@ -1257,8 +1277,8 @@ static void test_resume(void)
   st2 = cm_resume(m, host_call, &h, NULL, 0);
   out_msg(&o, m);
   check(o.load_st == CM_ST_OK && st1 == CM_ST_INTERNAL && st2 == CM_ST_YIELD && o.len == 0 && o.tb == SIZE_MAX,
-        "4 resume: YIELD after an INTERNAL message leaves the message empty", "%d, %d, %d \"%s\"", o.load_st, st1,
-        st2, show(&o, b, sizeof(b)));
+        "4 resume: YIELD after an INTERNAL refusal has an empty message (no filter)", "%d, %d, %d \"%s\"",
+        o.load_st, st1, st2, show(&o, b, sizeof(b)));
   st1 = cm_resume(m, host_call, &h, (const unsigned char *)"x", 1);
   st2 = cm_resume(m, host_call, &h, NULL, 0);
   out_msg(&o, m);
@@ -1764,8 +1784,12 @@ static void test_host(void)
   }
   expect("6 host: a host status error is level 0 under pcall", &h,
          "local ok, e = pcall(t.code, 2)\nerror(e, 0)", CM_ST_ERROR, "CCLuaJIT: Java exception in host call");
-  expect("6 host: function indices across APIs and aliases", &h,
-         "error(alias1.which() .. ' ' .. alias2.which() .. ' ' .. alias1.which2(), 0)", CM_ST_ERROR, "14 14 15");
+  {
+    char want[32];
+    snprintf(want, sizeof(want), "%d %d %d", FN_WHICH, FN_WHICH, FN_WHICH + 1);
+    expect("6 host: function indices across APIs and aliases", &h,
+           "error(alias1.which() .. ' ' .. alias2.which() .. ' ' .. alias1.which2(), 0)", CM_ST_ERROR, want);
+  }
   expect("6 host: large numbers round trip", &h,
          "local a, b, c, d = t.echo(2^53 + 2, -2^63, 1e308, 5e-324)\n"
          "error(tostring(a == 2^53 + 2 and b == -2^63 and c == 1e308 and d == 5e-324), 0)", CM_ST_ERROR, "true");
@@ -2202,15 +2226,17 @@ static void test_reentry(void)
   out_init(&o);
   load_z(m, "local a, b, c, d = t.reenter()\ncoroutine.yield()\nerror(a .. '|' .. b .. '|' .. c .. '|' .. d, 0)");
   st1 = cm_resume(m, host_call, &h, NULL, 0);
+  acct_note(m, "after the re-entrant calls");
   out_msg(&o, m);
   /* The host reads the message after its refused cm_resume, cm_load and cm_free (white box, see h_reenter): it
   ** must still be the one cm_load left (empty).
   */
-  check(st1 == CM_ST_YIELD && h.re_resume == CM_ST_BUSY && h.re_msglen == 0 && h.re_load == CM_ST_BUSY &&
-        h.re_free == CM_ST_BUSY,
-        "9 re-entrancy: cm_resume, cm_load and cm_free from the host get CM_ST_BUSY and leave the message alone",
-        "outer %d; inner resume %d \"%.*s\", load %d, free %d", st1, h.re_resume, (int)h.re_msglen, h.re_msg,
-        h.re_load, h.re_free);
+  check(st1 == CM_ST_YIELD && h.re_resume == CM_ST_BUSY && h.re_event == CM_ST_BUSY && h.re_msglen == 0 &&
+        h.re_load == CM_ST_BUSY && h.re_free == CM_ST_BUSY,
+        "9 re-entrancy (and 11j): cm_resume (also with an event), cm_load and cm_free from the host get CM_ST_BUSY "
+        "and leave the message alone",
+        "outer %d; inner resume %d, with an event %d \"%.*s\", load %d, free %d", st1, h.re_resume, h.re_event,
+        (int)h.re_msglen, h.re_msg, h.re_load, h.re_free);
   check(o.len == 0 && o.tb == SIZE_MAX, "9 re-entrancy: the owner's YIELD gives its own (empty) message",
         "\"%s\"", show(&o, b, sizeof(b)));
   st2 = cm_resume(m, host_call, &h, NULL, 0);
@@ -2412,6 +2438,640 @@ static void test_threads(void)
 #endif
 }
 
+/* -- 11. Events (S2) -------------------------------------------------------------------------- */
+
+/* An event record (docs/port-1.21.1/S2.md section 4.1): the count and the name; the caller adds the other values. */
+static void ev_begin(cm_buf *b, uint32_t n, const char *name)
+{
+  b->len = 0;
+  cb_u32(b, n);
+  cb_u8(b, 4);
+  cb_strz(b, name);
+}
+static void ev_nils(cm_buf *b, uint32_t k) { while (k-- > 0) cb_u8(b, 0); }
+static void ev_bits(cm_buf *b, uint64_t u) { double d; memcpy(&d, &u, 8); cb_u8(b, 3); cb_f64(b, d); }
+
+/* A well-formed record of len bytes (len >= 9): one value, a name of len - 9 zero bytes. The caller frees it. */
+static unsigned char *ev_huge(size_t len)
+{
+  unsigned char *p = (unsigned char *)xmalloc(len);
+  uint32_t s = (uint32_t)(len - 9);
+  memset(p, 0, len);
+  p[0] = 1;
+  p[4] = 4;
+  p[5] = (unsigned char)s; p[6] = (unsigned char)(s >> 8); p[7] = (unsigned char)(s >> 16);
+  p[8] = (unsigned char)(s >> 24);
+  return p;
+}
+
+/* cm_resume with the record in b, then the cap check. */
+static int ev_resume(host *h, cm_machine *m, const cm_buf *b, const char *when)
+{
+  int st = cm_resume(m, host_call, h, b->data, b->len);
+  acct_note(m, when);
+  return st;
+}
+
+/* The message, printable. */
+static const char *cur_msg(const cm_machine *m, char *buf, size_t cap)
+{
+  size_t len;
+  const unsigned char *p = cm_message(m, &len, NULL);
+  return esc(p, len, buf, cap);
+}
+
+/* The message is exactly s (wlen bytes) with no traceback. */
+static int msg_eq(const cm_machine *m, const void *s, size_t wlen)
+{
+  size_t len, tb;
+  const unsigned char *p = cm_message(m, &len, &tb);
+  return tb == SIZE_MAX && len == wlen && (wlen == 0 || memcmp(p, s, wlen) == 0);
+}
+static int msg_eqz(const cm_machine *m, const char *s) { return msg_eq(m, s, strlen(s)); }
+
+/* The message after a YIELD is the filter record STRING with the wlen bytes of want (no filter: want NULL). */
+static int filter_is(const cm_machine *m, const void *want, size_t wlen)
+{
+  size_t len, tb;
+  const unsigned char *p = cm_message(m, &len, &tb);
+  if (tb != SIZE_MAX) return 0;
+  if (want == NULL) return len == 0;
+  return len == 5 + wlen && p[0] == 4 && get_u32(p + 1) == (uint32_t)wlen &&
+         (wlen == 0 || memcmp(p + 5, want, wlen) == 0);
+}
+static int filter_isz(const cm_machine *m, const char *s) { return filter_is(m, s, strlen(s)); }
+
+/* The filter record is STRING and its text starts with prefix. */
+static int filter_starts(const cm_machine *m, const char *prefix)
+{
+  size_t len, tb, n = strlen(prefix);
+  const unsigned char *p = cm_message(m, &len, &tb);
+  return tb == SIZE_MAX && len >= 5 + n && p[0] == 4 && get_u32(p + 1) == (uint32_t)(len - 5) &&
+         memcmp(p + 5, prefix, n) == 0;
+}
+
+/* The request that t.take got carries the values of the event record ev, as Lua sees them: same count, same tags,
+** NaN equals NaN, -0 differs from 0, strings byte for byte.
+*/
+static int took_matches(const host *h, const unsigned char *ev, size_t evlen)
+{
+  const unsigned char *p = h->took.data, *q = ev;
+  size_t pl = h->took.len, ql = evlen;
+  uint32_t n, i;
+  tval a, b;
+  if (pl < 4 || ql < 4 || get_u32(p) != get_u32(q)) return 0;
+  n = get_u32(p);
+  p += 4; pl -= 4; q += 4; ql -= 4;
+  for (i = 0; i < n; i++)
+    if (!tv_read(&p, &pl, &a) || !tv_read(&q, &ql, &b) || !tv_equal(&a, &b)) return 0;
+  return pl == 0 && ql == 0;
+}
+
+/* The bios coroutine's stack: its size in slots and the free slots above its top (lj_obj.h), found in the
+** registry (the only thread there). Between calls only.
+*/
+typedef struct costack { int found; MSize size; ptrdiff_t avail; } costack;
+static int costack_body(lua_State *L)
+{
+  costack *c = (costack *)lua_touserdata(L, 1);
+  c->found = 0;
+  lua_pushnil(L);
+  while (lua_next(L, LUA_REGISTRYINDEX)) {
+    if (lua_type(L, -1) == LUA_TTHREAD) {
+      lua_State *co = lua_tothread(L, -1);
+      c->found++;
+      c->size = co->stacksize;
+      c->avail = mref(co->maxstack, TValue) - co->top;
+    }
+    lua_pop(L, 1);
+  }
+  return 0;
+}
+static int co_stack(cm_machine *m, costack *c)
+{
+  memset(c, 0, sizeof(*c));
+  return lua_cpcall((lua_State *)cm_test_state(m), costack_body, c) == 0 && c->found == 1;
+}
+
+/* The bios of most event tests: each event's values go to t.take, and the next yield's filter reports them as
+** "<count>|<wire tags>|<positions of NaN numbers>". The first resume's values are the main chunk's "...".
+*/
+static const char EV_BIOS[] =
+  "local function got(...)\n"
+  "  t.take(...)\n"
+  "  local nan = ''\n"
+  "  for i = 1, select('#', ...) do\n"
+  "    local v = select(i, ...)\n"
+  "    if type(v) == 'number' and v ~= v then nan = nan .. i .. ' ' end\n"
+  "  end\n"
+  "  return select('#', ...) .. '|' .. t.argc(...) .. '|' .. nan\n"
+  "end\n"
+  "local r = got(...)\n"
+  "while true do r = got(coroutine.yield(r)) end";
+
+/* A new machine with EV_BIOS loaded. With first set, it is resumed once without an event (SUSPENDED then). */
+static cm_machine *ev_machine(host *h, int first, int *ok)
+{
+  cm_machine *m = cm_new(LIMIT, KEY);
+  int st;
+  h->m = m;
+  *ok = m != NULL && load_z(m, EV_BIOS) == CM_ST_OK;
+  if (*ok && first) {
+    st = cm_resume(m, host_call, h, NULL, 0);
+    acct_note(m, "after the first resume of EV_BIOS");
+    *ok = st == CM_ST_YIELD && filter_isz(m, "0||");
+  }
+  return m;
+}
+
+static void test_events(void)
+{
+  static const uint64_t nans[6] = {
+    UINT64_C(0x7FF8000000000000), UINT64_C(0xFFF8000000000000), UINT64_C(0x7FF0000000000001),
+    UINT64_C(0xFFFA000000000000), UINT64_C(0xFFFD800000001234), UINT64_C(0xFFFFFFFFFFFFFFFF)
+  };
+  host h;
+  cm_buf ev = {0}, ok_ev = {0};
+  cm_machine *m;
+  char b[600];
+  int i, st, ok, top, ret, before, after, t0;
+  size_t u0;
+  costack c;
+
+  host_init(&h);
+  ev_begin(&ok_ev, 1, "ok");
+
+  /* 11a: every value kind after a YIELD, in order, with the same count. */
+  m = ev_machine(&h, 1, &ok);
+  ev_begin(&ev, 13, "ev");
+  cb_u8(&ev, 0); cb_u8(&ev, 1); cb_u8(&ev, 2);
+  ev_bits(&ev, UINT64_C(0x3FF8000000000000));   /* 1.5 */
+  ev_bits(&ev, UINT64_C(0x8000000000000000));   /* -0.0 */
+  for (i = 0; i < 6; i++) ev_bits(&ev, nans[i]);
+  cb_u8(&ev, 4); cb_str(&ev, "a\0b\xff", 4);
+  st = ev_resume(&h, m, &ev, "after 11a");
+  top = cm_test_cotop_resume(m);
+  check(ok && st == CM_ST_YIELD && took_matches(&h, ev.data, ev.len) &&
+        filter_isz(m, "13|4 0 1 2 3 3 3 3 3 3 3 3 4|7 8 9 10 11 12 ") && top == 0,
+        "11a events: nil, booleans, numbers (-0, six NaN patterns) and a string with NUL and 0xFF arrive in order",
+        "setup %d, status %d, values %s, filter \"%s\", lua_gettop(co) when the resume started %d (want 0)", ok, st,
+        took_matches(&h, ev.data, ev.len) ? "equal" : "differ", cur_msg(m, b, sizeof(b)), top);
+  cm_free(m);
+
+  /* 11b: on the first resume the values become the main chunk's "...". */
+  m = ev_machine(&h, 0, &ok);
+  ev_begin(&ev, 3, "first");
+  ev_bits(&ev, UINT64_C(0x4000000000000000));   /* 2 */
+  cb_u8(&ev, 4); cb_strz(&ev, "x");
+  st = ev_resume(&h, m, &ev, "after 11b");
+  top = cm_test_cotop_resume(m);
+  check(ok && st == CM_ST_YIELD && took_matches(&h, ev.data, ev.len) && filter_isz(m, "3|4 3 4|") && top == 1,
+        "11b events: a first-resume event becomes the main chunk's ...",
+        "setup %d, status %d, filter \"%s\", lua_gettop(co) when the resume started %d (want 1)", ok, st,
+        cur_msg(m, b, sizeof(b)), top);
+  cm_free(m);
+
+  /* 11c: the bounds of F23. After a YIELD, CM_EVENT_MAX values arrive and one more is refused before any Lua call;
+  ** on the first resume, the bios function is on co, so the bound is one less.
+  */
+  m = ev_machine(&h, 1, &ok);
+  ev_begin(&ev, CM_EVENT_MAX, "big");
+  ev_nils(&ev, CM_EVENT_MAX - 2);
+  cb_u8(&ev, 4); cb_strz(&ev, "last");
+  st = ev_resume(&h, m, &ev, "after 11c 7,999");
+  check(ok && st == CM_ST_YIELD && took_matches(&h, ev.data, ev.len) && filter_starts(m, "7999|"),
+        "11c events: 7,999 values after a YIELD arrive", "setup %d, status %d, filter \"%.40s\"", ok, st,
+        cur_msg(m, b, sizeof(b)));
+  ev_begin(&ev, CM_EVENT_MAX + 1, "big");
+  ev_nils(&ev, CM_EVENT_MAX);
+  h.takes = 0;
+  u0 = cm_test_used(m);   /* a Lua call would allocate (lua_cpcall's closure): I10 refuses before any */
+  t0 = cm_test_cotop_resume(m);
+  st = ev_resume(&h, m, &ev, "after 11c 8,000");
+  check(st == CM_ST_INTERNAL && msg_eqz(m, "event has too many values") && h.takes == 0 && cm_test_used(m) == u0 &&
+        cm_test_cotop_resume(m) == t0,
+        "11c events: 8,000 values after a YIELD are refused before any Lua call",
+        "status %d \"%s\", %ld takes, cap count %lu -> %lu, lua_gettop(co) hook %d -> %d", st,
+        cur_msg(m, b, sizeof(b)), h.takes, (unsigned long)u0, (unsigned long)cm_test_used(m), t0,
+        cm_test_cotop_resume(m));
+  st = ev_resume(&h, m, &ok_ev, "after 11c refusal");
+  check(st == CM_ST_YIELD && took_matches(&h, ok_ev.data, ok_ev.len) && filter_isz(m, "1|4|"),
+        "11c events: after the refusal the machine is unchanged (I10)", "status %d \"%s\"", st,
+        cur_msg(m, b, sizeof(b)));
+  cm_free(m);
+
+  m = ev_machine(&h, 0, &ok);
+  ev_begin(&ev, CM_EVENT_MAX, "big");
+  ev_nils(&ev, CM_EVENT_MAX - 1);
+  h.takes = 0;
+  u0 = cm_test_used(m);
+  st = ev_resume(&h, m, &ev, "after 11c first 7,999");
+  check(ok && st == CM_ST_INTERNAL && msg_eqz(m, "event has too many values") && h.takes == 0 &&
+        cm_test_used(m) == u0 && cm_test_cotop_resume(m) == -1,
+        "11c events: 7,999 values on the first resume are refused before any Lua call",
+        "setup %d, status %d \"%s\", cap count %lu -> %lu, lua_gettop(co) hook %d (want -1: resume_body never ran)",
+        ok, st, cur_msg(m, b, sizeof(b)), (unsigned long)u0, (unsigned long)cm_test_used(m),
+        cm_test_cotop_resume(m));
+  ev_begin(&ev, CM_EVENT_MAX - 1, "big");
+  ev_nils(&ev, CM_EVENT_MAX - 3);
+  cb_u8(&ev, 4); cb_strz(&ev, "last");
+  st = ev_resume(&h, m, &ev, "after 11c first 7,998");
+  check(st == CM_ST_YIELD && took_matches(&h, ev.data, ev.len) && filter_starts(m, "7998|"),
+        "11c events: then 7,998 values on the first resume arrive", "status %d, filter \"%.40s\"", st,
+        cur_msg(m, b, sizeof(b)));
+  cm_free(m);
+
+  /* 11d: malformed records are refused before any Lua call and change nothing. */
+  {
+    static const struct { const char *name; const char *bytes; size_t len; } bad[] = {
+      {"n 0", "\x00\x00\x00\x00", 4},
+      {"n 7, 6 bytes left", "\x07\x00\x00\x00\x04\x01\x00\x00\x00" "a", 10},
+      {"n 0xFFFFFFFF", "\xff\xff\xff\xff\x04\x01\x00\x00\x00" "a", 10},
+      {"tag 05", "\x02\x00\x00\x00\x04\x01\x00\x00\x00" "a\x05", 11},
+      {"first value NIL", "\x01\x00\x00\x00\x00", 5},
+      {"first value NUMBER", "\x01\x00\x00\x00\x03\x00\x00\x00\x00\x00\x00\xf0\x3f", 13},
+      {"one trailing byte", "\x01\x00\x00\x00\x04\x01\x00\x00\x00" "a\x00", 11},
+      {"string length past the end", "\x01\x00\x00\x00\x04\x05\x00\x00\x00" "a", 10},
+      {"3 bytes", "\x01\x02\x03", 3},
+    };
+    int good = 0, total = 0;
+    char first[700] = "";
+    unsigned char *huge;
+    m = ev_machine(&h, 1, &ok);
+    for (i = -3; i < (int)(sizeof(bad) / sizeof(bad[0])); i++) {
+      const char *name;
+      int st2;
+      h.takes = 0;
+      u0 = cm_test_used(m);
+      if (i == -3) { name = "NULL with length 1"; st = cm_resume(m, host_call, &h, NULL, 1); }
+      else if (i == -2) { name = "length 0"; st = cm_resume(m, host_call, &h, (const unsigned char *)"", 0); }
+      else if (i == -1) {   /* well-formed: only the size check refuses it */
+        name = "a well-formed record of CM_WIRE_MAX + 1 bytes";
+        huge = ev_huge((size_t)CM_WIRE_MAX + 1);
+        st = cm_resume(m, host_call, &h, huge, (size_t)CM_WIRE_MAX + 1);
+        free(huge);
+      } else {
+        name = bad[i].name;
+        st = cm_resume(m, host_call, &h, (const unsigned char *)bad[i].bytes, bad[i].len);
+      }
+      acct_note(m, "after an 11d refusal");
+      total++;
+      ok = st == CM_ST_INTERNAL && msg_eqz(m, "corrupt event") && h.takes == 0 && cm_test_used(m) == u0;
+      st2 = ev_resume(&h, m, &ok_ev, "after 11d");
+      ok = ok && st2 == CM_ST_YIELD && h.takes == 1 && took_matches(&h, ok_ev.data, ok_ev.len) &&
+           filter_isz(m, "1|4|");
+      if (ok) good++;
+      else if (!first[0]) snprintf(first, sizeof(first), "; first bad: %s: status %d, then %d \"%s\"", name, st, st2,
+                                   cur_msg(m, b, sizeof(b)));
+    }
+    check(good == total, "11d events: malformed records give INTERNAL \"corrupt event\" before any Lua call and "
+          "change nothing", "%d of %d cases%s", good, total, first);
+    /* Control: the same well-formed form at exactly CM_WIRE_MAX bytes arrives. */
+    huge = ev_huge(CM_WIRE_MAX);
+    st = cm_resume(m, host_call, &h, huge, CM_WIRE_MAX);
+    acct_note(m, "after the 11d control");
+    check(st == CM_ST_YIELD && took_matches(&h, huge, CM_WIRE_MAX) && filter_isz(m, "1|4|"),
+          "11d events: control: a record of exactly CM_WIRE_MAX bytes arrives", "status %d \"%.60s\"", st,
+          cur_msg(m, b, sizeof(b)));
+    free(huge);
+    cm_free(m);
+  }
+
+  /* 11e: the filter record of each kind of first yielded value. */
+  {
+    /* Each no-filter case comes right after a YIELD with a filter, so a filter left over would fail it. */
+    static const char bios[] =
+      "coroutine.yield('abc')\n"
+      "coroutine.yield()\n"
+      "coroutine.yield('')\n"
+      "coroutine.yield(nil, 'x')\n"
+      "coroutine.yield('a', 'b', 'c')\n"
+      "coroutine.yield(true)\n"
+      "coroutine.yield(5)\n"
+      "coroutine.yield({})\n"
+      "coroutine.yield(0.1 + 0.2)\n"
+      "coroutine.yield(type)\n"
+      "coroutine.yield(1e14)\n"
+      "coroutine.yield(1e15)\n"
+      "coroutine.yield(2^53)\n"
+      "local nz = -0.0\n"
+      "if 1 / nz ~= -1 / 0 then error('no negative zero', 0) end\n"
+      "coroutine.yield(nz)\n"
+      "coroutine.yield(0/0)\n"
+      "coroutine.yield(1/0)\n"
+      "coroutine.yield(-1/0)\n"
+      "coroutine.yield(string.rep('x', 65531))\n"
+      "coroutine.yield(string.rep('y', 65532))\n"
+      "error('end', 0)";
+    static const char *const want[] = {
+      "abc", NULL, "", NULL, "a", NULL, "5", NULL, "0.30000000000000004", NULL, "100000000000000", "1e+15",
+      "9007199254740992", "0", "nan", "inf", "-inf"
+    };
+    const int nwant = (int)(sizeof(want) / sizeof(want[0]));
+    char *xs = (char *)xmalloc(65532);
+    int good = 0, tops = 0;
+    char first[700] = "";
+    memset(xs, 'x', 65532);
+    m = cm_new(LIMIT, KEY);
+    h.m = m;
+    ok = load_z(m, bios) == CM_ST_OK;
+    for (i = 0; ok && i < nwant + 3; i++) {
+      int pass;
+      st = cm_resume(m, host_call, &h, NULL, 0);
+      acct_note(m, "after an 11e resume");
+      if (i > 0 && cm_test_cotop_resume(m) == 0) tops++;
+      if (i < nwant) {
+        pass = st == CM_ST_YIELD && (want[i] ? filter_isz(m, want[i]) : filter_is(m, NULL, 0));
+      } else if (i == nwant) {   /* 65,531 bytes: sent whole; the record fills msg */
+        pass = st == CM_ST_YIELD && filter_is(m, xs, 65531);
+      } else if (i == nwant + 1) {   /* 65,532 bytes: FALSE, only "terminate" passes (D26) */
+        pass = st == CM_ST_YIELD && msg_eq(m, "\x01", 1);
+      } else {   /* error('end', 0), with its traceback */
+        size_t len, tb;
+        const unsigned char *p = cm_message(m, &len, &tb);
+        pass = st == CM_ST_ERROR && tb == 3 && len > 3 && memcmp(p, "end", 3) == 0;
+      }
+      if (pass) good++;
+      else if (!first[0]) snprintf(first, sizeof(first), "; first bad: yield %d: status %d \"%.200s\"", i + 1, st,
+                                   cur_msg(m, b, sizeof(b)));
+    }
+    check(ok && good == nwant + 3 && tops == nwant + 2,
+          "11e events: the filter record of nil, booleans, tables, functions, strings, numbers and an overlong string",
+          "load %d, %d of %d yields right, %d of %d resumes found co empty%s", ok, good, nwant + 3, tops, nwant + 2,
+          first);
+    cm_free(m);
+    free(xs);
+  }
+
+  /* 11f: a number filter when no memory is left ends the machine (D25); a string needs no memory. */
+  {
+    static const char *const bios[2] = {"t.capnow()\ncoroutine.yield(12345.5)", "t.capnow()\ncoroutine.yield('s')"};
+    int st2;
+    for (i = 0; i < 2; i++) {
+      m = cm_new(LIMIT, KEY);
+      h.m = m;
+      ok = load_z(m, bios[i]) == CM_ST_OK;
+      lua_gc((lua_State *)cm_test_state(m), LUA_GCCOLLECT, 0);
+      st = cm_resume(m, host_call, &h, NULL, 0);
+      acct_note(m, "after 11f");
+      if (i == 0) {
+        int pass = st == CM_ST_ERROR && msg_eqz(m, "not enough memory");
+        cur_msg(m, b, sizeof(b));
+        st2 = cm_resume(m, host_call, &h, NULL, 0);
+        check(ok && pass && st2 == CM_ST_INTERNAL && msg_eqz(m, "machine is dead"),
+              "11f events: a number filter with no memory left: ERROR \"not enough memory\", then dead",
+              "load %d, status %d \"%s\", then %d", ok, st, b, st2);
+      } else {
+        check(ok && st == CM_ST_YIELD && filter_isz(m, "s"),
+              "11f events: a string filter with no memory left is sent", "load %d, status %d \"%s\"", ok, st,
+              cur_msg(m, b, sizeof(b)));
+      }
+      check(cm_free(m) == CM_ST_OK, i == 0 ? "11f events: freed after the number filter" :
+            "11f events: freed after the string filter", NULL);
+    }
+  }
+
+  /* 11g: the push runs out of memory on L. The growth of co is never reached. */
+  m = ev_machine(&h, 1, &ok);
+  {
+    char *mib = (char *)xmalloc((size_t)1 << 20);
+    int st2, nomem;
+    memset(mib, 'm', (size_t)1 << 20);
+    ev_begin(&ev, 2, "big");
+    cb_u8(&ev, 4); cb_str(&ev, mib, (size_t)1 << 20);
+    free(mib);
+    cm_test_limit(m, cm_test_used(m) + ((size_t)64 << 10));
+    st = ev_resume(&h, m, &ev, "after 11g");
+    cm_test_grow(m, &ret, &before, &after);
+    nomem = msg_eqz(m, "not enough memory");
+    cur_msg(m, b, sizeof(b));
+    st2 = cm_resume(m, host_call, &h, NULL, 0);
+    check(ok && st == CM_ST_ERROR && nomem && ret == -1 && before == -1 && after == -1 && st2 == CM_ST_INTERNAL &&
+          msg_eqz(m, "machine is dead"),
+          "11g events: the push of a 1 MiB string under a 64 KiB margin: ERROR \"not enough memory\", then dead",
+          "setup %d, status %d \"%s\", growth %d %d %d (want -1 -1 -1), then %d", ok, st, b, ret, before, after, st2);
+    check(cm_free(m) == CM_ST_OK, "11g events: freed", NULL);
+  }
+
+  /* 11h: the growth of co fails (the hook lowers the cap just before it, F19). Control: the same without the hook. */
+  for (i = 0; i < 2; i++) {
+    int st2 = -1, need, grow_msg;
+    m = ev_machine(&h, 1, &ok);
+    ev_begin(&ev, 1001, "grow");
+    ev_nils(&ev, 1000);
+    need = co_stack(m, &c) && c.avail < 1002;
+    if (i == 0) cm_test_grow_fail(m, 1);
+    st = ev_resume(&h, m, &ev, "after 11h");
+    cm_test_grow(m, &ret, &before, &after);
+    grow_msg = msg_eqz(m, "CCLuaJIT: cannot grow the bios coroutine stack");
+    cur_msg(m, b, sizeof(b));
+    if (i == 0) {
+      st2 = cm_resume(m, host_call, &h, NULL, 0);
+      check(ok && need && st == CM_ST_ERROR && grow_msg && ret == 0 && before == LUA_YIELD && after == 0 &&
+            st2 == CM_ST_INTERNAL && msg_eqz(m, "machine is dead"),
+            "11h events: the growth of co fails: ERROR, co's status reset, then dead",
+            "setup %d, growth needed %d (co: %u slots, %ld free), status %d \"%s\", lua_checkstack %d, status %d -> "
+            "%d, then %d", ok, need, (unsigned)c.size, (long)c.avail, st, b, ret, before, after, st2);
+    } else {
+      check(ok && need && st == CM_ST_YIELD && took_matches(&h, ev.data, ev.len) && ret == 1 &&
+            before == LUA_YIELD && after == LUA_YIELD,
+            "11h events: control: the same event without the hook arrives", "setup %d, status %d \"%.60s\", "
+            "lua_checkstack %d, status %d -> %d", ok, st, b, ret, before, after);
+    }
+    check(cm_free(m) == CM_ST_OK, i == 0 ? "11h events: freed after the failed growth" : "11h events: control freed",
+          NULL);
+  }
+
+  /* 11i: the growth of co fails because co would pass the stack limit (F19's second cause), without the hook. The
+  ** bios finds the deepest recursion that runs, then yields 5 frames above it, so co's stack is full.
+  */
+  {
+    static const char bios[] =
+      "local max, target = 0, nil\n"
+      "local function rec(n)\n"
+      "  if target == nil then max = n elseif n >= target then return coroutine.yield('deep') end\n"
+      "  local r = rec(n + 1)\n"
+      "  return r\n"
+      "end\n"
+      "pcall(rec, 1)\n"
+      "target = max - 5\n"
+      "rec(1)\n"
+      "error('not reached', 0)";
+    int st2, need, grow_msg;
+    m = cm_new(LIMIT, KEY);
+    h.m = m;
+    ok = load_z(m, bios) == CM_ST_OK;
+    st = ok ? cm_resume(m, host_call, &h, NULL, 0) : -1;
+    ok = ok && st == CM_ST_YIELD && filter_isz(m, "deep");
+    need = co_stack(m, &c) && c.avail < (ptrdiff_t)CM_EVENT_MAX + 1 &&
+           (long)c.size + ((long)CM_EVENT_MAX + 1 - (long)c.avail) >= (long)LUAI_MAXSTACK;
+    ev_begin(&ev, CM_EVENT_MAX, "deep");
+    ev_nils(&ev, CM_EVENT_MAX - 1);
+    st = ev_resume(&h, m, &ev, "after 11i");
+    cm_test_grow(m, &ret, &before, &after);
+    grow_msg = msg_eqz(m, "CCLuaJIT: cannot grow the bios coroutine stack");
+    cur_msg(m, b, sizeof(b));
+    st2 = cm_resume(m, host_call, &h, NULL, 0);
+    check(ok && need && st == CM_ST_ERROR && grow_msg && ret == 0 && before == LUA_YIELD && after == 0 &&
+          st2 == CM_ST_INTERNAL && msg_eqz(m, "machine is dead"),
+          "11i events: 7,999 values into a full co (stack limit): ERROR, co's status reset, then dead",
+          "setup %d, growth past the limit %d (co: %u slots, %ld free), status %d \"%s\", lua_checkstack %d, "
+          "status %d -> %d, then %d", ok, need, (unsigned)c.size, (long)c.avail, st, b, ret, before, after, st2);
+    check(cm_free(m) == CM_ST_OK, "11i events: freed", NULL);
+  }
+
+  /* 11k: GC pressure: every allocation runs a whole cycle (pause 0, step multiplier 0). */
+  {
+    lua_State *L;
+    int pre;
+    double est0;
+    m = ev_machine(&h, 1, &ok);
+    L = (lua_State *)cm_test_state(m);
+    lua_gc(L, LUA_GCSETPAUSE, 0);
+    lua_gc(L, LUA_GCSETSTEPMUL, 0);
+    lua_gc(L, LUA_GCCOLLECT, 0);   /* the new pause takes effect when a cycle ends: the threshold becomes 0 */
+    pre = G(L)->gc.threshold == 0;
+    est0 = (double)G(L)->gc.estimate;
+    ev_begin(&ev, 100, "gc-name");
+    for (i = 1; i < 100; i++) {
+      char s[32];
+      snprintf(s, sizeof(s), "gc-%03d-%d", i, i * 7919);
+      cb_u8(&ev, 4); cb_strz(&ev, s);
+    }
+    st = ev_resume(&h, m, &ev, "after 11k strings");
+    check(ok && pre && (double)G(L)->gc.estimate != est0 && st == CM_ST_YIELD &&
+          took_matches(&h, ev.data, ev.len) && filter_starts(m, "100|"),
+          "11k events: 100 distinct strings arrive intact when every GC check runs a whole cycle",
+          "setup %d, threshold 0 before %d, GC estimate %.0f -> %.0f (a cycle ran), status %d, filter \"%.40s\"", ok,
+          pre, est0, (double)G(L)->gc.estimate, st, cur_msg(m, b, sizeof(b)));
+    cm_free(m);
+  }
+  {
+    lua_State *L;
+    int cp, wtype = -2;
+    m = cm_new(LIMIT, KEY);
+    h.m = m;
+    ok = load_z(m, "w = setmetatable({(coroutine.running())}, {__mode = 'v'})\nunref()\ncoroutine.yield(12345.5)\n"
+                   "error('x', 0)") == CM_ST_OK;
+    L = (lua_State *)cm_test_state(m);
+    cp = lua_cpcall(L, unref_setup_body, NULL);
+    lua_gc(L, LUA_GCSETPAUSE, 0);
+    lua_gc(L, LUA_GCSETSTEPMUL, 0);
+    lua_gc(L, LUA_GCCOLLECT, 0);
+    st = cm_resume(m, host_call, &h, NULL, 0);
+    acct_note(m, "after the 11k number filter");
+    if (cp == 0) cp = lua_cpcall(L, weak_body, &wtype);
+    check(ok && cp == 0 && st == CM_ST_YIELD && filter_isz(m, "12345.5") && wtype == LUA_TTHREAD,
+          "11k events: the bios coroutine stays alive through the number filter's conversion without its registry "
+          "reference", "load %d, setup %d, status %d, filter \"%s\", w[1] is %s", ok, cp, st,
+          cur_msg(m, b, sizeof(b)),
+          wtype == LUA_TTHREAD ? "the coroutine" : wtype == LUA_TNIL ? "nil (collected)" : "?");
+    cm_free(m);
+  }
+
+  cb_free(&ev);
+  cb_free(&ok_ev);
+  host_done(&h);
+}
+
+/* -- 12. Event fuzz (S2) -------------------------------------------------------------------- */
+
+/* Reference event checker: the oracle of the event fuzz. 0: corrupt; 1: too many values for max; 2: delivered. */
+static int ref_event(const unsigned char *d, size_t len, uint32_t max)
+{
+  const unsigned char *p = d;
+  size_t left = len;
+  uint32_t n, i;
+  tval v;
+  if (left < 4) return 0;
+  n = get_u32(p);
+  p += 4; left -= 4;
+  if (n == 0 || n > left) return 0;
+  if (!tv_read(&p, &left, &v) || v.tag != 4) return 0;
+  for (i = 1; i < n; i++)
+    if (!tv_read(&p, &left, &v)) return 0;
+  if (left != 0) return 0;
+  return n > max ? 1 : 2;
+}
+
+/* A seed record: mostly small, with random values; 1 in 32 is a name plus 7,998 or 7,999 NILs. */
+static void ev_seed(uint64_t *rs, cm_buf *b)
+{
+  uint64_t r = rnd(rs) % 64;
+  if (r < 2) {
+    ev_begin(b, CM_EVENT_MAX + (uint32_t)r, "big");
+    ev_nils(b, CM_EVENT_MAX - 1 + (uint32_t)r);
+  } else {
+    uint32_t n = 1 + (uint32_t)(rnd(rs) % 8), i;
+    ev_begin(b, n, rnd(rs) % 2 ? "ev" : "");
+    for (i = 1; i < n; i++) gen_tval(rs, b);
+  }
+}
+
+static void test_event_fuzz(int cases)
+{
+  uint64_t rs = UINT64_C(0x5eed0003);
+  host h;
+  cm_buf seed = {0};
+  unsigned char *buf = NULL;
+  size_t cap = 0;
+  cm_machine *m;
+  long verdicts[3] = {0, 0, 0}, mismatches = 0;
+  char first[900] = "", b[600];
+  double t0 = now_s();
+  int i, ok, st;
+
+  host_init(&h);
+  m = cm_new(LIMIT, KEY);
+  h.m = m;
+  ok = load_z(m, "while true do t.take(coroutine.yield()) end") == CM_ST_OK &&
+       cm_resume(m, host_call, &h, NULL, 0) == CM_ST_YIELD;
+  for (i = 0; ok && i < cases; i++) {
+    size_t len, used;
+    int want, pass;
+    long takes;
+    ev_seed(&rs, &seed);
+    if (seed.len + 64 > cap) {
+      cap = seed.len + 64;
+      free(buf);
+      buf = (unsigned char *)xmalloc(cap);
+    }
+    memcpy(buf, seed.data, seed.len);
+    len = seed.len;
+    if (rnd(&rs) % 10 != 0) len = mutate(&rs, buf, len, cap);
+    want = ref_event(buf, len, CM_EVENT_MAX);
+    takes = h.takes;
+    used = cm_test_used(m);   /* a refusal makes no Lua call, so it allocates nothing (I10) */
+    st = cm_resume(m, host_call, &h, buf, len);
+    acct_note(m, "after an event fuzz case");
+    if (want == 0) pass = st == CM_ST_INTERNAL && msg_eqz(m, "corrupt event") && h.takes == takes &&
+                          cm_test_used(m) == used;
+    else if (want == 1) pass = st == CM_ST_INTERNAL && msg_eqz(m, "event has too many values") && h.takes == takes &&
+                               cm_test_used(m) == used;
+    else pass = st == CM_ST_YIELD && msg_eq(m, "", 0) && h.takes == takes + 1 && took_matches(&h, buf, len);
+    verdicts[want]++;
+    if (!pass) {
+      mismatches++;
+      if (!first[0]) {
+        char b1[300];
+        snprintf(first, sizeof(first), "; first mismatch: case %d, record \"%s\" (%lu bytes), expected %s, got "
+                 "status %d \"%s\"", i, esc(buf, len < 60 ? len : 60, b1, sizeof(b1)), (unsigned long)len,
+                 want == 0 ? "corrupt" : want == 1 ? "too many" : "delivered", st, cur_msg(m, b, sizeof(b)));
+      }
+      if (st != CM_ST_YIELD && st != CM_ST_INTERNAL) break;
+    }
+  }
+  st = cm_resume(m, host_call, &h, NULL, 0);
+  check(ok && mismatches == 0 && verdicts[0] > 0 && verdicts[1] > 0 && verdicts[2] > 0 && st == CM_ST_YIELD &&
+        cm_free(m) == CM_ST_OK, "12 event fuzz",
+        "%d seeded mutations on one machine: %ld corrupt, %ld too many, %ld delivered, %ld mismatches with the "
+        "reference checker; then %d (%.1f s)%s", cases, verdicts[0], verdicts[1], verdicts[2], mismatches, st,
+        now_s() - t0, first);
+  free(buf);
+  cb_free(&seed);
+  host_done(&h);
+}
+
 /* -- Main ---------------------------------------------------------------------------------- */
 
 int main(int argc, char **argv)
@@ -2443,6 +3103,8 @@ int main(int argc, char **argv)
     test_oom();
     test_reentry();
     test_threads();
+    test_events();
+    test_event_fuzz(100000);
   }
   if (!smoke) {
     check(g_tb_leaks == 0 && g_cotop_errors == 0 && g_tb_badline == 0, "all: no traceback of any test has \"0x\", "

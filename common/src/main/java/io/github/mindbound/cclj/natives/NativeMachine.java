@@ -59,7 +59,7 @@ public final class NativeMachine {
     }
 
     /** The native ABI version this class needs ({@code CCLJ_ABI} in cclj_machine.h). */
-    public static final int ABI = 2;
+    public static final int ABI = 3;
 
     /**
      * Status codes of the native calls (cclj_machine.h). {@link #ST_BUSY}: another call owned the native machine,
@@ -136,9 +136,11 @@ public final class NativeMachine {
      * closed but not freed: another call owns the native machine, so freeing it here could free it under that
      * call. The handle is counted and logged as a leak instead.
      *
-     * @param event S1: must be null. Anything else gives {@link #ST_INTERNAL} with the message
-     *              {@code events are not implemented yet (S2)}, or with {@code CCLuaJIT: the machine could not be
-     *              resumed (status 4)} if the array cannot be copied (out of memory, or more than 16 MiB)
+     * @param event null, or an event record (docs/port-1.21.1/S2.md section 4.1), which the native side copies. A
+     *              malformed record gives {@link #ST_INTERNAL} with the message {@code corrupt event}, and one with
+     *              too many values {@code event has too many values}. An array that cannot be copied (out of
+     *              memory, or more than 16 MiB) gives {@link #ST_INTERNAL} with {@code CCLuaJIT: the machine could
+     *              not be resumed (status 4)}
      * @throws IllegalStateException if the machine is closed or already running, and for nothing else
      */
     public Outcome resume(byte[] event) {
@@ -161,9 +163,11 @@ public final class NativeMachine {
                 Ended e = ended(status, nMessage(h));   // read while running is still true
                 status = e.status();
                 msg = e.message();
-                // nResume's own failures (an event that cannot be copied, upcall not found) leave the message empty,
-                // as nLoad's do in create.
-                if (status == ST_INTERNAL && msg.text().isEmpty()) {
+                // nResume's own failures (copy_array, GetObjectClass, GetMethodID, or an exception left pending:
+                // jni_machine.c) leave the message as it was: empty after nLoad or a YIELD with no filter, and the
+                // filter record after a YIELD with a filter. A filter record starts with 0x04 or 0x01, and every C
+                // INTERNAL text starts with a letter (docs/port-1.21.1/S2.md section 4.5).
+                if (status == ST_INTERNAL && (msg.text().isEmpty() || msg.text().charAt(0) < 0x20)) {
                     msg = new Wire.Message("CCLuaJIT: the machine could not be resumed (status " + status + ")", -1);
                 }
             }

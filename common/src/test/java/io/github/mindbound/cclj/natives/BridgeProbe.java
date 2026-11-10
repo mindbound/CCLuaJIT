@@ -327,11 +327,11 @@ public final class BridgeProbe {
 
         NativeMachine ev = host.create("coroutine.yield()");
         o = ev.resume(new byte[0]);
-        check("non-null event: INTERNAL with its reason, freed (S1)", o.status() == NativeMachine.ST_INTERNAL
-            && o.message() != null && o.message().text().equals("events are not implemented yet (S2)")
+        check("malformed event record (empty): INTERNAL corrupt event, freed", o.status() == NativeMachine.ST_INTERNAL
+            && o.message() != null && o.message().text().equals("corrupt event")
             && o.message().tracebackAt() == -1 && NativeMachine.live() == live, "status " + o.status() + ", "
             + text(o));
-        expectThrows("non-null event: then closed", IllegalStateException.class, "Machine has been closed",
+        expectThrows("malformed event record: then closed", IllegalStateException.class, "Machine has been closed",
             () -> ev.resume(null));
         NativeMachine big = host.create("coroutine.yield()");
         o = big.resume(new byte[WIRE_MAX + 1]);   // copy_array refuses it before cm_resume: the message stays empty
@@ -339,6 +339,14 @@ public final class BridgeProbe {
             == NativeMachine.ST_INTERNAL && o.message() != null && o.message().text().equals(
             "CCLuaJIT: the machine could not be resumed (status 4)") && o.message().tracebackAt() == -1
             && NativeMachine.live() == live, "status " + o.status() + ", " + text(o));
+        NativeMachine keyed = host.create("coroutine.yield('key')");
+        o = keyed.resume(null);
+        boolean yielded = o.status() == NativeMachine.ST_YIELD;
+        o = keyed.resume(new byte[WIRE_MAX + 1]);   // the message left over is the filter record of 'key'
+        check("event over 16 MiB after a YIELD with a filter: the fallback text, not the filter record", yielded
+            && o.status() == NativeMachine.ST_INTERNAL && o.message() != null && o.message().text().equals(
+            "CCLuaJIT: the machine could not be resumed (status 4)") && NativeMachine.live() == live,
+            "yielded " + yielded + ", status " + o.status() + ", " + text(o));
 
         NativeMachine idle = host.create("coroutine.yield()");
         check("close() of an idle machine frees it", idle.stateName().equals("idle"), "");

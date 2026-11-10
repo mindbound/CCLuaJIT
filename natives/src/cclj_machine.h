@@ -12,7 +12,7 @@
 **   LUA_CFUNCTION  api_call (called by Lua), or a function that only api_call calls: may raise in phases 1 and 3
 **                  only, never in phase 2 (the host call).
 **   NO_LUA         jni_machine.c: makes no Lua call at all.
-** raise_text carries both PROTECTED and LUA_CFUNCTION, because both kinds of function call it.
+** raise_text and push_value carry both PROTECTED and LUA_CFUNCTION, because both kinds of function call them.
 **
 ** Thread rules:
 ** - A machine may be used from any thread, but by one thread at a time, and only while it is alive (until
@@ -26,8 +26,8 @@
 ** - The library keeps no mutable static state: different machines may run on different threads at once.
 ** - A cm_host_fn runs on the thread that called cm_resume, in phase 2 of api_call. It must not call Lua. It may
 **   call cm_resume, cm_load or cm_free on the same machine: they return CM_ST_BUSY and change nothing.
-** - cm_message reads the text of the last cm_load or cm_resume that did not return CM_ST_BUSY. It is valid until
-**   the next cm_* call on the machine.
+** - cm_message reads the message of the last cm_load or cm_resume that did not return CM_ST_BUSY: a text, or the
+**   filter record after CM_ST_YIELD. It is valid until the next cm_* call on the machine.
 **
 ** Wire format v1 (M1.md section 3.6). Integers are little-endian, numbers are IEEE-754 binary64:
 **   value   := 00 NIL | 01 FALSE | 02 TRUE | 03 NUMBER f64 | 04 STRING u32 len, bytes
@@ -36,6 +36,12 @@
 **   reply   := 00 u32 n, value*n                                 VALUES  host -> C
 **            | 01 i32 level, value (NIL or STRING)               ERROR   host -> C
 **              (kind 02 is reserved for the S5 CALLBACK)
+**   event   := u32 n, value*n                                    host -> C, cm_resume (S2). 1 <= n; the first
+**              value is a STRING (the name); n <= CM_EVENT_MAX after a CM_ST_YIELD, n <= CM_EVENT_MAX - 1 on the
+**              first resume; at most CM_WIRE_MAX bytes in all
+**   filter  := (no bytes)                                       the message after CM_ST_YIELD (S2): no filter
+**            | 04 u32 len, bytes                                STRING: the filter, whole (len <= CM_FILTER_MAX)
+**            | 01                                               FALSE: a longer filter; only "terminate" passes
 **   spec    := u32 napi, api*                                    cm_load
 **   api     := u32 nnames, str*nnames, u8 hasModule, [str module], u32 nmethods, method*
 **   method  := str name, u8 flags                                bit 0 = MAY_YIELD; the other bits are 0
@@ -49,16 +55,19 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#define CCLJ_ABI 2                 /* NativeMachine.ABI must match; checked once after System.load */
+#define CCLJ_ABI 3                 /* NativeMachine.ABI must match; checked once after System.load. 3 (S2):
+                                      cm_resume takes events; the message after CM_ST_YIELD is the filter record */
 
 /* Status codes of cm_load, cm_resume and cm_free. */
 #define CM_ST_OK        0          /* cm_load: bios compiled */
-#define CM_ST_YIELD     1          /* -> MachineResult.OK; machine kept (S2: message = filter) */
+#define CM_ST_YIELD     1          /* -> MachineResult.OK; machine kept; message = the filter record (S2) */
 #define CM_ST_RETURNED  2          /* -> GENERIC_ERROR; dead */
 #define CM_ST_ERROR     3          /* uncaught error, OOM, load error -> error(msg) / MachineException; dead */
-#define CM_ST_INTERNAL  4          /* misuse: dead, bad handle, event in S1 -> internal error; dead */
+#define CM_ST_INTERNAL  4          /* misuse: dead, bad handle, malformed or over-limit event -> internal error.
+                                      An event refused before any Lua call leaves the machine as it was (I10);
+                                      Java frees it anyway */
 #define CM_ST_BUSY      5          /* another call owns the machine: nothing done or written, no message */
-/* S6a adds CM_ST_ABORTED 6 -> TIMEOUT */
+/* No other status. 6 stays reserved for S6a's CM_ST_ABORTED -> TIMEOUT. */
 
 /* Return codes of a cm_host_fn. Anything but CM_HOST_OK makes api_call raise a fixed level-0 error. */
 #define CM_HOST_OK       0
@@ -71,7 +80,10 @@
 
 /* Limits. */
 #define CM_WIRE_MAX (16u << 20)    /* max request/reply/spec/bios bytes (S3 revisits) */
-#define CM_MSG_MAX  (64u << 10)    /* error/filter text is cut to this (DESIGN.md section 4.2) */
+#define CM_MSG_MAX  (64u << 10)    /* error text is cut to this (DESIGN.md section 4.2); a filter is never cut */
+#define CM_FILTER_MAX (CM_MSG_MAX - 5u)   /* the longest filter sent whole: 65,531 bytes (S2, D26) */
+#define CM_EVENT_MAX  7999u       /* values of an event, the name included: LUAI_MAXCSTACK - 1, because co holds
+                                      slot 1 of L (S2, F23); one fewer on the first resume */
 #define CM_WIRE_MAX_FN   65536u    /* max host functions in a spec (all APIs together) */
 #define CM_WIRE_MAX_NAME 256u      /* max bytes of an API, module or method name in a spec */
 
@@ -108,17 +120,21 @@ int  cm_load(cm_machine *m, const unsigned char *spec, size_t spec_len,
              const unsigned char *bios, size_t bios_len);
 
 /* UNPROTECTED (the work runs under lua_cpcall). Resumes the bios coroutine. fn(host, ...) serves its host calls.
-** S1: event must be NULL. A non-NULL event gives CM_ST_INTERNAL with the message "events are not implemented yet
-** (S2)", and the machine is not resumed; nResume relies on that and passes any event on.
+** event NULL (event_len must be 0): resume with no values. Otherwise an event record of event_len bytes, read only
+** during this call; its values become the results of the bios's coroutine.yield, or the main chunk's ... on the
+** first resume. A malformed record gives CM_ST_INTERNAL "corrupt event"; a record of more than CM_EVENT_MAX
+** values (CM_EVENT_MAX - 1 on the first resume) gives CM_ST_INTERNAL "event has too many values". Both come
+** before any Lua call and leave the machine as it was (I10). After CM_ST_YIELD the message is the filter record.
 ** CM_ST_YIELD | CM_ST_RETURNED | CM_ST_ERROR | CM_ST_INTERNAL | CM_ST_BUSY.
 */
 int  cm_resume(cm_machine *m, cm_host_fn fn, void *host,
                const unsigned char *event, size_t event_len);
 
-/* UNPROTECTED. The text of the last cm_load or cm_resume that did not return CM_ST_BUSY: an error, an INTERNAL
-** reason, or empty (S2: the filter). Valid until the next cm_* call. *tb_off is the offset of "\nstack traceback:"
-** in the text (msg_tb), or SIZE_MAX when the text has no traceback. m == NULL gives an empty text (*len 0,
-** *tb_off SIZE_MAX); nMessage relies on that for a zero handle.
+/* UNPROTECTED. The message of the last cm_load or cm_resume that did not return CM_ST_BUSY: an error, an INTERNAL
+** reason, empty, or after CM_ST_YIELD the filter record (empty = no filter). Valid until the next cm_* call.
+** *tb_off is the offset of "\nstack traceback:" in the text (msg_tb), or SIZE_MAX when the text has no traceback
+** (always after CM_ST_YIELD). m == NULL gives an empty text (*len 0, *tb_off SIZE_MAX); nMessage relies on that
+** for a zero handle.
 */
 const unsigned char *cm_message(const cm_machine *m, size_t *len, size_t *tb_off);
 
@@ -137,9 +153,15 @@ int  cm_free(cm_machine *m);
 ** cm_test_limit(m, limit): sets the cap to limit bytes (between calls, or from a host function).
 ** cm_test_cotop(m, ...): lua_gettop of the bios coroutine just before and just after append_traceback in the
 **   last ERROR (both -1 before the first).
-** cm_test_cotop_resume(m): lua_gettop of the bios coroutine just before the last lua_resume (-1 before the first).
+** cm_test_cotop_resume(m): lua_gettop of the bios coroutine when the last resume started, before its event was
+**   pushed (-1 before the first).
 ** cm_test_on_leave(m, fn, ud): cm_load and cm_resume call fn(ud) just before they release the busy flag, after
 **   the message is written (only when they took the flag). fn NULL turns it off. Between calls only.
+** cm_test_grow_fail(m, on): on = one-shot. The next event push clears the flag and sets the cap to the bytes in use
+**   just before lua_checkstack(co, n + 1). The lowered cap stays: the machine is dead then, or the test resets it
+**   with cm_test_limit. Between calls only.
+** cm_test_grow(m, ...): in the last event push, the return of lua_checkstack(co, n + 1) and lua_status(co) just
+**   before and just after it (all -1 before the first).
 */
 long  cm_test_fail_after(long n);
 void *cm_test_state(cm_machine *m);
@@ -148,6 +170,8 @@ void  cm_test_limit(cm_machine *m, size_t limit);
 void  cm_test_cotop(const cm_machine *m, int *before, int *after);
 int   cm_test_cotop_resume(const cm_machine *m);
 void  cm_test_on_leave(cm_machine *m, void (*fn)(void *), void *ud);
+void  cm_test_grow_fail(cm_machine *m, int on);
+void  cm_test_grow(const cm_machine *m, int *ret, int *status_before, int *status_after);
 #endif
 
 #endif
