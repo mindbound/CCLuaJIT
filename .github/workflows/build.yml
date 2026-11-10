@@ -5,7 +5,8 @@
 #                                      test, harnesses, JVM self-test and Tier 1 BridgeProbe under -Xcheck:jni
 #   natives-windows-x86_64  required   cclj.dll built with MSYS2 MinGW64, the same tests
 #   harness-informational   NOT required (continue-on-error): patched LuaJIT and harnesses only (no JNI) on arm64
-#                           Linux and macOS arm64. PLAN.md decision 4: these platforms come later (M4)
+#                           Linux, and on macOS arm64 only in a manual run with the macos input (see the job).
+#                           PLAN.md decision 4: these platforms come later (M4)
 #   mod                     required   mod jar with both natives; through Gradle on Linux: :common:nativeProbe,
 #                                      Tier 1 (bridgeProbe), Tier 2 (machineSpecs), headless CC:T smoke and suite
 #   headless-windows-x86_64 required   the same Gradle tasks on Windows: nativeProbe, bridgeProbe, machineSpecs
@@ -27,13 +28,21 @@ on:
     branches: [ "1.21.1_CCT" ]
   pull_request:
   workflow_dispatch:
+    inputs:
+      macos:
+        description: >-
+          Also run the informational macOS arm64 harness job (GitHub cancels it if no runner takes it,
+          and the run then shows as failed)
+        type: boolean
+        default: false
 
 permissions:
   contents: read
 
-# A newer push to the same branch, or to the same pull request, cancels the run it supersedes.
+# A newer push to the same branch, or to the same pull request, cancels the run it supersedes. Manual runs are in a
+# group of their own (the event name is in the key), so they neither cancel push runs nor are cancelled by them.
 concurrency:
-  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  group: ${{ github.workflow }}-${{ github.event_name }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -295,8 +304,13 @@ jobs:
           retention-days: 14
 
   # INFORMATIONAL ONLY: a failing step here does not fail the workflow (continue-on-error), and the mod job does not
-  # wait for it. A leg that GitHub cancels because no runner took it (macOS arm64, under capacity constraints) still
-  # shows the run as failed.
+  # wait for it. But a leg that GitHub cancels because no runner took it still shows the whole run as failed, and
+  # continue-on-error cannot change that. The macOS arm64 leg was cancelled that way, under GitHub's capacity
+  # constraints, on two pushes in a row (runs 42681441999 and 42698731440). So push and pull-request runs have only
+  # the linux-aarch64 leg, and the macos-aarch64 leg runs only in a manual run with the macos input:
+  #   gh workflow run build.yml --ref 1.21.1_CCT -f macos=true
+  # GitHub documents that a workflow_dispatch event starts a run only if the workflow file is on the default branch
+  # (main), which has no workflows yet; whether a manual run starts without that is not tested yet.
   # PLAN.md decision 4 limits the supported platforms to Windows x64 and Linux x64 until M4, and G0 lists these
   # runs as "optional, informational only": arm64 is only partly tested (PLAN.md section 6), and these jobs run no
   # JVM. A red leg here is information for M4, not a broken build. It builds the
@@ -307,16 +321,13 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        include:
-          # The bare runner, not the manylinux_2_28_aarch64 container: nothing is shipped from this job, so the
-          # glibc floor does not matter yet.
-          - platform: linux-aarch64
-            runner: ubuntu-24.04-arm
-          # Apple Silicon. run-harnesses.sh skips the C-stack harness here and logs why: cstack.c needs
-          # pthread_getattr_np, which macOS does not have.
-          - platform: macos-aarch64
-            runner: macos-15
-    runs-on: ${{ matrix.runner }}
+        # inputs.macos is true only in a manual run that sets it; in a push or pull-request run it is empty.
+        platform: ${{ fromJSON(inputs.macos && '["linux-aarch64", "macos-aarch64"]' || '["linux-aarch64"]') }}
+    # linux-aarch64: the bare runner, not the manylinux_2_28_aarch64 container: nothing is shipped from this job, so
+    # the glibc floor does not matter yet.
+    # macos-aarch64: Apple Silicon. run-harnesses.sh skips the C-stack harness here and logs why: cstack.c needs
+    # pthread_getattr_np, which macOS does not have.
+    runs-on: ${{ matrix.platform == 'macos-aarch64' && 'macos-15' || 'ubuntu-24.04-arm' }}
     timeout-minutes: 30
     defaults:
       run:
