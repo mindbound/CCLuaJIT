@@ -1,8 +1,9 @@
 # Expected output of compat_check.lua, compared by run-harnesses.sh after removing CR and NUL bytes (the second
 # key holds two NULs) and the tab-indented "no field/no file" lines under the ffi error. Lines starting with '#'
 # are ignored. The values are those of every verified build in docs/port-1.21.1/artifacts/luajit-patches/results/,
-# except the last three lines (exact decimal ties): they are S2's values (docs/port-1.21.1/S2.md, D34), because
-# patch 05 now rounds ties half up, as Cobalt does.
+# except the last four lines, which are S2's values (docs/port-1.21.1/S2.md): three exact decimal ties, which
+# patch 05 now rounds half up, as Cobalt does (D34), and %f of numbers with about 560 or more fraction digits,
+# which patch 05 prints as Cobalt does once its %f digit limit is back (D35).
 NUL in bracket class               true
 match('abcd','bc') len           3
 tostring(0.1+0.2)                  0.30000000000000004
@@ -16,3 +17,4 @@ jit on                             true
 tostring(391.786041259765625)      391.78604125976563
 %.17g of 391.786041259765625       391.78604125976563
 %.0f %.2f of 2.5, 0.125            3 0.13
+%.0f %.3f %f of tiny numbers       0 -0.000 0.000000

@@ -27,17 +27,22 @@
  
  /* -- Precomputed tables -------------------------------------------------- */
  
-@@ -169,7 +170,8 @@
+@@ -169,9 +170,12 @@
    }
    if (k > 18) {
      if (STRFMT_FP(sf) == STRFMT_FP(STRFMT_T_FP_F)) {
 -      /* Must not limit precision here or nd_round cannot round to even.
-+      /* Upstream needs every digit here to round to even. CC: nd_round
-+      ** rounds half up (S2, D34), but the limit stays off.
-       ** stop1 = 63 - (int32_t)STRFMT_PREC(sf) / 9;
+-      ** stop1 = 63 - (int32_t)STRFMT_PREC(sf) / 9;
++      /* CC: upstream turned this limit off to round to even (7152e154),
++      ** so %f of a number with about 560 or more fraction digits, such as
++      ** 1e-160, wrapped around nd. nd_round rounds half up (S2, D34) and
++      ** reads no digit past the rounding digit: the limit is back (S2, D35).
        */
++      stop1 = 63 - (int32_t)STRFMT_PREC(sf) / 9;
      } else {
-@@ -244,7 +246,9 @@
+       int32_t floorlog2 = ndhi * 29 + lj_fls(nd[ndhi]) - k;
+       int32_t floorlog10 = (int32_t)(floorlog2 * 0.30102999566398114);
+@@ -244,7 +248,9 @@
    return ndhi;
  }
  
@@ -48,7 +53,7 @@
  static uint32_t nd_round(uint32_t* nd, uint32_t ndlo, uint32_t ndhi, int32_t e)
  {
    uint32_t i;
-@@ -258,24 +262,11 @@
+@@ -258,24 +264,11 @@
      i = (uint32_t)(64 + f);
      d = 8 - e + f * 9;
    }
@@ -75,7 +80,7 @@
    return nd_add_m10e(nd, ndhi, 5, e);  /* Round up by adding 5*10^e. */
  }
  
-@@ -305,8 +296,35 @@
+@@ -305,8 +298,35 @@
  /* Write formatted floating-point number to either sb or p. */
  static char *lj_strfmt_wfnum(SBuf *sb, SFormat sf, lua_Number n, char *p)
  {
