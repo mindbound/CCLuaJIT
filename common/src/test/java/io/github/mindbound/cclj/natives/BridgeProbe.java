@@ -37,9 +37,10 @@ import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 /**
- * Tier 1 of S1 (docs/port-1.21.1/M1.md section 3.15): the JNI bridge through the production {@link NativeMachine},
- * {@link NativeLibrary} and {@link Wire}, with a fake host and bioses written here. JDK-only: it is compiled with
- * nothing but the classes of the {@code natives} package and {@link NativeProbe} (F17).
+ * Tier 1 of S1 (docs/port-1.21.1/M1.md section 3.15) and S2 (docs/port-1.21.1/S2.md section 6.2): the JNI bridge
+ * through the production {@link NativeMachine}, {@link NativeLibrary} and {@link Wire}, with a fake host and bioses
+ * written here. JDK-only: it is compiled with nothing but the classes of the {@code natives} package and
+ * {@link NativeProbe} (F17).
  * <p>
  * Usage: {@code java -Xcheck:jni -Xmx256m -cp <classes><sep>natives/build/out
  * io.github.mindbound.cclj.natives.BridgeProbe <cache-dir>}. Write stdout and stderr to one log
@@ -83,6 +84,12 @@ import java.util.function.Predicate;
  *       with 128 failing upcalls of 448 KiB each and a limit of baseline + 16 MiB;</li>
  *   <li>the time per host call ({@code t.echo("hello")}: a string in, a string out), median of 5 runs.</li>
  * </ol>
+ * S2 adds Tier 1 items 10-17 (S2.md section 6.2): the event encoder {@link Wire#event} (its bytes, -0.0 as +0.0
+ * (D29), byte buffers, values it cannot send yet, and the drops: too many arguments or over 16 MiB), the filter
+ * decoder {@link Wire#filter} and {@link Wire.Filter#passes}; and through the library: delivery after a YIELD with
+ * the filter of each YIELD, NaN numbers, the C bounds pinned to {@link Wire#MAX_EVENT_ARGS} and
+ * {@link Wire#MAX_BYTES}, malformed records, an event over 16 MiB after a YIELD with a filter (with the statuses),
+ * and 100,000 resumes with an event each.
  */
 public final class BridgeProbe {
     private BridgeProbe() {
@@ -159,9 +166,11 @@ public final class BridgeProbe {
         section("library and ABI", BridgeProbe::testLibrary);
         section("library failure", BridgeProbe::testLibraryFailure);
         section("Wire", BridgeProbe::testWire);
+        section("Wire events", BridgeProbe::testWireEvents);
         section("loader cleanup", BridgeProbe::testLoaderCleanup);
         section("G1 path", BridgeProbe::testG1);
         section("statuses", BridgeProbe::testStatuses);
+        section("events", BridgeProbe::testEvents);
         section("load errors", BridgeProbe::testLoadErrors);
         section("error levels", BridgeProbe::testLevels);
         section("Latin-1", BridgeProbe::testLatin1);
@@ -1290,6 +1299,440 @@ public final class BridgeProbe {
             () -> new Wire.SpecWriter().method("x", false));
         expectThrows("Wire.SpecWriter: a 257-byte name", IllegalArgumentException.class, null,
             () -> new Wire.SpecWriter().api(List.of("a".repeat(257)), null));
+    }
+
+    // ---- S2: events (docs/port-1.21.1/S2.md section 6.2, Tier 1 items 10-17) --------------------------------------
+
+    /** Items 10-12: the event encoder and the filter decoder of {@link Wire}, without the library. */
+    private static void testWireEvents() {
+        // 10. Wire.event bytes.
+        byte[] chr = Wire.event("char", new Object[]{"a"}, NO_UNKNOWN);
+        check("Wire.event: (\"char\", {\"a\"}) is the 19-byte example of S2.md section 4.1", Arrays.equals(chr,
+            bytes(2, 0, 0, 0, 4, 4, 0, 0, 0, 'c', 'h', 'a', 'r', 4, 1, 0, 0, 0, 'a')), hex(chr));
+        byte[] none = Wire.event("e", null, NO_UNKNOWN);
+        byte[] empty = Wire.event("e", new Object[0], NO_UNKNOWN);
+        byte[] oneNil = Wire.event("e", new Object[]{null}, NO_UNKNOWN);
+        byte[] trailing = Wire.event("e", new Object[]{1, null, null}, NO_UNKNOWN);
+        check("Wire.event: no arguments (null or empty) give n = 1, {null} 2, {1, null, null} 4 (trailing nils count)",
+            Arrays.equals(none, record(1, "e")) && Arrays.equals(empty, none)
+                && Arrays.equals(oneNil, record(2, "e", null))
+                && Arrays.equals(trailing, record(4, "e", 1.0, null, null)),
+            hex(none) + " / " + hex(oneNil) + " / " + hex(trailing));
+        byte[] zeros = Wire.event("e", new Object[]{-0.0, -0.0f, 0.0}, NO_UNKNOWN);
+        byte[] zeroValues = Wire.values(new Object[]{-0.0, -0.0f}, NO_UNKNOWN);
+        check("Wire.event and Wire.values: -0.0 (a Double and a Float) gives the bits of +0.0 (D29)",
+            Arrays.equals(zeros, record(4, "e", 0L, 0L, 0L)) && zeroValues[0] == 0
+                && Arrays.equals(Arrays.copyOfRange(zeroValues, 1, zeroValues.length), record(2, 0L, 0L)),
+            hex(zeros) + " / " + hex(zeroValues));
+        byte[] negatives = Wire.event("e", new Object[]{-1.5, -Double.MIN_VALUE, (byte) -1}, NO_UNKNOWN);
+        byte[] negativeValues = Wire.values(new Object[]{-1.5, Double.NEGATIVE_INFINITY}, NO_UNKNOWN);
+        check("Wire.event and Wire.values: a negative number other than -0.0 keeps its sign (D29)",
+            Arrays.equals(negatives, record(4, "e", -1.5, -Double.MIN_VALUE, -1.0))
+                && Arrays.equals(Arrays.copyOfRange(negativeValues, 1, negativeValues.length),
+                    record(2, -1.5, Double.NEGATIVE_INFINITY)),
+            hex(negatives) + " / " + hex(negativeValues));
+        long signalling = 0x7FF0000000000001L;   // d + 0.0 or d * 1.0 would quiet it
+        byte[] raw = Wire.event("e", new Object[]{new RawBits(-1L), new RawBits(0x7FF8000000000001L),
+            new RawBits(signalling)}, NO_UNKNOWN);
+        byte[] rawValues = Wire.values(new Object[]{new RawBits(-1L), new RawBits(signalling)}, NO_UNKNOWN);
+        check("Wire.event and Wire.values: a Number keeps the bits of its doubleValue(), NaN payloads included "
+                + "(FFFFFFFFFFFFFFFF, 7FF8000000000001, and the signalling 7FF0000000000001)",
+            Arrays.equals(raw, record(4, "e", -1L, 0x7FF8000000000001L, signalling))
+                && Arrays.equals(Arrays.copyOfRange(rawValues, 1, rawValues.length), record(2, -1L, signalling)),
+            hex(raw) + " / " + hex(rawValues));
+
+        List<Object> seen = new ArrayList<>();
+        Object thing = new Object();
+        Object map = Map.of("k", 1), coll = List.of(1), arr = new Object[]{1};
+        byte[] nils = Wire.event("e", new Object[]{map, coll, arr, thing, 'c'}, seen::add);
+        check("Wire.event: Map, Collection, Object[] and unknown objects call onUnsupported once each, then are nil",
+            Arrays.equals(nils, record(6, "e", null, null, null, null, null)) && seen.size() == 5
+                && seen.get(0) == map && seen.get(1) == coll && seen.get(2) == arr && seen.get(3) == thing
+                && Character.valueOf('c').equals(seen.get(4)), hex(nils) + ", onUnsupported got " + seen.size());
+        String thrown;
+        try {
+            Wire.event("e", new Object[]{1, thing}, o -> {
+                throw new IllegalArgumentException("refused " + o.getClass().getSimpleName());
+            });
+            thrown = "no exception";
+        } catch (IllegalArgumentException e) {
+            thrown = e.getMessage();
+        }
+        check("Wire.event: an exception of onUnsupported passes through", "refused Object".equals(thrown), thrown);
+
+        byte[] abcd = {'a', 'b', 'c', 'd'};
+        ByteBuffer heap = ByteBuffer.wrap(abcd.clone()).position(1);
+        ByteBuffer direct = ByteBuffer.allocateDirect(4).put(abcd).flip().position(1);
+        byte[] buffers = Wire.event("e", new Object[]{heap, direct}, NO_UNKNOWN);
+        check("Wire.event: a heap and a direct ByteBuffer at position 1 give their remaining bytes and advance",
+            Arrays.equals(buffers, record(3, "e", "bcd", "bcd")) && heap.position() == 4 && direct.position() == 4,
+            hex(buffers) + ", positions " + heap.position() + " " + direct.position());
+        ByteBuffer twice = ByteBuffer.wrap(abcd.clone());
+        byte[] same = Wire.event("e", new Object[]{twice, twice}, NO_UNKNOWN);
+        check("Wire.event: the same ByteBuffer twice gives its bytes, then \"\" (as Cobalt does, F28)",
+            Arrays.equals(same, record(3, "e", "abcd", "")) && twice.position() == 4,
+            hex(same) + ", position " + twice.position());
+        ByteBuffer readOnly = ByteBuffer.wrap(abcd.clone()).asReadOnlyBuffer().position(1);
+        ByteBuffer slice = ByteBuffer.wrap(new byte[]{'x', 'y', 'p', 'q', 'r', 'z'}, 2, 3).slice();
+        byte[] views = Wire.event("e", new Object[]{readOnly, slice}, NO_UNKNOWN);
+        check("Wire.event: a read-only ByteBuffer and a heap slice (arrayOffset 2) give their remaining bytes",
+            Arrays.equals(views, record(3, "e", "bcd", "pqr")) && readOnly.position() == 4 && slice.position() == 3
+                && slice.arrayOffset() == 2 && readOnly.isReadOnly(),
+            hex(views) + ", positions " + readOnly.position() + " " + slice.position());
+
+        String eAcute = String.valueOf((char) 0xE9), yUmlaut = String.valueOf((char) 0xFF);
+        Object[] in = {null, true, false, 2.5, "x" + yUmlaut, new byte[]{0, (byte) 0x80}, 7, -0.0};
+        Object[] back = Wire.decodeArgs(Wire.event("ev" + eAcute, in, NO_UNKNOWN));
+        Object[] want = {"ev" + eAcute, null, true, false, 2.5, "x" + yUmlaut, new String(new char[]{0, 0x80}), 7.0,
+            0.0};
+        check("Wire.event: a round trip through decodeArgs (an event record is a request)", Arrays.equals(want, back),
+            show(back));
+
+        // 11. Wire.event drops.
+        int max = Wire.MAX_EVENT_ARGS;
+        Object[] tooMany = new Object[max + 1];
+        ByteBuffer untouched = ByteBuffer.wrap(abcd.clone());
+        tooMany[0] = untouched;
+        tooMany[1] = new Object();
+        AtomicInteger callbacks = new AtomicInteger();
+        AtomicReference<Wire.Dropped> drop = new AtomicReference<>();
+        String why = dropReason(() -> Wire.event("e", tooMany, o -> callbacks.incrementAndGet()), drop);
+        check("Wire.event: " + (max + 1) + " arguments are dropped before any is read (no position moves, no "
+                + "callback), with no stack trace",
+            "it has 7999 arguments, and at most 7998 fit".equals(why) && untouched.position() == 0
+                && callbacks.get() == 0 && drop.get() != null && drop.get().getStackTrace().length == 0,
+            why + ", position " + untouched.position() + ", " + callbacks.get() + " callbacks");
+        byte[] most = Wire.event("e", new Object[max], NO_UNKNOWN);
+        check("Wire.event: " + max + " arguments fit", Arrays.equals(most, nils(max + 1)), hex(most, 16));
+
+        byte[] fill = new byte[Wire.MAX_BYTES - 15];   // 4 (n) + 6 (the name "e") + 5 (a STRING's tag and length)
+        byte[] exact = Wire.event("e", new Object[]{fill}, NO_UNKNOWN);
+        byte[] head = new byte[15];
+        ByteBuffer.wrap(head).order(ByteOrder.LITTLE_ENDIAN).putInt(2).put((byte) 4).putInt(1).put((byte) 'e')
+            .put((byte) 4).putInt(fill.length);
+        check("Wire.event: a record of exactly MAX_BYTES (16 MiB) is accepted", exact.length == Wire.MAX_BYTES
+            && Arrays.equals(Arrays.copyOf(exact, 15), head), exact.length + " bytes, " + hex(exact, 15));
+        String over = dropReason(() -> Wire.event("e", new Object[]{new byte[Wire.MAX_BYTES - 14]}, NO_UNKNOWN), null);
+        ByteBuffer bigBuffer = ByteBuffer.wrap(new byte[Wire.MAX_BYTES - 14]);
+        String overBuffer = dropReason(() -> Wire.event("e", new Object[]{bigBuffer}, NO_UNKNOWN), null);
+        check("Wire.event: one byte more is dropped (\"its record is over 16 MiB\"); a ByteBuffer that does not fit "
+                + "keeps its position",
+            "its record is over 16 MiB".equals(over) && over.equals(overBuffer) && bigBuffer.position() == 0,
+            over + " / " + overBuffer + ", position " + bigBuffer.position());
+        byte[] five = new byte[5 << 20];
+        byte[] three = Wire.event("e", new Object[]{five, five, five}, NO_UNKNOWN);
+        check("Wire.event: three byte[] arguments of 5 MiB each are accepted",
+            three.length == 10 + 3 * (5 + (5 << 20)), three.length + " bytes");
+
+        // 12. Wire.filter and Filter.passes.
+        int ff = 0xff;
+        Wire.Filter f = Wire.filter(bytes(ff, ff, ff, ff));
+        check("Wire.filter: no record gives null (no filter)", f == null, show(f));
+        f = Wire.filter(bytes(ff, ff, ff, ff, 4, 3, 0, 0, 0, 'k', 'e', 'y'));
+        check("Wire.filter: a STRING gives its text", new Wire.Filter("key", false).equals(f), show(f));
+        f = Wire.filter(bytes(ff, ff, ff, ff, 4, 1, 0, 0, 0, 0xe9));
+        check("Wire.filter: the text is Latin-1", new Wire.Filter(eAcute, false).equals(f), show(f));
+        f = Wire.filter(bytes(ff, ff, ff, ff, 4, 0, 0, 0, 0));
+        check("Wire.filter: an empty STRING is the filter \"\"", new Wire.Filter("", false).equals(f), show(f));
+        f = Wire.filter(bytes(ff, ff, ff, ff, 1));
+        check("Wire.filter: FALSE gives the filter that only terminate passes", new Wire.Filter("", true).equals(f),
+            show(f));
+        byte[][] badFilters = {
+            new byte[0], bytes(ff, ff, ff), bytes(0, 0, 0, 0), bytes(0, 0, 0, 0, 4, 1, 0, 0, 0, 'a'),
+            bytes(5, 0, 0, 0, 'a', 'b', 'c', 'd', 'e'), bytes(ff, ff, ff, ff, 0),
+            bytes(ff, ff, ff, ff, 3, 0, 0, 0, 0, 0, 0, 0, 0), bytes(ff, ff, ff, ff, 2), bytes(ff, ff, ff, ff, 7),
+            bytes(ff, ff, ff, ff, 4, 1, 0, 0, 0, 'a', 4, 1, 0, 0, 0, 'b'), bytes(ff, ff, ff, ff, 1, 0),
+            bytes(ff, ff, ff, ff, 4, 1, 0, 0, 0, 'a', 0), bytes(ff, ff, ff, ff, 4, 5, 0, 0, 0, 'a'),
+            bytes(ff, ff, ff, ff, 4, 1, 0), bytes(0xfe, ff, ff, ff), bytes(0, 0, 0, 0x80)};
+        List<String> notThrown = new ArrayList<>();
+        for (byte[] b : badFilters) {
+            try {
+                notThrown.add(hex(b) + ": " + show(Wire.filter(b)));
+            } catch (IllegalStateException e) {
+                // expected
+            } catch (RuntimeException e) {
+                notThrown.add(hex(b) + ": " + e);
+            }
+        }
+        try {
+            notThrown.add("null: " + show(Wire.filter(null)));
+        } catch (IllegalStateException e) {
+            // expected (F34: the native side could not make the array)
+        }
+        check("Wire.filter: " + (badFilters.length + 1) + " malformed arrays throw IllegalStateException (null, short, "
+                + "a traceback offset (0, 5, 0xFFFFFFFE, 0x80000000), NIL, NUMBER, TRUE, an unknown tag, two values, "
+                + "bytes left over, a truncated length)", notThrown.isEmpty(), notThrown.toString());
+
+        Wire.Filter key = new Wire.Filter("key", false), only = new Wire.Filter("", true);
+        Wire.Filter blank = new Wire.Filter("", false);
+        check("Filter.passes: terminate always passes; other names must be equal (case-sensitive); with "
+                + "onlyTerminate only terminate passes",
+            key.passes("key") && key.passes("terminate") && !key.passes("Key") && !key.passes("keys")
+                && !key.passes("") && !key.passes("Terminate") && only.passes("terminate") && !only.passes("")
+                && !only.passes("key") && blank.passes("") && blank.passes("terminate") && !blank.passes("key"), "");
+        expectThrows("Wire.Filter: a null text", NullPointerException.class, null, () -> new Wire.Filter(null, false));
+    }
+
+    /** Items 13-15 and 17: events through the library. Item 16 (an event over 16 MiB) is in testStatuses. */
+    private static void testEvents() throws Exception {
+        List<Object[]> took = new ArrayList<>();   // host calls run on the resuming thread: no lock needed
+        FakeHost host = new FakeHost("t").fn("take", req -> {
+            took.add(Wire.decodeArgs(req));
+            return NONE;
+        });
+        int live = NativeMachine.live();
+
+        // 13. Delivery after a YIELD, and the filter of each YIELD.
+        NativeMachine vm = host.create("""
+            t.take(coroutine.yield("key"))
+            t.take(coroutine.yield(0.1 + 0.2))
+            t.take(coroutine.yield())
+            t.take(coroutine.yield(""))
+            t.take(coroutine.yield(string.rep("x", 65532)))
+            error("done", 0)""");
+        Object[][] events = {
+            {"key", "a", 1.5, true, null, new byte[]{0, (byte) 0xff}},
+            {"x", -0.0, 2.0e300, false, 7},
+            {"anything"},
+            {"", ""},
+            {"terminate", "z"}};
+        Wire.Filter[] wantFilters = {new Wire.Filter("key", false), new Wire.Filter("0.30000000000000004", false),
+            null, new Wire.Filter("", false), new Wire.Filter("", true)};
+        List<String> filters = new ArrayList<>();
+        boolean yields = true;
+        NativeMachine.Outcome o = vm.resume(null);
+        for (int i = 0; i < events.length; i++) {
+            yields &= o.status() == NativeMachine.ST_YIELD && o.message() == null
+                && Objects.equals(o.filter(), wantFilters[i]);
+            filters.add(o.status() == NativeMachine.ST_YIELD ? show(o.filter()) : text(o));
+            Object[] ev = events[i];
+            o = vm.resume(Wire.event((String) ev[0], Arrays.copyOfRange(ev, 1, ev.length), NO_UNKNOWN));
+        }
+        boolean delivered = took.size() == events.length;
+        List<String> wrong = new ArrayList<>();
+        for (int i = 0; delivered && i < events.length; i++) {
+            Object[] ev = events[i];
+            Object[] wantValues = Wire.decodeArgs(Wire.event((String) ev[0], Arrays.copyOfRange(ev, 1, ev.length),
+                NO_UNKNOWN));
+            if (!Arrays.equals(wantValues, took.get(i))) wrong.add(i + ": " + show(took.get(i)));
+        }
+        check("events: delivered after each YIELD with the values of the record, in order",
+            delivered && wrong.isEmpty() && firstLine(o).equals("done") && NativeMachine.live() == live,
+            took.size() + " events taken" + (wrong.isEmpty() ? "" : ", wrong " + wrong) + ", end " + text(o));
+        check("events: each YIELD has no message and its filter: a string, a number (0.30000000000000004), none, \"\", "
+            + "and an overlong string (only terminate)", yields, String.join(", ", filters));
+
+        long[] nanBits = {0x7FF8000000000000L, 0xFFF8000000000000L, 0x7FF0000000000001L, 0xFFFA000000000000L,
+            0xFFFD800000001234L, 0xFFFFFFFFFFFFFFFFL};
+        Object[] nans = new Object[nanBits.length];
+        for (int i = 0; i < nans.length; i++) nans[i] = new RawBits(nanBits[i]);
+        vm = host.create("""
+            local function check(...)
+              local n, ok = select('#', ...), select(1, ...) == "nan"
+              for i = 2, n do
+                local v = select(i, ...)
+                if type(v) ~= "number" or v == v then ok = false end
+              end
+              return tostring(ok) .. " " .. n
+            end
+            error(check(coroutine.yield()), 0)""");
+        vm.resume(null);
+        o = vm.resume(Wire.event("nan", nans, NO_UNKNOWN));
+        check("events: the six NaN patterns of Tier 0 11a arrive as NaN numbers", firstLine(o).equals("true 7")
+            && NativeMachine.live() == live, text(o));
+
+        // 14. The C bounds, pinned to Java's constants.
+        int max = Wire.MAX_EVENT_ARGS;
+        took.clear();
+        vm = host.create("""
+            local function count(...) return select('#', ...) end
+            t.take(count(coroutine.yield()))
+            coroutine.yield()
+            error("not reached", 0)""");
+        vm.resume(null);
+        o = vm.resume(Wire.event("e", new Object[max], NO_UNKNOWN));   // max + 1 values: the name and max nils
+        boolean fit = o.status() == NativeMachine.ST_YIELD && took.size() == 1
+            && Arrays.equals(new Object[]{(double) (max + 1)}, took.get(0));
+        String fitText = text(o) + ", took " + (took.isEmpty() ? "nothing" : show(took.get(0)));
+        o = vm.resume(nils(max + 2));
+        check("events: after a YIELD, MAX_EVENT_ARGS + 1 values arrive; + 2 give INTERNAL \"event has too many "
+                + "values\", freed",
+            fit && o.status() == NativeMachine.ST_INTERNAL && o.message() != null
+                && "event has too many values".equals(o.message().text()) && NativeMachine.live() == live,
+            fitText + "; then " + text(o));
+        took.clear();
+        vm = host.create("""
+            t.take(select('#', ...))
+            error("first", 0)""");
+        o = vm.resume(nils(max));
+        boolean firstFits = firstLine(o).equals("first") && took.size() == 1
+            && Arrays.equals(new Object[]{(double) max}, took.get(0));
+        String firstText = text(o) + ", took " + (took.isEmpty() ? "nothing" : show(took.get(0)));
+        o = host.create("error(\"not reached\", 0)").resume(nils(max + 1));
+        check("events: on the first resume, MAX_EVENT_ARGS values arrive as ...; + 1 give INTERNAL \"event has too "
+                + "many values\", freed",
+            firstFits && o.status() == NativeMachine.ST_INTERNAL && o.message() != null
+                && "event has too many values".equals(o.message().text()) && NativeMachine.live() == live,
+            firstText + "; then " + text(o));
+        took.clear();
+        vm = host.create("""
+            local name, s = coroutine.yield()
+            t.take(name, #s)
+            error("big", 0)""");
+        vm.resume(null);
+        o = vm.resume(Wire.event("e", new Object[]{new byte[Wire.MAX_BYTES - 15]}, NO_UNKNOWN));
+        check("events: after a YIELD, a record of exactly MAX_BYTES (one STRING argument) arrives",
+            firstLine(o).equals("big") && took.size() == 1
+                && Arrays.equals(new Object[]{"e", (double) (Wire.MAX_BYTES - 15)}, took.get(0))
+                && NativeMachine.live() == live,
+            text(o) + ", took " + (took.isEmpty() ? "nothing" : show(took.get(0))));
+
+        // 15. Malformed records: INTERNAL "corrupt event", and the machine is freed (new byte[0]: testStatuses).
+        byte[][] malformed = {bytes(1, 2, 3), bytes(0, 0, 0, 0), record(1, (Object) null), record(1, 1.0),
+            record(1, true), Arrays.copyOf(record(1, "e"), 11), record(3, "e")};
+        String[] names = {"{1, 2, 3}", "n == 0", "a NIL first", "a NUMBER first", "a TRUE first", "a trailing byte",
+            "fewer values than n"};
+        List<String> notCorrupt = new ArrayList<>();
+        for (int i = 0; i < malformed.length; i++) {
+            NativeMachine m = host.create("coroutine.yield()\nerror(\"not reached\", 0)");
+            NativeMachine.Outcome y = m.resume(null);
+            NativeMachine.Outcome r = m.resume(malformed[i]);
+            if (y.status() != NativeMachine.ST_YIELD || r.status() != NativeMachine.ST_INTERNAL || r.message() == null
+                || !"corrupt event".equals(r.message().text()) || r.message().tracebackAt() != -1
+                || NativeMachine.live() != live || !m.stateName().equals("closed")) {
+                notCorrupt.add(names[i] + ": " + text(r));
+            }
+        }
+        NativeMachine first = host.create("error(\"not reached\", 0)");
+        o = first.resume(bytes(1, 2, 3));
+        if (o.status() != NativeMachine.ST_INTERNAL || o.message() == null || !"corrupt event".equals(
+            o.message().text()) || NativeMachine.live() != live) {
+            notCorrupt.add("{1, 2, 3} on the first resume: " + text(o));
+        }
+        check("events: " + (malformed.length + 1) + " malformed records (after a YIELD, and one on the first resume) "
+            + "give INTERNAL \"corrupt event\" and free the machine", notCorrupt.isEmpty(), notCorrupt.toString());
+
+        // 17. 100,000 resumes, each with an event and a string filter.
+        vm = host.create("""
+            local n = 0
+            while true do
+              local name, i = coroutine.yield("tick")
+              if name == "stop" then error("count " .. n, 0) end
+              if i ~= n then error("order " .. n .. " " .. tostring(i), 0) end
+              n = n + 1
+            end""");
+        Wire.Filter tick = new Wire.Filter("tick", false);
+        o = vm.resume(null);
+        int rounds = 100_000;
+        String bad = o.status() == NativeMachine.ST_YIELD && tick.equals(o.filter()) ? null
+            : "first resume: " + text(o) + ", filter " + show(o.filter());
+        for (int i = 0; i < rounds && bad == null; i++) {
+            o = vm.resume(Wire.event("tick", new Object[]{i, "x"}, NO_UNKNOWN));
+            if (o.status() != NativeMachine.ST_YIELD || o.message() != null || !tick.equals(o.filter())) {
+                bad = "resume " + i + ": " + text(o) + ", filter " + show(o.filter());
+            }
+        }
+        if (bad == null) {
+            o = vm.resume(Wire.event("stop", null, NO_UNKNOWN));
+        } else {
+            vm.close();
+        }
+        check("events: 100,000 resumes, each with an event and the filter \"tick\", then the machine ends; LIVE "
+                + "unchanged", bad == null && firstLine(o).equals("count 100000") && NativeMachine.live() == live,
+            bad != null ? bad : text(o) + ", live " + NativeMachine.live());
+    }
+
+    /** A Number whose doubleValue() has exactly these bits. */
+    private static final class RawBits extends Number {
+        private static final long serialVersionUID = 1L;
+        private final long bits;
+
+        RawBits(long bits) {
+            this.bits = bits;
+        }
+
+        @Override
+        public int intValue() {
+            return (int) doubleValue();
+        }
+
+        @Override
+        public long longValue() {
+            return (long) doubleValue();
+        }
+
+        @Override
+        public float floatValue() {
+            return (float) doubleValue();
+        }
+
+        @Override
+        public double doubleValue() {
+            return Double.longBitsToDouble(bits);
+        }
+    }
+
+    /**
+     * A record built by hand, independently of {@link Wire}: {@code u32 n}, then each value: null is NIL, a
+     * {@link Boolean} TRUE or FALSE, a {@link Double} a NUMBER, a {@link Long} a NUMBER with exactly those bits, a
+     * {@link String} (Latin-1) or {@code byte[]} a STRING. n need not match the number of values.
+     */
+    private static byte[] record(int n, Object... values) {
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        putLe(out, n, 4);
+        for (Object v : values) {
+            if (v == null) {
+                out.write(0);
+            } else if (v instanceof Boolean b) {
+                out.write(b ? 2 : 1);
+            } else if (v instanceof Double d) {
+                out.write(3);
+                putLe(out, Double.doubleToRawLongBits(d), 8);
+            } else if (v instanceof Long bits) {
+                out.write(3);
+                putLe(out, bits, 8);
+            } else {
+                byte[] s = v instanceof String str ? str.getBytes(StandardCharsets.ISO_8859_1) : (byte[]) v;
+                out.write(4);
+                putLe(out, s.length, 4);
+                out.writeBytes(s);
+            }
+        }
+        return out.toByteArray();
+    }
+
+    private static void putLe(ByteArrayOutputStream out, long v, int bytes) {
+        for (int i = 0; i < bytes; i++) out.write((int) (v >>> (8 * i)));
+    }
+
+    /** An event record of n values: the name "e", then n - 1 NILs. */
+    private static byte[] nils(int n) {
+        byte[] r = new byte[4 + 6 + (n - 1)];
+        ByteBuffer.wrap(r).order(ByteOrder.LITTLE_ENDIAN).putInt(n).put((byte) 4).putInt(1).put((byte) 'e');
+        return r;
+    }
+
+    /**
+     * The message of the {@link Wire.Dropped} that body throws (kept in {@code into} when that is not null), or what
+     * happened instead.
+     */
+    private static String dropReason(Callable<byte[]> body, AtomicReference<Wire.Dropped> into) {
+        try {
+            return "no drop (" + body.call().length + " bytes)";
+        } catch (Wire.Dropped e) {
+            if (into != null) into.set(e);
+            return e.getMessage();
+        } catch (Exception e) {
+            return "threw " + e;
+        }
+    }
+
+    private static String show(Wire.Filter f) {
+        if (f == null) return "no filter";
+        if (f.onlyTerminate()) return "only terminate";
+        String t = f.text();
+        return t.length() > 40 ? "\"" + esc(t.substring(0, 40)) + "...\" (" + t.length() + " chars)" : "\"" + esc(t)
+            + "\"";
     }
 
     // ---- The fake host ----------------------------------------------------------------------------------------------

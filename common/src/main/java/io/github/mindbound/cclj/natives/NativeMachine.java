@@ -50,8 +50,10 @@ public final class NativeMachine {
      *                           (also for {@link #ST_RETURNED}, where it is empty); null for {@link #ST_YIELD}
      * @param closedWhileRunning {@link #close} was called while this resume ran; the machine is closed and freed
      *                           (not freed after {@link #ST_BUSY})
+     * @param filter             for {@link #ST_YIELD} only: the event filter the bios yielded, or null for none
+     *                           (docs/port-1.21.1/S2.md section 4.1); null for every other status
      */
-    public record Outcome(int status, Wire.Message message, boolean closedWhileRunning) {
+    public record Outcome(int status, Wire.Message message, boolean closedWhileRunning, Wire.Filter filter) {
     }
 
     /** A native call's status and message, as {@link #ended} makes them. */
@@ -135,6 +137,11 @@ public final class NativeMachine {
      * {@link #close} was called meanwhile ({@link Outcome#closedWhileRunning()}). After {@link #ST_BUSY} it is
      * closed but not freed: another call owns the native machine, so freeing it here could free it under that
      * call. The handle is counted and logged as a leak instead.
+     * <p>
+     * After {@link #ST_YIELD} the native message is the filter record, which this reads while it still owns the
+     * machine ({@link Outcome#filter()}). A record that cannot be read (a null array, which the native side gives
+     * when it cannot make one, or a malformed one) turns the outcome into {@link #ST_INTERNAL} with the message
+     * {@code CCLuaJIT: the event filter could not be read (<reason>)}, and the machine is closed and freed.
      *
      * @param event null, or an event record (docs/port-1.21.1/S2.md section 4.1), which the native side copies. A
      *              malformed record gives {@link #ST_INTERNAL} with the message {@code corrupt event}, and one with
@@ -153,13 +160,22 @@ public final class NativeMachine {
         }
         int status = ST_INTERNAL;
         Wire.Message msg = null;
+        Wire.Filter filter = null;
         long toFree = 0, toAbandon = 0;
         boolean closedDuring;
         try {
             status = nResume(h, event);
             if (status == ST_BUSY) {
                 msg = new Wire.Message(BUSY_TEXT, -1);   // the native message is the owner's: not read
-            } else if (status != ST_YIELD) {
+            } else if (status == ST_YIELD) {
+                try {
+                    filter = Wire.filter(nMessage(h));   // read while running is still true; a null array throws too
+                } catch (IllegalStateException e) {
+                    status = ST_INTERNAL;                // the finally then closes and frees the machine
+                    msg = new Wire.Message("CCLuaJIT: the event filter could not be read (" + e.getMessage() + ")",
+                        -1);
+                }
+            } else {
                 Ended e = ended(status, nMessage(h));   // read while running is still true
                 status = e.status();
                 msg = e.message();
@@ -185,7 +201,7 @@ public final class NativeMachine {
             if (toFree != 0) free(toFree);   // outside the lock
             else if (toAbandon != 0) abandon();
         }
-        return new Outcome(status, msg, closedDuring);
+        return new Outcome(status, msg, closedDuring, filter);
     }
 
     /**
