@@ -327,7 +327,7 @@ tasks.register('machineSpecs', JavaExec) {
     description = 'Tier 2: runs LuaJITMachine against the CC:T machine contract, differential against Cobalt ' +
         '(report in build/headless/machineSpecs.tsv).'
     mainClass = 'io.github.mindbound.cclj.headless.MachineSpecs'
-    // Each scenario has its own 10 s watchdog (75 s for the through-Computer cases); this bounds the whole run.
+    // Each scenario has its own 10 s watchdog (120 s for the through-Computer cases); this bounds the whole run.
     timeout = java.time.Duration.ofMinutes(5)
     def report = headlessDir.get().file('machineSpecs.tsv').asFile
     args('--report', report.absolutePath)

@@ -24,7 +24,9 @@ import java.io.InputStream;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -33,13 +35,17 @@ import java.util.concurrent.ConcurrentHashMap;
  * {@link NativeMachine}: a LuaJIT state capped at 64 MiB with one table per API, whose methods call back into
  * {@link #call}, and the bios compiled into a coroutine.
  * <p>
- * S1 runs the bios up to its first yield and reports how it ended. Events (S2), aborts (S6a), tables (S3) and
- * yielding methods (S5) are not implemented yet: an event ends the machine with an error, and a table, a method
- * object or a yielding method gives a Lua error.
+ * It delivers events (S2, docs/port-1.21.1/S2.md section 4.5): {@link #handleEvent} encodes the name and the
+ * arguments with {@link Wire#event} and resumes the bios with them, and keeps the event filter that each YIELD gives.
+ * Aborts (S6a), tables and method objects (S3) and yielding methods (S5) are not implemented yet: in a method result,
+ * a table, a method object or a yielding method gives a Lua error; in an event, a table or a method object becomes
+ * nil, with one WARN per class.
  * <p>
  * Threads: CC:T calls the constructor and {@link #handleEvent} on its worker threads, one call at a time, and
- * {@link #close} from any thread. {@link NativeMachine} keeps the lifecycle; this class keeps no state of its own
- * that could race.
+ * {@link #close} from any thread. {@link NativeMachine} keeps the lifecycle. The one piece of per-machine mutable
+ * state is {@link #filter}: only a {@code handleEvent} writes it, after a YIELD, and the next one reads it, maybe on
+ * another worker, so it is volatile. The static {@code WARNED} and {@code WARNED_EVENTS} sets, which all machines
+ * share, are concurrent sets.
  */
 public final class LuaJITMachine implements ILuaMachine {
     private static final Logger LOG = LoggerFactory.getLogger(LuaJITMachine.class);
@@ -48,12 +54,19 @@ public final class LuaJITMachine implements ILuaMachine {
     static final long MEMORY_LIMIT = 64L << 20;
     /** How much of an error message the WARN log keeps: the error value, and the traceback after it (D7). */
     static final int LOG_MESSAGE_MAX = 1024, LOG_TRACEBACK_MAX = 8192;
-    /** How many classes {@link #unknown} remembers; past this, values of a class not seen yet are not logged. */
+    /**
+     * How many classes {@link #unknown} and {@link #unsupported} each remember; past this, values of a class not seen
+     * yet are not logged.
+     */
     static final int MAX_WARNED = 256;
+    /** How much of an event name the log keeps. Names come from Lua ({@code os.queueEvent}), so they are escaped. */
+    static final int LOG_NAME_MAX = 256;
 
     private static final SecureRandom SECURE = new SecureRandom();
     /** Classes of method results that became nil and were logged, in this JVM (D9: one WARN per class). */
     private static final Set<Class<?>> WARNED = ConcurrentHashMap.newKeySet();
+    /** Classes of event values that became nil and were logged, in this JVM (D28: one WARN per class). */
+    private static final Set<Class<?>> WARNED_EVENTS = ConcurrentHashMap.newKeySet();
 
     /** One API method: function index i of the spec is {@code entries[i]}. */
     private record Entry(Object target, LuaMethod method, String name) {
@@ -62,6 +75,12 @@ public final class LuaJITMachine implements ILuaMachine {
     private final MachineEnvironment env;
     private final Entry[] entries;
     private final NativeMachine vm;
+    /**
+     * The event filter of the last YIELD, or null for none. Written only after a YIELD, by the {@code handleEvent}
+     * that ran the resume; CC:T makes one call at a time, maybe each on another worker: volatile makes the write
+     * visible to the next one.
+     */
+    private volatile Wire.@Nullable Filter filter;
 
     /**
      * Creates the machine: one Lua table per API of {@code environment}, and the bios compiled (not run).
@@ -120,24 +139,49 @@ public final class LuaJITMachine implements ILuaMachine {
     }
 
     /**
-     * S1: {@code eventName == null} resumes the bios (M1.md section 3.12). Any event closes the machine and returns an
-     * error (events come in S2). Log calls are best effort: one that throws changes neither the result nor the close.
+     * Resumes the bios with an event, in Cobalt's order (docs/port-1.21.1/S2.md section 4.5, F24):
+     * <ol>
+     *   <li>a closed machine throws, also for an event the filter would skip;</li>
+     *   <li>an event that the filter of the last YIELD does not pass returns {@code OK}: nothing is converted and
+     *       the bios does not run ({@code "terminate"} always passes);</li>
+     *   <li>the name and the arguments are encoded ({@link Wire#event}). An event with more than
+     *       {@value Wire#MAX_EVENT_ARGS} arguments, one over 16 MiB, or one whose arguments throw while they are read
+     *       is dropped: one WARN, {@code OK}, and the filter stays (D19, D30). A table or a method object becomes
+     *       nil, with one WARN per class (D27, D28);</li>
+     *   <li>the bios resumes with the event; a YIELD sets the filter.</li>
+     * </ol>
+     * {@code eventName == null} resumes the bios with no values and ignores {@code arguments}, as Cobalt does. A
+     * {@link #close} while the arguments are converted (addon code can run there) gives {@code TIMEOUT}, as Cobalt
+     * gives when {@code close()} interrupts it, unless the event is then dropped: a dropped event gives {@code OK}
+     * even then, and the next call throws. Log calls are best effort: one that throws changes neither the result nor
+     * the close.
      *
-     * @throws IllegalStateException if the machine has been closed, or, for {@code eventName == null}, if it is
-     *                               running (which CC:T never does)
+     * @throws IllegalStateException if the machine has been closed, or if it is running (which CC:T never does) and
+     *                               the event is neither skipped by the filter nor dropped
      */
     @Override
     public MachineResult handleEvent(@Nullable String eventName, @Nullable Object @Nullable [] arguments) {
+        byte[] event = null;
         if (eventName != null) {
-            vm.checkOpen();
-            close();
-            return MachineResult.error("CCLuaJIT: events are not implemented yet (S2)");
+            vm.checkOpen();   // closed: throws, also for an event that the filter would skip (F24)
+            Wire.Filter f = filter;
+            if (f != null && !f.passes(eventName)) return MachineResult.OK;   // no conversion, no native call (I9)
+            try {
+                event = Wire.event(eventName, arguments, value -> unsupported(eventName, value));
+            } catch (Throwable t) {
+                // Wire.Dropped, or addon code threw while the arguments were read (D19, D30): the filter stays.
+                dropped(eventName, t);
+                return MachineResult.OK;
+            }
         }
         NativeMachine.Outcome outcome;
         try {
-            outcome = vm.resume(null);
+            outcome = vm.resume(event);
         } catch (IllegalStateException e) {
-            throw e;   // closed, or already running: CC:T's contract (resume throws it for nothing else)
+            // close() after checkOpen, while the arguments were converted: report what Cobalt reports when close()
+            // interrupts it. Anything else (closed without an event, or already running) is CC:T's contract.
+            if (eventName != null && vm.stateName().equals("closed")) return MachineResult.TIMEOUT;
+            throw e;
         } catch (Throwable t) {
             // Out of memory, say, which can leave the machine open (after a YIELD). Close it first, so that neither
             // the log call nor the text below can stop that.
@@ -156,9 +200,13 @@ public final class LuaJITMachine implements ILuaMachine {
         // close() during the resume: report what Cobalt reports when close() interrupts it. The machine is closed:
         // freed, or after ST_BUSY left unfreed and counted as a leak (NativeMachine.resume).
         if (outcome.closedWhileRunning()) return MachineResult.TIMEOUT;
-        // YIELD keeps the machine open: return before anything below allocates. Every other status has closed it,
-        // and freed it except ST_BUSY, after which NativeMachine.resume leaves the handle unfreed as a leak.
-        if (outcome.status() == NativeMachine.ST_YIELD) return MachineResult.OK;
+        // YIELD keeps the machine open: return before anything below allocates (the filter is a reference write).
+        // Every other status has closed it, and freed it except ST_BUSY, after which NativeMachine.resume leaves the
+        // handle unfreed as a leak.
+        if (outcome.status() == NativeMachine.ST_YIELD) {
+            filter = outcome.filter();
+            return MachineResult.OK;
+        }
         if (outcome.status() == NativeMachine.ST_RETURNED) return MachineResult.GENERIC_ERROR;
         Wire.Message message = outcome.message() != null ? outcome.message() : new Wire.Message(Wire.NO_MESSAGE, -1);
         if (outcome.status() == NativeMachine.ST_ERROR) {
@@ -239,6 +287,38 @@ public final class LuaJITMachine implements ILuaMachine {
             } catch (Throwable ignored) {
                 // The value still becomes nil.
             }
+        }
+    }
+
+    /**
+     * An event value that {@link Wire#event} cannot send yet: it becomes nil, with one WARN per class (D27, D28). A
+     * table or a method object comes in S3; any other type stays nil, as in Cobalt. It throws only when CC:T's method
+     * lookup does, for a class not logged yet: the event is then dropped (D30).
+     */
+    private void unsupported(String eventName, Object value) {
+        Class<?> c = value.getClass();
+        // Concurrent machines may pass the size check together, so the set can end a few classes over the limit.
+        if (WARNED_EVENTS.size() >= MAX_WARNED || WARNED_EVENTS.contains(c)) return;
+        boolean s3 = value instanceof Map<?, ?> || value instanceof Collection<?> || value instanceof Object[]
+            || value instanceof ILuaFunction || value instanceof IDynamicLuaObject
+            || env.luaMethods().forEachMethod(value, (target, name, method, info) -> { });
+        if (!WARNED_EVENTS.add(c)) return;   // another machine logged it meanwhile
+        try {
+            LOG.warn(s3 ? "Event {} carries a value of type {}, which becomes nil until S3 (logged once per type)"
+                    : "Event {} carries a value of unknown type {}, which becomes nil (logged once per type)",
+                escape(eventName, LOG_NAME_MAX), c.getName());
+        } catch (Throwable ignored) {
+            // The value still becomes nil.
+        }
+    }
+
+    /** Logs an event that is dropped before the resume (D19, D30). Never throws. */
+    private static void dropped(String eventName, Throwable t) {
+        try {
+            String reason = t instanceof Wire.Dropped ? t.getMessage() : "reading its arguments threw " + describe(t);
+            LOG.warn("Event {} was dropped: {}", escape(eventName, LOG_NAME_MAX), escape(reason, LOG_MESSAGE_MAX));
+        } catch (Throwable ignored) {
+            // The event is dropped either way.
         }
     }
 

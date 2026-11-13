@@ -1,7 +1,9 @@
 package io.github.mindbound.cclj.headless;
 
 import dan200.computercraft.api.lua.IArguments;
+import dan200.computercraft.api.lua.IDynamicLuaObject;
 import dan200.computercraft.api.lua.ILuaAPI;
+import dan200.computercraft.api.lua.ILuaContext;
 import dan200.computercraft.api.lua.ILuaFunction;
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.lua.LuaFunction;
@@ -10,6 +12,8 @@ import dan200.computercraft.core.lua.ILuaMachine;
 import dan200.computercraft.core.lua.MachineResult;
 
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.StringJoiner;
 import java.util.concurrent.CountDownLatch;
@@ -110,6 +114,16 @@ public final class SpecAPI implements ILuaAPI {
         return "re-entry returned " + (r.isError() ? "an error: " + r.getMessage() : "a result");
     }
 
+    /**
+     * As {@link #reenter}, with the named event {@code "x"} (scenario 50): an event that passes the filter reaches
+     * the resume, which must refuse with the same exception.
+     */
+    @LuaFunction
+    public final String reenterEvent() {
+        MachineResult r = machine.handleEvent("x", null);
+        return "re-entry returned " + (r.isError() ? "an error: " + r.getMessage() : "a result");
+    }
+
     /** Does nothing (for the call cost). */
     @LuaFunction
     public final void nop() {
@@ -165,6 +179,114 @@ public final class SpecAPI implements ILuaAPI {
     public static final class Obj {
         @LuaFunction
         public final int one() {
+            return 1;
+        }
+    }
+
+    // ---- Event values of the S2 scenarios (docs/port-1.21.1/S2.md section 6.3). Each class is used by one scenario
+    // only: the WARN sets are JVM-wide, so a class seen before would not be logged again.
+
+    /** Scenario 29: an argument of an event without a name, which is never converted. */
+    static final class EvNullArg {
+    }
+
+    /** Scenario 41: a table in an event. */
+    static final class EvMap extends HashMap<String, Object> {
+    }
+
+    /** Scenario 41: a list in an event. */
+    static final class EvList extends ArrayList<Object> {
+    }
+
+    /** Scenario 42: a value of a type that neither machine knows. */
+    static final class EvUnseen {
+    }
+
+    /** Scenario 40: a value in an event whose name the log must escape and cut. */
+    static final class EvNamed {
+    }
+
+    /** Scenario 43: a dynamic Lua object in an event. */
+    static final class EvDyn implements IDynamicLuaObject {
+        @Override
+        public String[] getMethodNames() {
+            return new String[]{ "one" };
+        }
+
+        @Override
+        public MethodResult callMethod(ILuaContext context, int method, IArguments arguments) {
+            return MethodResult.of(1);
+        }
+    }
+
+    /** Scenario 43: a function in an event. */
+    static final class EvFn implements ILuaFunction {
+        @Override
+        public MethodResult call(IArguments arguments) {
+            return MethodResult.of();
+        }
+    }
+
+    /** Scenario 43: an object with a {@code @LuaFunction} method in an event. Public, so CC:T finds the method. */
+    public static final class EvObj {
+        @LuaFunction
+        public final int one() {
+            return 1;
+        }
+    }
+
+    /** Scenario 40: a number whose conversion throws, as addon code can. */
+    static final class EvBoom extends Number {
+        @Override
+        public int intValue() {
+            return (int) doubleValue();
+        }
+
+        @Override
+        public long longValue() {
+            return (long) doubleValue();
+        }
+
+        @Override
+        public float floatValue() {
+            return (float) doubleValue();
+        }
+
+        @Override
+        public double doubleValue() {
+            throw new RuntimeException("boom");
+        }
+    }
+
+    /**
+     * Scenario 48: a number whose conversion closes the machine, as CC:T's monitor thread can while an event's
+     * arguments are converted.
+     */
+    static final class EvCloser extends Number {
+        private final SpecAPI api;
+
+        EvCloser(SpecAPI api) {
+            this.api = api;
+        }
+
+        @Override
+        public int intValue() {
+            return (int) doubleValue();
+        }
+
+        @Override
+        public long longValue() {
+            return (long) doubleValue();
+        }
+
+        @Override
+        public float floatValue() {
+            return (float) doubleValue();
+        }
+
+        @Override
+        public double doubleValue() {
+            api.machine.close();
             return 1;
         }
     }

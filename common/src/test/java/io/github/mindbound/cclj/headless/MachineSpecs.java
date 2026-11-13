@@ -36,10 +36,14 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.lang.reflect.Proxy;
+import java.math.BigDecimal;
+import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -56,10 +60,13 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiPredicate;
 import java.util.function.Function;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 /**
- * Tier 2 (docs/port-1.21.1/M1.md section 3.15): the CC:T machine contract, for {@link LuaJITMachine}, mostly as a
- * differential against {@link CobaltLuaMachine}. A plain main program, like the other headless runners.
+ * Tier 2 (docs/port-1.21.1/M1.md section 3.15, and docs/port-1.21.1/S2.md section 6.3 for events): the CC:T
+ * machine contract, for {@link LuaJITMachine}, mostly as a differential against {@link CobaltLuaMachine}. A plain
+ * main program, like the other headless runners.
  * <p>
  * <b>Direct environment (Option A).</b> Each scenario builds a {@link MachineEnvironment} by hand: an
  * {@code ILuaContext} whose {@code issueMainThreadTask} throws, {@link MetricsObserver#discard()}, a
@@ -73,9 +80,10 @@ import java.util.regex.Pattern;
  * <p>
  * <b>Through {@code Computer} (Option B).</b> A real {@link ComputerContext} with two computer threads, an empty
  * {@link MemoryMount} as ROM and as root, and a factory that records what the machine does: B1 an error bios, B2 a
- * bios that does not compile (and can be retried), B3 the context closes.
+ * bios that does not compile (and can be retried), B4 three queued events reach the bios in order, B3 the context
+ * closes.
  * <p>
- * Each scenario has a watchdog (10 s; 75 s for Option B), which prints every thread's stack and ends the JVM with
+ * Each scenario has a watchdog (10 s; 120 s for Option B), which prints every thread's stack and ends the JVM with
  * {@code Runtime.halt(2)}: before S6a, a machine cannot be stopped. slf4j-simple writes the log to
  * {@code System.err}, which this class tees, so a scenario can count WARN lines.
  * <pre>
@@ -89,6 +97,47 @@ public final class MachineSpecs {
     static final MethodSupplier<LuaMethod> METHODS = LuaMethodSupplier.create(List.of());
     static final String G1_BIOS = "term.write(\"hi\")\nlocal x = 1\nerror(\"boom\")\n";
     static final Pattern TABLE_NAME = Pattern.compile("^table: [0-9a-f]{8}$");
+    /** What a step shows for the IllegalStateException of a closed machine. */
+    static final String CLOSED = "java.lang.IllegalStateException: Machine has been closed";
+    /**
+     * Scenario 40: how the log shows the event name {@code s2esc}, a newline, then 300 {@code x}: escaped, and cut to
+     * 256 characters (LuaJITMachine.LOG_NAME_MAX), the last three of them {@code ...}.
+     */
+    static final String ESC_NAME = "s2esc\\n" + "x".repeat(246) + "...";
+    /** e-acute, the euro sign, and a char beyond the BMP (a surrogate pair), for the Latin-1 event scenarios. */
+    static final String E_ACUTE = String.valueOf((char) 0xE9), EURO = String.valueOf((char) 0x20AC),
+        GRIN = new String(Character.toChars(0x1F600));
+    /** The bytes 0 to 255 as {@code show} prints them: {@code 0.1.2...255}. */
+    static final String BYTES_0_255 = IntStream.range(0, 256).mapToObj(Integer::toString)
+        .collect(Collectors.joining("."));
+    /**
+     * The Lua helper of the event scenarios (docs/port-1.21.1/S2.md section 6.3): {@code show(...)} gives
+     * {@code select('#', ...)}, then each value: {@code nil}, {@code true} or {@code false},
+     * {@code s<len>[<bytes joined by .>]} for a string and {@code n<tostring(v)>/<tostring(1/v)>} for a number,
+     * all joined by {@code ,}. Event contents reach the comparison through the first line of the final error.
+     */
+    static final String SHOW = """
+        local function show(...)
+          local n = select('#', ...)
+          local t = {tostring(n)}
+          for i = 1, n do
+            local v = select(i, ...)
+            local k = type(v)
+            if k == "string" then
+              local b = {}
+              for j = 1, #v do b[j] = v:byte(j) end
+              t[#t + 1] = "s" .. #v .. "[" .. table.concat(b, ".") .. "]"
+            elseif k == "number" then
+              t[#t + 1] = "n" .. tostring(v) .. "/" .. tostring(1 / v)
+            elseif k == "nil" or k == "boolean" then
+              t[#t + 1] = tostring(v)
+            else
+              t[#t + 1] = k
+            end
+          end
+          return table.concat(t, ",")
+        end
+        """;
 
     private static final ScheduledExecutorService WATCHDOG = Executors.newSingleThreadScheduledExecutor(r -> {
         Thread t = new Thread(r, "machineSpecs-watchdog");
@@ -411,8 +460,10 @@ public final class MachineSpecs {
             r.extra = String.format("%.0f ns per call (100,000 calls, one resume)", r.eventNanos / 1e5);
             return r;
         }, errorLine("done"), null));
-        // 23-28: LuaJITMachine's own branches (S1 step 7: guide findings 1-3 and 7-9, review R3 and R4).
-        l.add(new Scenario("23", "event", true, MachineSpecs::eventScenario, MachineSpecs::eventExpect, null));
+        // 23: an event after a YIELD (S2). In S1 it checked the refusal of events; it is differential now.
+        l.add(new Scenario("23", "event", false, events("error(show(coroutine.yield()), 0)\n", true,
+            x -> x.step("char", new Object[]{"a"})), stepsAre("OK", "error: 2,s4[99.104.97.114],s1[97]"), null));
+        // 24-28: LuaJITMachine's own branches (S1 step 7: guide findings 1-3 and 7-9, review R3 and R4).
         l.add(new Scenario("24", "yields", true, bios("t.pull()\n"),
             errorLine("CCLuaJIT: pull yields; not supported yet (S5)"), null));
         l.add(new Scenario("25", "s3_results", true, bios("local m = {}\n"
@@ -427,33 +478,365 @@ public final class MachineSpecs {
             null));
         l.add(new Scenario("28", "constructor_failures", true, MachineSpecs::constructorFailures,
             MachineSpecs::constructorExpect, null));
+        eventScenarios(l);
         return l;
     }
 
-    /** Scenario 23: an event after a YIELD closes the machine with an error; the next resume throws. */
-    static Run eventScenario(String machine, ILuaMachine.Factory factory) throws Exception {
-        Env e = new Env();
-        Run r = new Run(machine);
-        ILuaMachine m = e.create(factory, "coroutine.yield()\nerror(\"not reached\", 0)\n");
-        try {
-            r.steps.add(e.event(m, r));
-            r.steps.add(e.event(m, r, "char", new Object[]{"a"}));
-            r.noTraceback.add(1);   // not a Lua error: S1 refuses events before any Lua code runs
-            r.steps.add(e.event(m, r));
-        } finally {
-            m.close();
-        }
-        e.finish(r);
-        return r;
+    /** Scenarios 29-49: events (S2, docs/port-1.21.1/S2.md section 6.3). */
+    static void eventScenarios(List<Scenario> l) {
+        l.add(new Scenario("29", "event_loop", false, (machine, factory) -> {
+            ByteBuffer bb = ByteBuffer.wrap(new byte[]{'a', 'b', 'c'});
+            Run r = events("""
+                local r = {}
+                r[1] = show(coroutine.yield("wanted"))
+                r[2] = show(coroutine.yield("wanted"))
+                for i = 3, 8 do r[i] = show(coroutine.yield()) end
+                error(table.concat(r, ";"), 0)
+                """, true, x -> {
+                x.step("ignored", new Object[]{1});                       // filtered
+                x.step("ignored", null);                                  // filtered again: the filter stayed (I9)
+                x.step("wanted", null);
+                x.step("terminate", null);                                // always passes
+                x.step(null, new Object[]{bb, new SpecAPI.EvNullArg()});  // no name: no values, nothing converted
+                x.step("x", null);
+                x.step("x", new Object[0]);
+                x.step("x", new Object[]{null});
+                x.step("x", new Object[]{true, null, null});
+                x.step("x", new Object[]{bb.position()});                 // the position when this step runs
+            }).run(machine, factory);
+            r.warnTag = "EvNullArg";
+            return r;
+        }, both(stepsAre(oks(10, "error: 1,s6[119.97.110.116.101.100];1,s9[116.101.114.109.105.110.97.116.101];0;"
+            + "1,s1[120];1,s1[120];2,s1[120],nil;4,s1[120],true,nil,nil;2,s1[120],n0/inf")),
+            r -> warnings(r.log, "EvNullArg") == 0 ? null : "a WARN names EvNullArg: an event without a name "
+                + "converted its arguments"), null));
+        l.add(new Scenario("30", "number_filters", false, events("""
+            local names = {}
+            for _, v in ipairs({5, 0.1 + 0.2, 1e14, 1e15, 2^53, -0.0, 0/0, 1/0, -1/0, 391.786041259765625}) do
+              names[#names + 1] = coroutine.yield(v)
+            end
+            error(table.concat(names, " "), 0)
+            """, true, x -> {
+            String[][] pairs = {{"5.0", "5"}, {"0.3", "0.30000000000000004"}, {"1e+14", "100000000000000"},
+                {"1000000000000000", "1e+15"}, {"9.007199254741e+15", "9007199254740992"}, {"-0", "0"},
+                {"NaN", "nan"}, {"Infinity", "inf"}, {"-Infinity", "-inf"},
+                {"391.78604125976562", "391.78604125976563"}};   // the last: a 17-digit tie (D34 (c))
+            for (String[] p : pairs) {
+                x.step(p[0], null);   // a near miss: filtered
+                x.step(p[1], null);   // the filter's exact text: delivered
+            }
+        }), stepsAre(oks(20, "error: 5 0.30000000000000004 100000000000000 1e+15 9007199254740992 0 nan inf -inf "
+            + "391.78604125976563")), null));
+        l.add(new Scenario("31", "string_filters", false, events("""
+            local got = {}
+            got[#got + 1] = coroutine.yield("")
+            got[#got + 1] = coroutine.yield(true, "x")
+            got[#got + 1] = coroutine.yield(nil, "x")
+            got[#got + 1] = coroutine.yield({})
+            got[#got + 1] = coroutine.yield("\\233")
+            got[#got + 1] = coroutine.yield("?")
+            got[#got + 1] = coroutine.yield("Key")
+            error(table.concat(got, "|"), 0)
+            """, true, x -> {
+            x.step("x", null);       // filtered by ""
+            x.step("", null);
+            x.step("y", null);       // after yield(true, "x"): no filter
+            x.step("y", null);       // after yield(nil, "x")
+            x.step("y", null);       // after yield({})
+            x.step(EURO, null);      // filtered by "\233"
+            x.step(E_ACUTE, null);
+            x.step(EURO, null);      // filtered by "?": the Java strings are compared (F24)
+            x.step("?", null);
+            x.step("key", null);     // filtered by "Key"
+            x.step("Key", null);
+        }), stepsAre(oks(11, "error: |y|y|y|" + E_ACUTE + "|?|Key")), null));
+        l.add(new Scenario("32", "long_filter", false, events("""
+            local n = coroutine.yield(string.rep("f", 65531))
+            error(#n .. ":" .. n:sub(1, 9), 0)
+            """, true, x -> {
+            x.step("x", null);
+            x.step("f".repeat(65531), null);
+        }), stepsAre("OK", "OK", "error: 65531:fffffffff"), null));
+        l.add(new Scenario("33", "long_filter_over", true, events("""
+            local n = coroutine.yield(string.rep("f", 65532))
+            error(#n .. ":" .. n:sub(1, 9), 0)
+            """, true, x -> {
+            x.step("f".repeat(65532), null);   // only terminate passes a filter over 65,531 bytes (D26)
+            x.step("terminate", null);
+        }), stepsAre("OK", "OK", "error: 9:terminate"), null));
+        l.add(new Scenario("34", "numbers", false, events("""
+            local s = show(coroutine.yield())
+            error(s .. "|" .. tostring(1 / t.echo(-0.0)), 0)
+            """, true, x -> x.step("nums", new Object[]{-0.0, 0.0, Double.NaN, Double.POSITIVE_INFINITY,
+            Double.NEGATIVE_INFINITY, 0.5, 9007199254740992.0, 7, 3000000000L, 0.1f, 391.78604f, (short) 1,
+            (byte) -1, new BigDecimal("1.5"), new AtomicInteger(3)})),
+            // -0.0 arrives as 0 (D29), so 1/x is inf; the float 391.78604f is the 17-digit tie 391.786041259765625
+            // (D34 (c)); the method result -0.0 arrives as 0 too.
+            stepsAre("OK", "error: 16,s4[110.117.109.115],n0/inf,n0/inf,nnan/nan,ninf/0,n-inf/0,n0.5/2,"
+                + "n9007199254740992/1.1102230246251565e-16,n7/0.14285714285714285,n3000000000/3.3333333333333332e-10,"
+                + "n0.10000000149011612/9.99999985098839,n391.78604125976563/0.0025524135489476785,n1/1,n-1/-1,"
+                + "n1.5/0.66666666666666663,n3/0.33333333333333331|inf"), null));
+        l.add(new Scenario("35", "latin1_events", false, events("error(show(coroutine.yield()), 0)\n", true,
+            x -> x.step(E_ACUTE + "v" + EURO, new Object[]{E_ACUTE + EURO + GRIN, allBytes(), new byte[0], ""})),
+            stepsAre("OK", "error: 5,s3[233.118.63],s4[233.63.63.63],s256[" + BYTES_0_255 + "],s0[],s0[]"), null));
+        l.add(new Scenario("36", "bytebuffer", false, (machine, factory) -> {
+            ByteBuffer bb = ByteBuffer.wrap(new byte[]{'a', 'b', 'c'});
+            ByteBuffer direct = ByteBuffer.allocateDirect(4).put(new byte[]{'w', 'x', 'y', 'z'}).flip().position(1);
+            return events("""
+                local a = show(coroutine.yield("p"))
+                local b = show(coroutine.yield())
+                error(a .. ";" .. b, 0)
+                """, true, x -> {
+                x.step("q", new Object[]{bb});   // filtered: nothing is read
+                int afterQ = bb.position();
+                x.step("p", new Object[]{bb, bb, direct});
+                x.step("pos", new Object[]{afterQ, bb.position(), direct.position()});
+            }).run(machine, factory);
+        }, stepsAre("OK", "OK", "OK", "error: 4,s1[112],s3[97.98.99],s0[],s3[120.121.122];4,s3[112.111.115],n0/inf,"
+            + "n3/0.33333333333333331,n4/0.25"), null));
+        l.add(new Scenario("37", "args_7998", false, events("""
+            local function last(...)
+              local n = select('#', ...)
+              return n .. ":" .. tostring((select(n, ...)))
+            end
+            error(last(coroutine.yield()), 0)
+            """, true, x -> x.step("big", ints(7998))), stepsAre("OK", "error: 7999:7998"), null));
+        l.add(new Scenario("38", "args_7999", true, (machine, factory) -> {
+            Run r = events("""
+                local seen = {}
+                while true do
+                  local n = select('#', coroutine.yield("s2big"))
+                  seen[#seen + 1] = n
+                  if n > 2 then error(table.concat(seen, ","), 0) end
+                end
+                """, true, x -> {
+                x.step("s2big", ints(7999));     // dropped: more than 7,998 arguments (D19)
+                x.step("other", null);           // filtered: the drop kept the filter
+                x.step("s2big", new Object[]{1});
+                x.step("s2big", ints(7998));
+            }).run(machine, factory);
+            r.warnTag = "s2big";
+            return r;
+        }, both(stepsAre("OK", "OK", "OK", "OK", "error: 2,7999"),
+            logCount("WARN", 1, "Event s2big was dropped: it has 7999 arguments, and at most 7998 fit")), null));
+        l.add(new Scenario("39", "too_large", true, (machine, factory) -> {
+            Run r = events("error(show(coroutine.yield()), 0)\n", true, x -> {
+                x.step("s2huge", new Object[]{new byte[16 << 20]});   // dropped: over 16 MiB (D30)
+                x.step("s2huge", new Object[]{"ok"});
+            }).run(machine, factory);
+            r.warnTag = "s2huge";
+            return r;
+        }, both(stepsAre("OK", "OK", "error: 2,s6[115.50.104.117.103.101],s2[111.107]"),
+            logCount("WARN", 1, "Event s2huge was dropped: its record is over 16 MiB")), null));
+        l.add(new Scenario("40", "conversion_throws", true, (machine, factory) -> {
+            Run r = events("error(show(coroutine.yield()), 0)\n", true, x -> {
+                x.step("s2throw", new Object[]{new SpecAPI.EvBoom()});   // dropped: reading it threw (D30)
+                // A name from Lua: both WARN lines escape it and cut it to LOG_NAME_MAX (S2.md section 4.5). EvNamed
+                // gives the WARN of unsupported(), then EvBoom throws and dropped() logs.
+                x.step("s2esc\n" + "x".repeat(300), new Object[]{new SpecAPI.EvNamed(), new SpecAPI.EvBoom()});
+                x.step("s2throw", null);
+            }).run(machine, factory);
+            r.warnTag = "s2throw";
+            return r;
+        }, both(stepsAre("OK", "OK", "OK", "error: 1,s7[115.50.116.104.114.111.119]"),
+            both(logCount("WARN", 1, "Event s2throw was dropped: reading its arguments threw", "boom"),
+                both(logCount("WARN", 1, "Event " + ESC_NAME + " was dropped: reading its arguments threw", "boom"),
+                    logCount("WARN", 1, "Event " + ESC_NAME + " carries a value of unknown type", "SpecAPI$EvNamed")))),
+            null));
+        l.add(new Scenario("41", "tables_in_events", true, (machine, factory) -> {
+            Run r = events("error(show(coroutine.yield()), 0)\n", true, x -> x.step("t", new Object[]{
+                new SpecAPI.EvMap(), new SpecAPI.EvMap(), new SpecAPI.EvList(), new Integer[]{1},
+                Collections.emptyMap()})).run(machine, factory);
+            r.warnTag = "Event t carries";
+            return r;
+        }, both(stepsAre("OK", "error: 6,s1[116],nil,nil,nil,nil,nil"), r -> {
+            // One WARN per class (D28): EvMap, EvList, Integer[] and Collections$EmptyMap.
+            for (String c : List.of("SpecAPI$EvMap", "SpecAPI$EvList", "[Ljava.lang.Integer;", "$EmptyMap")) {
+                if (logLines(r.log, "WARN", "Event t carries", "until S3", c) != 1) return "no single WARN for " + c;
+            }
+            return logLines(r.log, "WARN", "Event t carries") == 4 ? null : "expected 4 WARN lines, got "
+                + logLines(r.log, "WARN", "Event t carries");
+        }), null));
+        l.add(new Scenario("42", "unknown_in_events", false, (machine, factory) -> {
+            // SpecAPI.Weird was logged as a method result in scenario 11: events have a WARN set of their own (D28).
+            Run r = events("error(show(coroutine.yield()), 0)\n", true, x -> x.step("u", new Object[]{
+                new SpecAPI.EvUnseen(), new SpecAPI.EvUnseen(), new SpecAPI.Weird()})).run(machine, factory);
+            r.warnTag = "EvUnseen";
+            return r;
+        }, both(stepsAre("OK", "error: 4,s1[117],nil,nil,nil"), both(logCount("WARN", 1, "EvUnseen", "unknown type"),
+            logCount("WARN", 1, "Event u carries a value of unknown type", "SpecAPI$Weird"))), null));
+        l.add(new Scenario("43", "method_objects_in_events", true, (machine, factory) -> {
+            Run r = events("error(show(coroutine.yield()), 0)\n", true, x -> x.step("m", new Object[]{
+                new SpecAPI.EvFn(), new SpecAPI.EvObj(), new SpecAPI.EvDyn()})).run(machine, factory);
+            r.warnTag = "Event m carries";
+            return r;
+        }, both(stepsAre("OK", "error: 4,s1[109],nil,nil,nil"), both(logCount("WARN", 1, "SpecAPI$EvFn", "until S3"),
+            both(logCount("WARN", 1, "SpecAPI$EvObj", "until S3"), logCount("WARN", 1, "SpecAPI$EvDyn", "until S3")))),
+            null));
+        l.add(new Scenario("44", "closed", false, events("coroutine.yield(\"only\")\nerror(\"not reached\", 0)\n", true,
+            x -> {
+                x.m.close();
+                x.step("other", null);   // closed first, before the filter (F24)
+                x.step("only", null);
+            }), stepsAre("OK", "throws: " + CLOSED, "throws: " + CLOSED), null));
+        l.add(new Scenario("45", "first_resume_event", false, events("error(show(...), 0)\n", false,
+            x -> x.step("boot", new Object[]{1, null})), stepsAre("error: 3,s4[98.111.111.116],n1/1,nil"), null));
+        l.add(new Scenario("46", "push_oom", true, (machine, factory) -> {
+            Run r = events("""
+                local keep = {}
+                for i = 1, 1000 do keep[i] = false end
+                for i = 1, 1000 do
+                  local ok, s = pcall(string.rep, string.char(65 + i % 26, 65 + math.floor(i / 26) % 26), 524288)
+                  if not ok then break end
+                  keep[i] = s
+                end
+                local name = coroutine.yield()
+                error("not reached: " .. tostring(name) .. " " .. #keep, 0)
+                """, true, x -> x.step("big", new Object[]{new byte[4 << 20]})).run(machine, factory);
+            r.noTraceback.add(1);   // the push of the 4 MiB string fails in C, before any Lua code runs
+            return r;
+        }, stepsAre("OK", "error: not enough memory"), null));
+        l.add(new Scenario("47", "first_resume_too_many", true, (machine, factory) -> {
+            Run r = events("error(\"not reached\", 0)\n", false, x -> x.step("big", ints(7998))).run(machine, factory);
+            r.noTraceback.add(0);   // refused by C before any Lua code runs (D32)
+            return r;
+        }, both(stepsAre("error: CCLuaJIT internal error: event has too many values"),
+            r -> logLines(r.log, "ERROR") == 1 && logLines(r.log, "ERROR", "event has too many values") == 1 ? null
+                : "expected exactly 1 ERROR line, about the event, got " + logLines(r.log, "ERROR")), null));
+        l.add(new Scenario("48", "close_in_conversion", false, events("while true do coroutine.yield() end\n", true,
+            x -> {
+                x.step("x", new Object[]{new SpecAPI.EvCloser(x.e.api)});   // closes the machine while converted
+                x.step("x", null);
+                x.step(null, null);
+            }), stepsAre("OK", "TIMEOUT", "throws: " + CLOSED, "throws: " + CLOSED), null));
+        l.add(new Scenario("49", "format_ties", false, bios("""
+            local out = {}
+            for _, v in ipairs({0.5, 2.5, -2.5, 0.125, 4732.625, 696405}) do
+              out[#out + 1] = string.format("%.0f %.1f %.2f %.3e %.5g %g", v, v, v, v, v, v)
+            end
+            local t = 391.786041259765625
+            out[#out + 1] = string.format("%.17g %s", t, t)
+            out[#out + 1] = string.format("%.0f %.3f %f", 1e-160, -1e-200, 2^-1074)
+            error(table.concat(out, "|"), 0)
+            """), errorLine("1 0.5 0.50 5.000e-01 0.5 0.5|3 2.5 2.50 2.500e+00 2.5 2.5|-3 -2.5 -2.50 -2.500e+00 -2.5 "
+            + "-2.5|0 0.1 0.13 1.250e-01 0.125 0.125|4733 4732.6 4732.63 4.733e+03 4732.6 4732.63|696405 696405.0 "
+            + "696405.00 6.964e+05 6.9641e+05 696405|391.78604125976563 391.78604125976563|0 -0.000 0.000000"), null));
+        // As scenario 20, with a named event: one that passes the filter reaches the resume, which refuses it. Only a
+        // close() turns an IllegalStateException into TIMEOUT (S2.md section 4.5). LuaJIT only, as scenario 20.
+        l.add(new Scenario("50", "reentry_event", true, bios("t.reenterEvent()\n"),
+            errorLine("Java Exception Thrown: java.lang.IllegalStateException: Machine is already running"), null));
     }
 
-    static String eventExpect(Run r) {
-        if (r.exception != null) return "MachineException: " + esc(r.exception);
-        List<String> want = List.of("OK", "error: CCLuaJIT: events are not implemented yet (S2)",
-            "throws: java.lang.IllegalStateException: Machine has been closed");
-        List<String> got = new ArrayList<>();
-        for (Step s : r.steps) got.add(s.message() == null ? s.kind() : s.kind() + ": " + s.message());
-        return got.equals(want) ? null : "expected " + want + ", got " + got;
+    /** The machine of an event scenario: one {@code handleEvent} per {@link #step}, each recorded in the run. */
+    static final class EventRun {
+        final Env e;
+        final Run r;
+        final ILuaMachine m;
+
+        EventRun(Env e, Run r, ILuaMachine m) {
+            this.e = e;
+            this.r = r;
+            this.m = m;
+        }
+
+        /** {@code handleEvent(name, args)}; {@code args} may be null. */
+        Step step(String name, Object[] args) {
+            Step s = e.event(m, r, name, args);
+            r.steps.add(s);
+            return s;
+        }
+    }
+
+    /** The steps of an event scenario. */
+    @FunctionalInterface
+    interface Steps {
+        void run(EventRun x) throws Exception;
+    }
+
+    /**
+     * An event scenario (S2.md section 6.3): the machine runs {@link #SHOW} and then {@code bios}; with
+     * {@code boot}, the first call is {@code handleEvent(null, null)}, as CC:T makes it (F23); then {@code steps};
+     * then the machine is closed.
+     */
+    static Body events(String bios, boolean boot, Steps steps) {
+        return (machine, factory) -> {
+            Env e = new Env();
+            Run r = new Run(machine);
+            ILuaMachine m;
+            try {
+                m = e.create(factory, SHOW + bios);
+            } catch (MachineException x) {
+                r.exception = x.getMessage();
+                e.finish(r);
+                return r;
+            }
+            try {
+                EventRun x = new EventRun(e, r, m);
+                if (boot) x.step(null, null);
+                steps.run(x);
+            } finally {
+                m.close();
+            }
+            e.finish(r);
+            return r;
+        };
+    }
+
+    /**
+     * The steps are exactly {@code want}, each a kind ({@code OK}, {@code TIMEOUT}, ...) or {@code <kind>: <the first
+     * line of its message>} ({@code error: ...}, {@code throws: ...}).
+     */
+    static Function<Run, String> stepsAre(String... want) {
+        return r -> {
+            if (r.exception != null) return "MachineException: " + esc(r.exception);
+            List<String> got = new ArrayList<>();
+            for (Step s : r.steps) got.add(s.message() == null ? s.kind() : s.kind() + ": " + s.line(0));
+            return got.equals(List.of(want)) ? null : "expected [" + esc(String.join(" ; ", want)) + "], got ["
+                + esc(String.join(" ; ", got)) + "]";
+        };
+    }
+
+    /** {@code n} times {@code OK}, then {@code then}. */
+    static String[] oks(int n, String... then) {
+        String[] a = new String[n + then.length];
+        Arrays.fill(a, 0, n, "OK");
+        System.arraycopy(then, 0, a, n, then.length);
+        return a;
+    }
+
+    /** The {@link Integer}s 1 to n. */
+    static Object[] ints(int n) {
+        Object[] a = new Object[n];
+        for (int i = 0; i < n; i++) a[i] = i + 1;
+        return a;
+    }
+
+    /** The bytes 0 to 255. */
+    static byte[] allBytes() {
+        byte[] b = new byte[256];
+        for (int i = 0; i < 256; i++) b[i] = (byte) i;
+        return b;
+    }
+
+    /** The lines of {@code log} at {@code level} ({@code WARN}, {@code ERROR}) that contain each of {@code parts}. */
+    static int logLines(String log, String level, String... parts) {
+        int n = 0;
+        for (String line : log.split("\n")) {
+            if (!line.contains(" " + level + " ")) continue;
+            boolean all = true;
+            for (String p : parts) all &= line.contains(p);
+            if (all) n++;
+        }
+        return n;
+    }
+
+    /** Exactly {@code n} lines at {@code level} contain every one of {@code parts}. */
+    static Function<Run, String> logCount(String level, int n, String... parts) {
+        return r -> {
+            int got = logLines(r.log, level, parts);
+            return got == n ? null : "expected " + n + " " + level + " line(s) with " + String.join(" and ", parts)
+                + ", got " + got;
+        };
     }
 
     /**
@@ -885,9 +1268,9 @@ public final class MachineSpecs {
     }
 
     static void optionB(ILuaMachine.Factory luajit) throws Exception {
-        // Above the worst case of the waits below (3 drives of at most 20 s, and 2 s in B3), so that a condition that
+        // Above the worst case of the waits below (5 drives of at most 20 s, and 2 s in B3), so that a condition that
         // is never met is reported as a FAIL of its check, not as a halt.
-        ScheduledFuture<?> dog = watchdog("Option B", 75);
+        ScheduledFuture<?> dog = watchdog("Option B", 120);
         AtomicReference<String> bios = new AtomicReference<>(G1_BIOS);
         AtomicReference<Recorder> current = new AtomicReference<>(new Recorder());
         GlobalEnvironment global = new GlobalEnvironment() {
@@ -933,6 +1316,7 @@ public final class MachineSpecs {
             }
         };
         MainThread mainThread = new MainThread();
+        Computer computer4;
         ComputerContext ctx = ComputerContext.builder(global).computerThreads(2).mainThreadScheduler(mainThread)
             .luaFactory(recording(luajit, current)).disableHttp().build();
         try {
@@ -986,12 +1370,45 @@ public final class MachineSpecs {
             optionResult("B2", "syntax error, retried", p, "factory called " + rec2.creates.get()
                 + " time(s); line 1 '" + esc(first) + "', then '" + esc(second) + "'");
 
+            // B4: events queued through Computer reach the bios in order (S2), one per work unit (F32).
+            Recorder rec4 = new Recorder();
+            current.set(rec4);
+            bios.set(SHOW + "local a = show(coroutine.yield()) local b = show(coroutine.yield()) "
+                + "local c = show(coroutine.yield()) error(a .. \";\" .. b .. \";\" .. c, 0)\n");
+            Terminal term4 = new Terminal(51, 19, false);
+            computer4 = new Computer(ctx, computerEnv, term4, 2);
+            computer4.turnOn();
+            drive(computer4, mainThread, () -> !rec4.results.isEmpty());   // the first OK: the computer is on
+            computer4.queueEvent("char", new Object[]{"a"});
+            computer4.queueEvent("char", new Object[]{new byte[]{97}});
+            computer4.queueEvent("redstone", null);
+            drive(computer4, mainThread, () -> rec4.results.stream().anyMatch(MachineResult::isError)
+                && rec4.closes.get() >= 1);
+            List<String> kinds = new ArrayList<>();
+            for (MachineResult res : rec4.results) kinds.add(step(res).kind());
+            Step last = rec4.results.isEmpty() ? new Step("none", null)
+                : step(rec4.results.get(rec4.results.size() - 1));
+            p = new ArrayList<>();
+            if (!kinds.equals(List.of("OK", "OK", "OK", "error"))) p.add("results " + kinds);
+            if (!last.line(0).equals("2,s4[99.104.97.114],s1[97];2,s4[99.104.97.114],s1[97];"
+                + "1,s8[114.101.100.115.116.111.110.101]") || !last.line(1).equals("stack traceback:")) {
+                p.add("last result " + last.show());
+            }
+            if (!term4.getLine(0).toString().startsWith("Error running computer")) {
+                p.add("terminal line 0 '" + esc(term4.getLine(0).toString().stripTrailing()) + "'");
+            }
+            if (rec4.closes.get() < 1) p.add("close() was not called");
+            optionResult("B4", "queued events", p, "results " + kinds + ", last " + last.show() + "; close() called "
+                + rec4.closes.get() + " time(s)");
+
             // B3: the context closes in time.
             computer.shutdown();
             computer2.shutdown();
-            for (int i = 0; i < 20 && (computer.isOn() || computer2.isOn()); i++) {
+            computer4.shutdown();
+            for (int i = 0; i < 20 && (computer.isOn() || computer2.isOn() || computer4.isOn()); i++) {
                 computer.tick();
                 computer2.tick();
+                computer4.tick();
                 Thread.sleep(50);
             }
             boolean closed = ctx.close(1, TimeUnit.SECONDS);
