@@ -179,10 +179,10 @@ public final class NativeMachine {
                 Ended e = ended(status, nMessage(h));   // read while running is still true
                 status = e.status();
                 msg = e.message();
-                // nResume's own failures (copy_array, GetObjectClass, GetMethodID, or an exception left pending:
-                // jni_machine.c) leave the message as it was: empty after nLoad or a YIELD with no filter, and the
-                // filter record after a YIELD with a filter. A filter record starts with 0x04 or 0x01, and every C
-                // INTERNAL text starts with a letter (docs/port-1.21.1/S2.md section 4.5).
+                // nResume's failures before cm_resume (copy_array, GetObjectClass, GetMethodID: jni_machine.c) leave
+                // the message as it was: empty after nLoad or a YIELD with no filter, and the filter record after a
+                // YIELD with a filter. A filter record starts with 0x04 or 0x01, and every C INTERNAL text starts with
+                // a letter (docs/port-1.21.1/S2.md section 4.5).
                 if (status == ST_INTERNAL && (msg.text().isEmpty() || msg.text().charAt(0) < 0x20)) {
                     msg = new Wire.Message("CCLuaJIT: the machine could not be resumed (status " + status + ")", -1);
                 }

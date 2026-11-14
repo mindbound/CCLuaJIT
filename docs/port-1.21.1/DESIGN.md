@@ -62,7 +62,7 @@
   | 02 | errors raised from hooks skip `xpcall` handlers | done, tested |
   | 03 | every loader refuses bytecode | done, tested |
   | 04 | NUL bytes in patterns | done, tested |
-  | 05 | `%.15g` / `%.17g` round-trip number formatting | done, tested; costs `tostring(float)` 2.6x (§PLAN 2) |
+  | 05 | `%.15g` / `%.17g` round-trip number formatting. Every exact decimal tie rounds half up, `string.format` included, as Cobalt does ([S2.md](S2.md) D34 (c)), and the `%f` digit limit that upstream turned off is back (S2.md D35) | done, tested; costs `tostring(float)` 2.6x (§PLAN 2) |
   | 06 | `goto` usable as an identifier | done, tested |
   | 07 | interruptible pattern matching and `table.sort`; linear-time plain `find` | done, tested |
   | 08 | C-stack guard: `luaJIT_setcstacklimit()`, catchable "C stack overflow" | done, tested |
@@ -229,7 +229,7 @@ The prototype is `artifacts/pause-prototype/cclj_co.c`. It was tested on Windows
 
 ### 4.3 Conversions
 - **Strings:** Latin-1, mapping bytes 0–255 1:1 to chars 0–255 (`'?'` for chars > 255 going Java→Lua). `byte[]` is copied verbatim. A `ByteBuffer` copies `remaining()` bytes from `position` into the wire `byte[]`, in Java, for heap buffers and for the direct buffers that fs reads use alike, and advances the position, as Cobalt does (M1.md D1).
-- **Numbers:** `Double` in both directions. `Map`/`Collection`/`Object[]`/method objects follow the rules below.
+- **Numbers:** `Double` in both directions. −0.0 goes to Lua as +0.0, as Cobalt sends it ([S2.md](S2.md) D29). `Map`/`Collection`/`Object[]`/method objects follow the rules below.
 - **Lua→Java:** iterative and identity-preserving, so cyclic tables work. It is raw-only (`lua_rawget`/`lua_next`, never metamethods). Each call has a budget of `max_conversion_values` nodes (default 1,000,000), which the phase-1 C snapshot (below) counts. S3 decides how a call past the budget fails: with a Lua error in phase 1, before Java runs, or with a mark in the snapshot that the lazy Java decoder turns into `LuaException("table too large to convert")` when the method reads that argument, which the `IArguments` contract allows. Without a budget, 256 queued events × a big table can exhaust `-Xmx`.
 - **Java→Lua:** iterative, with depth ≥ 512 (Minecraft NBT depth). The memory cap bounds the size under protection. A Java `Map` with a `null` or NaN key raises a normal Lua error in a method or callback result (it used to be a JVM-killer); in an event, which has no Lua caller, that entry is dropped with a WARN (M1.md S3). A value of an unknown Java type becomes nil plus a log line (one WARN per class), in method results, callback results and events alike, as in Cobalt and as core-api's `MethodResult` javadoc promises (M1.md F8, D9).
 - **`IArguments`:** an eager, budgeted C snapshot of the arguments in the request `byte[]` (phase 1 of the host call), decoded lazily in Java, like CC:T's `VarargArguments`, so a table is decoded only when `get`/`getTable`/`escapes` asks for it. Java makes no downcalls into the native state during the upcall, so the JNI phase rule (§3.4) holds with no exceptions (M1.md D1, D10).
@@ -252,7 +252,7 @@ CC:T relies on Java GC to clean up after programs that forget `close()`. `FileSy
   - a forced handle reuse errors cleanly.
 
 ### 4.5 `MachineResult` mapping
-- `OK` with the event filter: the first yielded value if it is a string or a number, kept in its string form, as Cobalt's `isString()` does (M1.md F9);
+- `OK` with the event filter: the first yielded value if it is a string or a number, kept in its string form, as Cobalt's `isString()` does (M1.md F9). A filter longer than 65,531 bytes lets only `terminate` pass ([S2.md](S2.md) D26);
 - `PAUSE` (§3.3; keep the filter; the next call is `handleEvent(null, null)`);
 - `TIMEOUT` after a hard abort;
 - `error(msg)`;

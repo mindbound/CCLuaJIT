@@ -6,7 +6,7 @@ The S2 gate ([S2.md](../S2.md) §8.3) asks for seven things on one commit. This 
 
 The logs are not in the repository. That is this report's choice, not D33's: D33 sets what the report holds and says nothing about logs, and S1 kept its logs in `artifacts/g1/`. The CI job logs and artifacts are on the run's page, and the local results are below.
 
-Item 7, your sign-off of the review in §8.4, is open.
+Item 7: you signed off the review in §8.4 on 2026-11-14, with no findings. So the S2 gate passed.
 
 ## Summary
 
@@ -18,7 +18,7 @@ Item 7, your sign-off of the review in §8.4, is open.
 | 4 | Tier 2 passes with zero scan hits in `mod`, `headless-windows-x86_64`, and on Windows 11, Alma 8 and Ubuntu 26.04. No differential event scenario has an allow-list note | Met. 62 passed, 0 failed, live 0, leaked 0, and a clean scan in all five. The 5 allowed differences are S1's scenarios 7, 10, 12c, 12d and 13. No event scenario has an allow-list entry (§4). |
 | 5 | D33: one `CCLJ_DEBUG=1` run of Tier 1 and Tier 2 on Windows and on Alma 8 | Met. 125 of 125 and 62 passed with the debug library on both, scan-clean (§5). |
 | 6 | CI: one green run on the commit; its `nativeProbe`, `headlessSmoke` and `headlessSuite` are scan-clean (no G0 regression) | Met. Run 43387252021. In `mod`: `nativeProbe: OK`, and `headlessSuite` on Cobalt 1390 pass, 5 error, 12 pending of 1407, the 5 errors expected (HTTP off). All three tasks: `JNI scan clean, exit code 0` (§6). |
-| 7 | You sign off the review in §8.4 | Open. |
+| 7 | You sign off the review in §8.4 | Met. You signed off the review on 2026-11-14, with no findings. |
 
 ## Environments
 
